@@ -1,0 +1,262 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useInvitation, useUpdateInvitation } from '@/hooks/queries/use-invitations';
+import { useInvitationStore } from '@/stores/invitation-store';
+import { useUIStore } from '@/stores/ui-store';
+import { useTemplates } from '@/hooks/queries/use-templates';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { STEPPER_LABELS } from '@/lib/constants';
+import { EVENT_TYPE_LABELS } from '@invitee/shared';
+import { cn } from '@/lib/utils';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  Trash2,
+  Check,
+  Star,
+  Save,
+} from 'lucide-react';
+
+export default function EditInvitationPage() {
+  const params = useParams();
+  const router = useRouter();
+  const id = params.id as string;
+  const { data: invitation, isLoading } = useInvitation(id);
+  const updateInvitation = useUpdateInvitation();
+  const { addToast } = useUIStore();
+  const { data: templatesData } = useTemplates({ limit: 50 });
+  const templates = templatesData?.data || [];
+
+  const {
+    draft,
+    currentStep,
+    setField,
+    setDraft,
+    nextStep,
+    prevStep,
+    goToStep,
+    loadFromExisting,
+  } = useInvitationStore();
+
+  useEffect(() => {
+    if (invitation) {
+      loadFromExisting(invitation);
+    }
+  }, [invitation]);
+
+  const handleSubmit = async () => {
+    try {
+      const payload = {
+        title: draft.title,
+        slug: draft.slug,
+        eventType: draft.eventType,
+        openingText: draft.openingText || undefined,
+        closingText: draft.closingText || undefined,
+        musicUrl: draft.musicUrl || undefined,
+        events: draft.events.filter((e) => e.eventName && e.eventDate),
+        personProfiles: draft.personProfiles.filter((p) => p.fullName),
+        giftAccounts: draft.giftAccounts.filter((g) => g.bankName && g.accountNumber),
+        coInvitors: draft.coInvitors.filter((c) => c.name),
+        templateId: draft.templateId || undefined,
+      };
+      await updateInvitation.mutateAsync({ id, payload });
+      addToast('Undangan berhasil diperbarui!', 'success');
+      router.push('/dashboard');
+    } catch (error: any) {
+      addToast(error.response?.data?.message || 'Gagal memperbarui undangan', 'error');
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-96 w-full" />
+      </div>
+    );
+  }
+
+  const eventTypeOptions = Object.entries(EVENT_TYPE_LABELS).map(([value, label]) => ({
+    value,
+    label,
+  }));
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Edit Undangan</h1>
+          <p className="text-gray-500 mt-1">{draft.title || 'Loading...'}</p>
+        </div>
+        <Button onClick={handleSubmit} loading={updateInvitation.isPending}>
+          <Save className="w-4 h-4 mr-2" />
+          Simpan
+        </Button>
+      </div>
+
+      {/* Stepper */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2">
+        {STEPPER_LABELS.map((label, index) => (
+          <button
+            key={label}
+            onClick={() => goToStep(index)}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
+              index === currentStep
+                ? 'bg-primary-600 text-white'
+                : index < currentStep
+                  ? 'bg-primary-50 text-primary-700'
+                  : 'bg-gray-100 text-gray-500',
+            )}
+          >
+            <span
+              className={cn(
+                'w-6 h-6 rounded-full flex items-center justify-center text-xs',
+                index === currentStep
+                  ? 'bg-white text-primary-600'
+                  : index < currentStep
+                    ? 'bg-primary-200 text-primary-800'
+                    : 'bg-gray-200 text-gray-500',
+              )}
+            >
+              {index < currentStep ? <Check className="w-3.5 h-3.5" /> : index + 1}
+            </span>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Same form content as new page - reuses same steps */}
+      <Card>
+        <CardContent className="p-6">
+          {currentStep === 0 && (
+            <div className="space-y-4">
+              <CardHeader className="p-0 pb-4"><CardTitle>Informasi Dasar</CardTitle></CardHeader>
+              <Select label="Tipe Acara" options={eventTypeOptions} value={draft.eventType} onChange={(e) => setField('eventType', e.target.value)} />
+              <Input label="Judul Undangan" value={draft.title} onChange={(e) => setField('title', e.target.value)} />
+              <Input label="Slug URL" value={draft.slug} onChange={(e) => setField('slug', e.target.value)} />
+              <Textarea label="Teks Pembuka" value={draft.openingText} onChange={(e) => setField('openingText', e.target.value)} rows={4} />
+              <Textarea label="Teks Penutup" value={draft.closingText} onChange={(e) => setField('closingText', e.target.value)} rows={4} />
+            </div>
+          )}
+          {currentStep === 1 && (
+            <div className="space-y-6">
+              <CardHeader className="p-0 pb-4"><CardTitle>Detail Acara</CardTitle></CardHeader>
+              {draft.events.map((event, index) => (
+                <div key={index} className="p-4 border rounded-lg space-y-4 relative">
+                  {draft.events.length > 1 && (
+                    <button onClick={() => setDraft({ events: draft.events.filter((_, i) => i !== index) })} className="absolute top-2 right-2 p-1 text-red-500 hover:bg-red-50 rounded"><Trash2 className="w-4 h-4" /></button>
+                  )}
+                  <Input label="Nama Acara" value={event.eventName} onChange={(e) => setField(`events.${index}.eventName`, e.target.value)} />
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input label="Tanggal" type="date" value={event.eventDate} onChange={(e) => setField(`events.${index}.eventDate`, e.target.value)} />
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input label="Mulai" type="time" value={event.startTime} onChange={(e) => setField(`events.${index}.startTime`, e.target.value)} />
+                      <Input label="Selesai" type="time" value={event.endTime} onChange={(e) => setField(`events.${index}.endTime`, e.target.value)} />
+                    </div>
+                  </div>
+                  <Input label="Nama Tempat" value={event.venueName} onChange={(e) => setField(`events.${index}.venueName`, e.target.value)} />
+                  <Textarea label="Alamat" value={event.venueAddress} onChange={(e) => setField(`events.${index}.venueAddress`, e.target.value)} rows={2} />
+                  <Input label="Google Maps URL" value={event.mapUrl} onChange={(e) => setField(`events.${index}.mapUrl`, e.target.value)} />
+                </div>
+              ))}
+              <Button variant="outline" onClick={() => setDraft({ events: [...draft.events, { eventName: '', eventDate: '', startTime: '', endTime: '', venueName: '', venueAddress: '', mapUrl: '' }] })}>
+                <Plus className="w-4 h-4 mr-2" />Tambah Acara
+              </Button>
+            </div>
+          )}
+          {currentStep === 2 && (
+            <div className="space-y-6">
+              <CardHeader className="p-0 pb-4"><CardTitle>Profil</CardTitle></CardHeader>
+              {draft.personProfiles.map((person, index) => (
+                <div key={index} className="p-4 border rounded-lg space-y-4 relative">
+                  {draft.personProfiles.length > 1 && (
+                    <button onClick={() => setDraft({ personProfiles: draft.personProfiles.filter((_, i) => i !== index) })} className="absolute top-2 right-2 p-1 text-red-500 hover:bg-red-50 rounded"><Trash2 className="w-4 h-4" /></button>
+                  )}
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input label="Nama Lengkap" value={person.fullName} onChange={(e) => setField(`personProfiles.${index}.fullName`, e.target.value)} />
+                    <Input label="Nama Panggilan" value={person.nickname} onChange={(e) => setField(`personProfiles.${index}.nickname`, e.target.value)} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input label="Nama Ayah" value={person.parentFather} onChange={(e) => setField(`personProfiles.${index}.parentFather`, e.target.value)} />
+                    <Input label="Nama Ibu" value={person.parentMother} onChange={(e) => setField(`personProfiles.${index}.parentMother`, e.target.value)} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input label="Anak Ke-" value={person.childOrder} onChange={(e) => setField(`personProfiles.${index}.childOrder`, e.target.value)} />
+                    <Input label="Instagram" value={person.instagram} onChange={(e) => setField(`personProfiles.${index}.instagram`, e.target.value)} />
+                  </div>
+                </div>
+              ))}
+              <Button variant="outline" onClick={() => setDraft({ personProfiles: [...draft.personProfiles, { fullName: '', nickname: '', photoUrl: '', parentFather: '', parentMother: '', childOrder: '', role: 'secondary', instagram: '' }] })}>
+                <Plus className="w-4 h-4 mr-2" />Tambah Profil
+              </Button>
+            </div>
+          )}
+          {currentStep === 3 && (
+            <div className="space-y-4">
+              <CardHeader className="p-0 pb-4"><CardTitle>Galeri Foto</CardTitle></CardHeader>
+              <p className="text-sm text-gray-500">Upload media tersedia di versi berikutnya. Foto galeri sudah tersimpan dari data sebelumnya.</p>
+            </div>
+          )}
+          {currentStep === 4 && (
+            <div className="space-y-6">
+              <CardHeader className="p-0 pb-4"><CardTitle>Amplop Digital</CardTitle></CardHeader>
+              {draft.giftAccounts.map((gift, index) => (
+                <div key={index} className="p-4 border rounded-lg space-y-4 relative">
+                  <button onClick={() => setDraft({ giftAccounts: draft.giftAccounts.filter((_, i) => i !== index) })} className="absolute top-2 right-2 p-1 text-red-500 hover:bg-red-50 rounded"><Trash2 className="w-4 h-4" /></button>
+                  <Input label="Nama Bank" value={gift.bankName} onChange={(e) => setField(`giftAccounts.${index}.bankName`, e.target.value)} />
+                  <Input label="Nomor Rekening" value={gift.accountNumber} onChange={(e) => setField(`giftAccounts.${index}.accountNumber`, e.target.value)} />
+                  <Input label="Atas Nama" value={gift.accountHolder} onChange={(e) => setField(`giftAccounts.${index}.accountHolder`, e.target.value)} />
+                </div>
+              ))}
+              <Button variant="outline" onClick={() => setDraft({ giftAccounts: [...draft.giftAccounts, { bankName: '', accountNumber: '', accountHolder: '' }] })}>
+                <Plus className="w-4 h-4 mr-2" />Tambah Rekening
+              </Button>
+            </div>
+          )}
+          {currentStep === 5 && (
+            <div className="space-y-4">
+              <CardHeader className="p-0 pb-4"><CardTitle>Pilih Tema</CardTitle></CardHeader>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {templates.map((template: any) => (
+                  <button key={template.id} onClick={() => setField('templateId', template.id)} className={cn('p-4 border-2 rounded-lg text-left transition-all', draft.templateId === template.id ? 'border-primary-600 bg-primary-50' : 'border-gray-200 hover:border-gray-300')}>
+                    <div className="h-24 bg-gradient-to-br from-primary-50 to-secondary-50 rounded-lg mb-3 flex items-center justify-center">
+                      <span className="text-2xl font-serif text-primary-300">{template.name.charAt(0)}</span>
+                    </div>
+                    <p className="font-medium text-sm">{template.name}</p>
+                    <div className="flex items-center gap-1 mt-1">
+                      <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                      <span className="text-xs text-gray-500">{template.ratingAvg.toFixed(1)}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-between">
+        <Button variant="outline" onClick={currentStep === 0 ? () => router.back() : prevStep}>
+          <ChevronLeft className="w-4 h-4 mr-2" />{currentStep === 0 ? 'Batal' : 'Sebelumnya'}
+        </Button>
+        {currentStep < 5 ? (
+          <Button onClick={nextStep}>Selanjutnya<ChevronRight className="w-4 h-4 ml-2" /></Button>
+        ) : (
+          <Button onClick={handleSubmit} loading={updateInvitation.isPending}>
+            <Save className="w-4 h-4 mr-2" />Simpan Perubahan
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,10 @@
+/* Theme: Slide Romantic - Warm romantic blush & burgundy */
+.invitation-root.theme-slide-romantic {
+  --inv-bg-primary: #fef6f0;
+  --inv-bg-secondary: #fce8dc;
+  --inv-text-primary: #3a1e2e;
+  --inv-text-secondary: #8a5a6a;
+  --inv-accent: #a4343a;
+  --inv-accent-text: #fef6f0;
+  font-family: 'Dancing Script', 'Great Vibes', cursive;
+}

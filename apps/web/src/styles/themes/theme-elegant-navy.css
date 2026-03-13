@@ -1,0 +1,10 @@
+/* Theme: Elegant Navy - Deep navy & champagne */
+.invitation-root.theme-elegant-navy {
+  --inv-bg-primary: #0a1628;
+  --inv-bg-secondary: #12203d;
+  --inv-text-primary: #e8e0d0;
+  --inv-text-secondary: #a09884;
+  --inv-accent: #d4af6a;
+  --inv-accent-text: #0a1628;
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+}

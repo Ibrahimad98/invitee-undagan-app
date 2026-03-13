@@ -1,0 +1,66 @@
+/* Invitation Base Styles - CSS Custom Properties */
+.invitation-root {
+  /* Default theme variables */
+  --inv-bg-primary: #fdf8f0;
+  --inv-bg-secondary: #f5ebe0;
+  --inv-text-primary: #2d2a26;
+  --inv-text-secondary: #6b6560;
+  --inv-accent: #b08968;
+  --inv-accent-text: #ffffff;
+
+  font-family: 'Playfair Display', 'Georgia', serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.invitation-content {
+  animation: invitation-fade-in 1s ease-out;
+}
+
+.invitation-section {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animations */
+@keyframes invitation-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-fade-in {
+  animation: invitation-fade-in 0.8s ease-out;
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2s ease-in-out infinite;
+}
+
+/* Scrollbar styling for wishes */
+.invitation-wishes ::-webkit-scrollbar {
+  width: 4px;
+}
+.invitation-wishes ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.invitation-wishes ::-webkit-scrollbar-thumb {
+  background: var(--inv-accent);
+  border-radius: 9999px;
+  opacity: 0.3;
+}

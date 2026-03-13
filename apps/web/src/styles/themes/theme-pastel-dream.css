@@ -1,0 +1,10 @@
+/* Theme: Pastel Dream - Soft pastel lavender & blush */
+.invitation-root.theme-pastel-dream {
+  --inv-bg-primary: #f8f4ff;
+  --inv-bg-secondary: #ede4f7;
+  --inv-text-primary: #2e2040;
+  --inv-text-secondary: #7a6b8a;
+  --inv-accent: #a78bcd;
+  --inv-accent-text: #ffffff;
+  font-family: 'Quicksand', 'Poppins', sans-serif;
+}

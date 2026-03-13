@@ -1,0 +1,10 @@
+/* Theme: Super Classic - Elegant gold & ivory */
+.invitation-root.theme-super-classic {
+  --inv-bg-primary: #faf6ee;
+  --inv-bg-secondary: #f0e8d8;
+  --inv-text-primary: #2c2417;
+  --inv-text-secondary: #7a6e5d;
+  --inv-accent: #c9a96e;
+  --inv-accent-text: #ffffff;
+  font-family: 'Playfair Display', 'Georgia', serif;
+}
