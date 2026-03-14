@@ -3,7 +3,6 @@ import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { RsvpService } from './rsvp.service';
 import { CreateRsvpDto } from './dto/create-rsvp.dto';
 import { Public } from '../common/decorators/public.decorator';
-import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('RSVP')
 @Controller('rsvp')
@@ -22,9 +21,10 @@ export class RsvpController {
   @ApiOperation({ summary: 'Get RSVPs for an invitation' })
   async findAll(
     @Query('invitationId') invitationId: string,
-    @Query() query: PaginationDto,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
   ) {
-    return this.rsvpService.findAllByInvitation(invitationId, query.page, query.limit);
+    return this.rsvpService.findAllByInvitation(invitationId, Number(page) || 1, Number(limit) || 50);
   }
 
   @Get('stats')

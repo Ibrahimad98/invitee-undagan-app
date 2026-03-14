@@ -4,7 +4,6 @@ import { GuestsService } from './guests.service';
 import { CreateGuestDto } from './dto/create-guest.dto';
 import { UpdateGuestDto } from './dto/update-guest.dto';
 import { ImportGuestsDto } from './dto/import-guests.dto';
-import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('Guests')
 @ApiBearerAuth()
@@ -16,9 +15,11 @@ export class GuestsController {
   @ApiOperation({ summary: 'Get guests for an invitation' })
   async findAll(
     @Query('invitationId') invitationId: string,
-    @Query() query: PaginationDto,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('search') search?: string,
   ) {
-    return this.guestsService.findAllByInvitation(invitationId, query.page, query.limit);
+    return this.guestsService.findAllByInvitation(invitationId, Number(page) || 1, Number(limit) || 50);
   }
 
   @Post()
