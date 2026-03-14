@@ -10,6 +10,7 @@ import { Select } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Modal } from '@/components/ui/modal';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ATTENDANCE_LABELS, SENT_VIA } from '@invitee/shared';
 import {
@@ -52,6 +53,7 @@ export default function ContactsPage() {
   const [editingGuest, setEditingGuest] = useState<any>(null);
   const [guestForm, setGuestForm] = useState<GuestForm>(initialGuestForm);
   const [csvText, setCsvText] = useState('');
+  const [deleteGuestId, setDeleteGuestId] = useState<string | null>(null);
 
   const { data: invitationsData } = useInvitations({ limit: 100 });
   const invitations = invitationsData?.data || [];
@@ -113,13 +115,15 @@ export default function ContactsPage() {
     }
   };
 
-  const handleDeleteGuest = async (guestId: string) => {
-    if (!confirm('Hapus tamu ini?')) return;
+  const handleDeleteGuest = async () => {
+    if (!deleteGuestId) return;
     try {
-      await deleteGuest.mutateAsync({ invitationId: selectedInvitationId, id: guestId });
+      await deleteGuest.mutateAsync({ invitationId: selectedInvitationId, id: deleteGuestId });
       addToast('Tamu berhasil dihapus', 'success');
     } catch (error: any) {
       addToast('Gagal menghapus tamu', 'error');
+    } finally {
+      setDeleteGuestId(null);
     }
   };
 
@@ -159,7 +163,9 @@ export default function ContactsPage() {
     const invitation = invitations.find((inv: any) => inv.id === selectedInvitationId);
     if (!invitation) return;
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-    const url = `${baseUrl}/${invitation.slug}/default?kpd=${encodeURIComponent(guest.name)}`;
+    // Use the template slug from the invitation, fallback to 'default'
+    const templateSlug = invitation.templates?.[0]?.template?.slug || 'default';
+    const url = `${baseUrl}/${invitation.slug}/${templateSlug}?kpd=${encodeURIComponent(guest.name)}`;
     navigator.clipboard.writeText(url);
     addToast('Link undangan disalin!', 'success');
   };
@@ -330,7 +336,7 @@ export default function ContactsPage() {
                                 <Edit2 className="w-4 h-4" />
                               </button>
                               <button
-                                onClick={() => handleDeleteGuest(guest.id)}
+                                onClick={() => setDeleteGuestId(guest.id)}
                                 className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
                                 title="Hapus"
                               >
@@ -350,7 +356,7 @@ export default function ContactsPage() {
       )}
 
       {/* Add/Edit Guest Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingGuest ? 'Edit Tamu' : 'Tambah Tamu'}>
+      <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingGuest ? 'Edit Tamu' : 'Tambah Tamu'}>
         <div className="space-y-4">
           <Input
             label="Nama Tamu"
@@ -393,7 +399,7 @@ export default function ContactsPage() {
       </Modal>
 
       {/* Import CSV Modal */}
-      <Modal isOpen={isImportModalOpen} onClose={() => setIsImportModalOpen(false)} title="Import Tamu dari CSV">
+      <Modal open={isImportModalOpen} onClose={() => setIsImportModalOpen(false)} title="Import Tamu dari CSV">
         <div className="space-y-4">
           <p className="text-sm text-gray-500">
             Format: <code className="bg-gray-100 px-1 rounded">Nama, Telepon, Email, Alamat</code> (satu tamu per baris)
@@ -413,6 +419,18 @@ export default function ContactsPage() {
           </div>
         </div>
       </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        open={!!deleteGuestId}
+        onClose={() => setDeleteGuestId(null)}
+        onConfirm={handleDeleteGuest}
+        title="Hapus Tamu"
+        description="Apakah Anda yakin ingin menghapus tamu ini? Tindakan ini tidak dapat dibatalkan."
+        variant="danger"
+        confirmLabel="Hapus"
+        loading={deleteGuest.isPending}
+      />
     </div>
   );
 }

@@ -1,15 +1,21 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import type { Template, PaginatedResponse, TemplateFilter } from '@invitee/shared';
+import type { Template, TemplateFilter } from '@invitee/shared';
+
+interface PaginatedResult<T> {
+  data: T[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
 
 export function useTemplates(filters?: TemplateFilter) {
-  return useQuery({
+  return useQuery<PaginatedResult<Template>>({
     queryKey: ['templates', filters],
     queryFn: async () => {
-      const { data } = await api.get<PaginatedResponse<Template>>('/templates', {
+      const { data } = await api.get('/templates', {
         params: filters,
       });
-      return data;
+      // Unwrap TransformInterceptor: { success, data: { data: [...], meta } }
+      return (data as any)?.data || data;
     },
   });
 }

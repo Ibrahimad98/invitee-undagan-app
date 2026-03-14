@@ -1,16 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import type { Testimonial, PaginatedResponse } from '@invitee/shared';
+import type { Testimonial } from '@invitee/shared';
+
+interface PaginatedResult<T> {
+  data: T[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
 
 export function useTestimonials(page = 1, limit = 20, all = false) {
-  return useQuery({
+  return useQuery<PaginatedResult<Testimonial>>({
     queryKey: ['testimonials', page, limit, all],
     queryFn: async () => {
       const endpoint = all ? '/testimonials/all' : '/testimonials';
-      const { data } = await api.get<PaginatedResponse<Testimonial>>(endpoint, {
+      const { data } = await api.get(endpoint, {
         params: { page, limit },
       });
-      return data;
+      // Unwrap TransformInterceptor
+      return (data as any)?.data || data;
     },
   });
 }
@@ -36,6 +42,20 @@ export function useApproveTestimonial() {
     mutationFn: async ({ id, isApproved }: { id: string; isApproved: boolean }) => {
       const { data } = await api.patch(`/testimonials/${id}/approve`, { isApproved });
       return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['testimonials'] });
+    },
+  });
+}
+
+export function useDeleteTestimonial() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data } = await api.delete(`/testimonials/${id}`);
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['testimonials'] });

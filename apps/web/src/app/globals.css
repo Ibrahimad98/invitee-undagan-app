@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Great+Vibes&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=Amiri:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;600;700&family=Nunito:wght@400;600;700&family=Dancing+Script:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,16 +7,16 @@
 /* Invitation theme base */
 @import '../styles/invitation-base.css';
 
-/* Theme variants */
+/* Theme variants — matching seed template cssClass names */
 @import '../styles/themes/theme-super-classic.css';
-@import '../styles/themes/theme-elegant-navy.css';
-@import '../styles/themes/theme-rustic-garden.css';
-@import '../styles/themes/theme-modern-minimalist.css';
-@import '../styles/themes/theme-rose-gold.css';
-@import '../styles/themes/theme-tropical-festive.css';
-@import '../styles/themes/theme-islamic-green.css';
-@import '../styles/themes/theme-javanese-heritage.css';
-@import '../styles/themes/theme-pastel-dream.css';
+@import '../styles/themes/theme-simple-java.css';
+@import '../styles/themes/theme-floral-garden.css';
+@import '../styles/themes/theme-golden-elegance.css';
+@import '../styles/themes/theme-royal-muslim.css';
+@import '../styles/themes/theme-kids-party.css';
+@import '../styles/themes/theme-wayang-heritage.css';
+@import '../styles/themes/theme-modern-minimal.css';
+@import '../styles/themes/theme-christmas-joy.css';
 @import '../styles/themes/theme-slide-romantic.css';
 
 @layer base {

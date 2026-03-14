@@ -1,0 +1,66 @@
+/* Theme: Wayang Heritage - Traditional Indonesian shadow puppet brown */
+.invitation-root.theme-wayang-heritage {
+  --inv-bg-primary: #f2e8d5;
+  --inv-bg-secondary: #e4d4b8;
+  --inv-text-primary: #2a1f14;
+  --inv-text-secondary: #6d5c42;
+  --inv-accent: #8b4513;
+  --inv-accent-text: #f2e8d5;
+  font-family: 'Lora', 'Palatino', serif;
+}
+
+/* Leather/parchment textured cover */
+.theme-wayang-heritage .invitation-cover {
+  background: linear-gradient(145deg, #2a1f14, #3d2d1a 50%, #2a1f14);
+  position: relative;
+  overflow: hidden;
+}
+.theme-wayang-heritage .invitation-cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    repeating-linear-gradient(45deg, rgba(139, 69, 19, 0.08) 0px, rgba(139, 69, 19, 0.08) 2px, transparent 2px, transparent 12px),
+    repeating-linear-gradient(-45deg, rgba(139, 69, 19, 0.08) 0px, rgba(139, 69, 19, 0.08) 2px, transparent 2px, transparent 12px);
+}
+
+/* Wayang ornamental border */
+.theme-wayang-heritage .invitation-cover::after {
+  content: '';
+  position: absolute;
+  inset: 16px;
+  border: 2px solid rgba(139, 69, 19, 0.25);
+  border-radius: 4px;
+}
+
+/* Traditional diamond dividers */
+.theme-wayang-heritage .invitation-section {
+  position: relative;
+  border-top: 1px solid rgba(139, 69, 19, 0.15);
+}
+.theme-wayang-heritage .invitation-section::before {
+  content: '◆◇◆';
+  position: absolute;
+  top: -8px; left: 50%;
+  transform: translateX(-50%);
+  color: #8b4513;
+  font-size: 8px;
+  letter-spacing: 4px;
+  background: var(--inv-bg-primary);
+  padding: 0 10px;
+}
+
+/* Warm sepia glow on images */
+.theme-wayang-heritage .invitation-gallery img {
+  filter: sepia(10%) saturate(90%);
+  transition: filter 0.3s;
+}
+.theme-wayang-heritage .invitation-gallery img:hover {
+  filter: sepia(0%) saturate(100%);
+}
+
+/* Parchment side borders */
+.theme-wayang-heritage .invitation-content {
+  border-left: 4px solid rgba(139, 69, 19, 0.08);
+  border-right: 4px solid rgba(139, 69, 19, 0.08);
+}

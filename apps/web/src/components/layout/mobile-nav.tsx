@@ -5,11 +5,17 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { NAV_ITEMS } from '@/lib/constants';
 import { useUIStore } from '@/stores/ui-store';
+import { useAuthStore } from '@/stores/auth-store';
 import { X } from 'lucide-react';
 
 export function MobileNav() {
   const pathname = usePathname();
   const { sidebarOpen, setSidebarOpen } = useUIStore();
+  const { user } = useAuthStore();
+
+  const filteredItems = NAV_ITEMS.filter(
+    (item) => !(item as any).adminOnly || user?.role === 'ADMIN',
+  );
 
   if (!sidebarOpen) return null;
 
@@ -39,8 +45,10 @@ export function MobileNav() {
         </div>
 
         <nav className="p-4 space-y-1">
-          {NAV_ITEMS.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+          {filteredItems.map((item) => {
+            const isActive = item.href === '/dashboard'
+              ? pathname === '/dashboard'
+              : pathname === item.href || pathname.startsWith(item.href + '/');
             const Icon = item.icon;
 
             return (

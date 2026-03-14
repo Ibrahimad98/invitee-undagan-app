@@ -11,10 +11,8 @@ export default function InvitationLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id">
-      <body className="min-h-screen bg-white">
-        {children}
-      </body>
-    </html>
+    <div className="min-h-screen bg-white">
+      {children}
+    </div>
   );
 }

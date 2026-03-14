@@ -1,0 +1,72 @@
+/* Theme: Modern Minimal - Clean white & charcoal with sharp lines */
+.invitation-root.theme-modern-minimal {
+  --inv-bg-primary: #ffffff;
+  --inv-bg-secondary: #f5f5f5;
+  --inv-text-primary: #1a1a1a;
+  --inv-text-secondary: #6b7280;
+  --inv-accent: #1a1a1a;
+  --inv-accent-text: #ffffff;
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+}
+
+/* Clean dark cover with horizontal line */
+.theme-modern-minimal .invitation-cover {
+  background: #1a1a1a;
+  position: relative;
+}
+.theme-modern-minimal .invitation-cover::before {
+  content: '';
+  position: absolute;
+  left: 15%; right: 15%;
+  top: 50%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(80px);
+}
+
+/* Thin line section dividers */
+.theme-modern-minimal .invitation-section {
+  position: relative;
+  border-top: 1px solid rgba(26, 26, 26, 0.06);
+}
+.theme-modern-minimal .invitation-section::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 30%; right: 30%;
+  height: 2px;
+  background: #1a1a1a;
+}
+
+/* Sharp typography */
+.theme-modern-minimal h1 {
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.theme-modern-minimal h3 {
+  font-weight: 400;
+  letter-spacing: 0.2em;
+}
+
+/* Minimal gallery — no rounded corners */
+.theme-modern-minimal .invitation-gallery img {
+  border-radius: 0;
+}
+
+/* Black & white RSVP */
+.theme-modern-minimal .invitation-rsvp input,
+.theme-modern-minimal .invitation-rsvp textarea {
+  border-radius: 0;
+  border: 1px solid #d1d5db;
+}
+.theme-modern-minimal .invitation-rsvp button[type="submit"] {
+  border-radius: 0;
+}
+
+/* Countdown — monospace sharp */
+.theme-modern-minimal .invitation-countdown .text-3xl,
+.theme-modern-minimal .invitation-countdown .text-5xl {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-weight: 200;
+  letter-spacing: 0.1em;
+}

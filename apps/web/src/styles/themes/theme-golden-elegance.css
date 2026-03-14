@@ -1,0 +1,80 @@
+/* Theme: Golden Elegance - Luxurious deep gold & black */
+.invitation-root.theme-golden-elegance {
+  --inv-bg-primary: #0d0d0d;
+  --inv-bg-secondary: #1a1a14;
+  --inv-text-primary: #f0e6c8;
+  --inv-text-secondary: #a09878;
+  --inv-accent: #d4a843;
+  --inv-accent-text: #0d0d0d;
+  font-family: 'Cinzel', 'Georgia', serif;
+}
+
+/* Luxury dark cover with gold shimmer */
+.theme-golden-elegance .invitation-cover {
+  background: linear-gradient(135deg, #0d0d0d 0%, #1a1508 50%, #0d0d0d 100%);
+  position: relative;
+  overflow: hidden;
+}
+.theme-golden-elegance .invitation-cover::before {
+  content: '';
+  position: absolute;
+  inset: 15px;
+  border: 1px solid rgba(212, 168, 67, 0.3);
+  border-radius: 2px;
+}
+.theme-golden-elegance .invitation-cover::after {
+  content: '';
+  position: absolute;
+  inset: 20px;
+  border: 1px solid rgba(212, 168, 67, 0.15);
+  border-radius: 2px;
+}
+
+/* Gold gradient headings */
+.theme-golden-elegance h1,
+.theme-golden-elegance h3 {
+  background: linear-gradient(135deg, #d4a843, #f5d880, #d4a843);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Ornate section dividers */
+.theme-golden-elegance .invitation-section {
+  position: relative;
+  border-top: 1px solid rgba(212, 168, 67, 0.12);
+}
+.theme-golden-elegance .invitation-section::before {
+  content: '◈';
+  position: absolute;
+  top: -10px; left: 50%;
+  transform: translateX(-50%);
+  color: #d4a843;
+  font-size: 14px;
+  background: var(--inv-bg-primary);
+  padding: 0 12px;
+}
+
+/* Gold shimmer on cards */
+.theme-golden-elegance .invitation-rsvp input,
+.theme-golden-elegance .invitation-rsvp textarea {
+  border-color: rgba(212, 168, 67, 0.2);
+}
+.theme-golden-elegance .invitation-rsvp input:focus,
+.theme-golden-elegance .invitation-rsvp textarea:focus {
+  box-shadow: 0 0 15px rgba(212, 168, 67, 0.15);
+}
+
+/* Luxury corner marks */
+.theme-golden-elegance .invitation-content {
+  position: relative;
+}
+.theme-golden-elegance .invitation-content::before {
+  content: '⟐';
+  position: fixed;
+  top: 10px; left: 10px;
+  color: #d4a843;
+  font-size: 18px;
+  opacity: 0.2;
+  z-index: 5;
+}

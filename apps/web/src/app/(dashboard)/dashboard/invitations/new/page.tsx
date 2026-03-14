@@ -52,6 +52,77 @@ export default function NewInvitationPage() {
     }
   }, []);
 
+  const validateStep = (step: number): boolean => {
+    if (step === 0) {
+      if (!draft.title.trim() || !draft.slug.trim() || !draft.eventType) return false;
+    }
+    if (step === 1) {
+      const validEvents = draft.events.filter((e) => e.eventName && e.eventDate);
+      if (validEvents.length === 0) return false;
+    }
+    if (step === 2) {
+      const validProfiles = draft.personProfiles.filter((p) => p.fullName);
+      if (validProfiles.length === 0) return false;
+    }
+    return true;
+  };
+
+  const handleStepperClick = (targetStep: number) => {
+    // Allow going backward freely
+    if (targetStep <= currentStep) {
+      goToStep(targetStep);
+      return;
+    }
+    // For forward navigation, validate all steps up to (but not including) the target
+    for (let s = currentStep; s < targetStep; s++) {
+      if (!validateStep(s)) {
+        const stepNames = ['Informasi Dasar', 'Detail Acara', 'Profil'];
+        if (s <= 2) {
+          addToast(`Lengkapi form "${stepNames[s]}" terlebih dahulu`, 'error');
+        }
+        goToStep(s);
+        return;
+      }
+    }
+    goToStep(targetStep);
+  };
+
+  const handleNextStep = () => {
+    // Per-step validation
+    if (currentStep === 0) {
+      if (!draft.title.trim()) {
+        addToast('Judul undangan wajib diisi', 'error');
+        return;
+      }
+      if (!draft.slug.trim()) {
+        addToast('Slug URL wajib diisi', 'error');
+        return;
+      }
+      if (!draft.eventType) {
+        addToast('Tipe acara wajib dipilih', 'error');
+        return;
+      }
+    }
+
+    if (currentStep === 1) {
+      const validEvents = draft.events.filter((e) => e.eventName && e.eventDate);
+      if (validEvents.length === 0) {
+        addToast('Minimal satu acara dengan nama dan tanggal wajib diisi', 'error');
+        return;
+      }
+    }
+
+    if (currentStep === 2) {
+      const validProfiles = draft.personProfiles.filter((p) => p.fullName);
+      if (validProfiles.length === 0) {
+        addToast('Minimal satu profil dengan nama lengkap wajib diisi', 'error');
+        return;
+      }
+    }
+
+    nextStep();
+  };
+
   const handleSubmit = async () => {
     try {
       const payload = {
@@ -93,7 +164,7 @@ export default function NewInvitationPage() {
         {STEPPER_LABELS.map((label, index) => (
           <button
             key={label}
-            onClick={() => goToStep(index)}
+            onClick={() => handleStepperClick(index)}
             className={cn(
               'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
               index === currentStep
@@ -445,7 +516,7 @@ export default function NewInvitationPage() {
         </Button>
 
         {currentStep < 5 ? (
-          <Button onClick={nextStep}>
+          <Button onClick={handleNextStep}>
             Selanjutnya
             <ChevronRight className="w-4 h-4 ml-2" />
           </Button>

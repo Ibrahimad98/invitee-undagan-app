@@ -1,10 +1,65 @@
-/* Theme: Super Classic - Elegant gold & ivory */
+/* Theme: Super Classic - Timeless gold & ivory elegance */
 .invitation-root.theme-super-classic {
-  --inv-bg-primary: #faf6ee;
-  --inv-bg-secondary: #f0e8d8;
-  --inv-text-primary: #2c2417;
-  --inv-text-secondary: #7a6e5d;
-  --inv-accent: #c9a96e;
-  --inv-accent-text: #ffffff;
-  font-family: 'Playfair Display', 'Georgia', serif;
+  --inv-bg-primary: #faf8f3;
+  --inv-bg-secondary: #f0ebe0;
+  --inv-text-primary: #2c2418;
+  --inv-text-secondary: #7a6c56;
+  --inv-accent: #c9a84c;
+  --inv-accent-text: #2c2418;
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+}
+
+/* Classic ornamental borders */
+.theme-super-classic .invitation-cover {
+  background: linear-gradient(135deg, #2c2418 0%, #3d3122 40%, #2c2418 100%);
+  position: relative;
+}
+.theme-super-classic .invitation-cover::before,
+.theme-super-classic .invitation-cover::after {
+  content: '';
+  position: absolute;
+  left: 20px; right: 20px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #c9a84c, transparent);
+}
+.theme-super-classic .invitation-cover::before { top: 30px; }
+.theme-super-classic .invitation-cover::after { bottom: 30px; }
+
+/* Double-line frame on sections */
+.theme-super-classic .invitation-section {
+  position: relative;
+  border-top: 1px solid rgba(201, 168, 76, 0.15);
+}
+.theme-super-classic .invitation-section::before {
+  content: '✦';
+  position: absolute;
+  top: -10px; left: 50%;
+  transform: translateX(-50%);
+  color: #c9a84c;
+  font-size: 14px;
+  background: var(--inv-bg-primary);
+  padding: 0 12px;
+}
+
+/* Gold gradient headings */
+.theme-super-classic h1,
+.theme-super-classic h3 {
+  background: linear-gradient(135deg, #c9a84c, #e8d48b, #c9a84c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Corner ornaments */
+.theme-super-classic .invitation-content {
+  position: relative;
+}
+.theme-super-classic .invitation-content::before {
+  content: '❧';
+  position: fixed;
+  bottom: 16px; right: 16px;
+  color: #c9a84c;
+  font-size: 24px;
+  opacity: 0.3;
+  z-index: 5;
 }

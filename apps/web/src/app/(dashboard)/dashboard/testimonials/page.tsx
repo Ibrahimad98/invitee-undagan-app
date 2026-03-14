@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { Tabs } from '@/components/ui/tabs';
 import { Avatar } from '@/components/ui/avatar';
 import {
@@ -30,7 +31,7 @@ export default function TestimonialsPage() {
   const approveTestimonial = useApproveTestimonial();
   const deleteTestimonial = useDeleteTestimonial();
 
-  const allTestimonials = allData || [];
+  const allTestimonials = allData?.data || [];
 
   const filteredTestimonials = allTestimonials.filter((t: any) => {
     if (activeTab === 'approved') return t.isApproved;
@@ -54,13 +55,17 @@ export default function TestimonialsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Hapus testimoni ini?')) return;
+  const [deleteTestimonialId, setDeleteTestimonialId] = useState<string | null>(null);
+
+  const handleDelete = async () => {
+    if (!deleteTestimonialId) return;
     try {
-      await deleteTestimonial.mutateAsync(id);
+      await deleteTestimonial.mutateAsync(deleteTestimonialId);
       addToast('Testimoni berhasil dihapus', 'success');
     } catch {
       addToast('Gagal menghapus testimoni', 'error');
+    } finally {
+      setDeleteTestimonialId(null);
     }
   };
 
@@ -177,10 +182,10 @@ export default function TestimonialsPage() {
               <CardContent className="p-5">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
-                    <Avatar fallback={testimonial.name.charAt(0)} />
+                    <Avatar name={testimonial.userName || '?'} />
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-sm">{testimonial.name}</h3>
+                        <h3 className="font-semibold text-sm">{testimonial.userName}</h3>
                         {testimonial.isApproved ? (
                           <Badge variant="success">
                             <Shield className="w-3 h-3 mr-1" />
@@ -231,7 +236,7 @@ export default function TestimonialsPage() {
                       </button>
                     )}
                     <button
-                      onClick={() => handleDelete(testimonial.id)}
+                      onClick={() => setDeleteTestimonialId(testimonial.id)}
                       className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       title="Hapus"
                     >
@@ -244,6 +249,18 @@ export default function TestimonialsPage() {
           ))}
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        open={!!deleteTestimonialId}
+        onClose={() => setDeleteTestimonialId(null)}
+        onConfirm={handleDelete}
+        title="Hapus Testimoni"
+        description="Apakah Anda yakin ingin menghapus testimoni ini? Tindakan ini tidak dapat dibatalkan."
+        variant="danger"
+        confirmLabel="Hapus"
+        loading={deleteTestimonial.isPending}
+      />
     </div>
   );
 }

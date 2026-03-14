@@ -1,0 +1,55 @@
+/* Theme: Simple Java - Batik-inspired warm brown & gold */
+.invitation-root.theme-simple-java {
+  --inv-bg-primary: #f5efe6;
+  --inv-bg-secondary: #e8dcc8;
+  --inv-text-primary: #3b2f20;
+  --inv-text-secondary: #7a6a52;
+  --inv-accent: #8b6914;
+  --inv-accent-text: #ffffff;
+  font-family: 'Lora', 'Georgia', serif;
+}
+
+/* Batik-inspired repeating border pattern */
+.theme-simple-java .invitation-cover {
+  background: linear-gradient(135deg, #3b2f20, #5a4730, #3b2f20);
+  position: relative;
+  overflow: hidden;
+}
+.theme-simple-java .invitation-cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 20px 20px, rgba(139, 105, 20, 0.15) 4px, transparent 4px),
+    radial-gradient(circle at 40px 40px, rgba(139, 105, 20, 0.1) 3px, transparent 3px);
+  background-size: 60px 60px;
+}
+
+/* Batik top/bottom dividers */
+.theme-simple-java .invitation-section {
+  border-top: 3px double rgba(139, 105, 20, 0.25);
+  position: relative;
+}
+.theme-simple-java .invitation-section::before {
+  content: '◆';
+  position: absolute;
+  top: -10px; left: 50%;
+  transform: translateX(-50%);
+  color: #8b6914;
+  font-size: 12px;
+  background: var(--inv-bg-primary);
+  padding: 0 8px;
+}
+
+/* Warm gradient on accent elements */
+.theme-simple-java .invitation-countdown .text-3xl,
+.theme-simple-java .invitation-countdown .text-5xl {
+  color: #8b6914;
+  text-shadow: 1px 1px 2px rgba(59, 47, 32, 0.2);
+}
+
+/* Side ornamental lines */
+.theme-simple-java .invitation-content {
+  border-left: 3px solid rgba(139, 105, 20, 0.1);
+  border-right: 3px solid rgba(139, 105, 20, 0.1);
+}

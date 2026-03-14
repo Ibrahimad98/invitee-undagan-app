@@ -52,8 +52,12 @@ export default function InvitationPreviewPage() {
   const firstEvent = invitation.events?.[0];
   const eventDate = firstEvent?.eventDate ? new Date(firstEvent.eventDate) : null;
 
+  // Get the template's cssClass from the invitation data, fallback to URL themeId
+  const templateCssClass = invitation.templates?.[0]?.template?.cssClass;
+  const themeClass = templateCssClass || `theme-${themeId}`;
+
   return (
-    <div className={`invitation-root theme-${themeId}`}>
+    <div className={`invitation-root ${themeClass}`}>
       {/* Audio Player */}
       {invitation.musicUrl && <AudioPlayer src={invitation.musicUrl} />}
 

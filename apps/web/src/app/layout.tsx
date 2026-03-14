@@ -6,6 +6,9 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Invitee - Platform Undangan Digital',
   description: 'Buat undangan digital elegan untuk pernikahan, khitanan, ulang tahun, dan acara lainnya.',
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

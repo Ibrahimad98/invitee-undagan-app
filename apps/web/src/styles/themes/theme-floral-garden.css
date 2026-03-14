@@ -1,0 +1,67 @@
+/* Theme: Floral Garden - Romantic pink & rose with flower motifs */
+.invitation-root.theme-floral-garden {
+  --inv-bg-primary: #fdf5f7;
+  --inv-bg-secondary: #f9e8ed;
+  --inv-text-primary: #4a2332;
+  --inv-text-secondary: #8b5e6e;
+  --inv-accent: #d4688e;
+  --inv-accent-text: #ffffff;
+  font-family: 'Playfair Display', 'Georgia', serif;
+}
+
+/* Floral gradient cover */
+.theme-floral-garden .invitation-cover {
+  background: linear-gradient(160deg, #4a2332, #6b3a4e 40%, #4a2332);
+  position: relative;
+  overflow: hidden;
+}
+.theme-floral-garden .invitation-cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(ellipse at 10% 90%, rgba(212, 104, 142, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 10%, rgba(212, 104, 142, 0.15) 0%, transparent 50%);
+}
+
+/* Rose dividers between sections */
+.theme-floral-garden .invitation-section {
+  position: relative;
+  border-top: 1px solid rgba(212, 104, 142, 0.15);
+}
+.theme-floral-garden .invitation-section::before {
+  content: '✿';
+  position: absolute;
+  top: -11px; left: 50%;
+  transform: translateX(-50%);
+  color: #d4688e;
+  font-size: 16px;
+  background: var(--inv-bg-primary);
+  padding: 0 10px;
+}
+
+/* Petal scatter in gallery */
+.theme-floral-garden .invitation-gallery {
+  background-image: 
+    radial-gradient(ellipse at 85% 15%, rgba(212, 104, 142, 0.08) 0%, transparent 40%),
+    radial-gradient(ellipse at 15% 85%, rgba(212, 104, 142, 0.08) 0%, transparent 40%);
+}
+
+/* Pink glow on buttons */
+.theme-floral-garden button[type="submit"],
+.theme-floral-garden .animate-bounce-slow {
+  box-shadow: 0 4px 20px rgba(212, 104, 142, 0.3);
+}
+
+/* Soft pink corners */
+.theme-floral-garden .invitation-content::before,
+.theme-floral-garden .invitation-content::after {
+  content: '❀';
+  position: fixed;
+  color: #d4688e;
+  font-size: 20px;
+  opacity: 0.15;
+  z-index: 5;
+}
+.theme-floral-garden .invitation-content::before { top: 12px; left: 12px; }
+.theme-floral-garden .invitation-content::after { bottom: 12px; right: 12px; }

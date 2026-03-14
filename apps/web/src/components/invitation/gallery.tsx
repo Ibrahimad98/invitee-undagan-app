@@ -4,7 +4,8 @@ import { useState } from 'react';
 
 interface MediaItem {
   id: string;
-  url: string;
+  url?: string;
+  fileUrl?: string;
   purpose: string;
 }
 
@@ -33,7 +34,7 @@ export default function GallerySection({ media }: GallerySectionProps) {
               className="aspect-square rounded-xl overflow-hidden hover:opacity-90 transition-opacity"
             >
               <img
-                src={item.url}
+                src={item.fileUrl || item.url}
                 alt={`Gallery ${index + 1}`}
                 className="w-full h-full object-cover"
               />
@@ -68,7 +69,7 @@ export default function GallerySection({ media }: GallerySectionProps) {
           )}
 
           <img
-            src={galleryMedia[lightboxIndex].url}
+            src={galleryMedia[lightboxIndex].fileUrl || galleryMedia[lightboxIndex].url}
             alt={`Gallery ${lightboxIndex + 1}`}
             className="max-w-full max-h-[85vh] object-contain rounded-lg"
             onClick={(e) => e.stopPropagation()}

@@ -7,6 +7,7 @@ interface DropdownMenuContextValue {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   triggerRef: React.RefObject<HTMLButtonElement>;
+  contentRef: React.RefObject<HTMLDivElement>;
 }
 
 const DropdownMenuContext = React.createContext<DropdownMenuContextValue | null>(
@@ -30,6 +31,7 @@ export interface DropdownMenuProps {
 function DropdownMenu({ children }: DropdownMenuProps) {
   const [open, setOpen] = React.useState(false);
   const triggerRef = React.useRef<HTMLButtonElement>(null!);
+  const contentRef = React.useRef<HTMLDivElement>(null!);
 
   // Close on outside click
   React.useEffect(() => {
@@ -37,7 +39,9 @@ function DropdownMenu({ children }: DropdownMenuProps) {
 
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as Node;
+      // Don't close if clicking the trigger or inside the dropdown content
       if (triggerRef.current && triggerRef.current.contains(target)) return;
+      if (contentRef.current && contentRef.current.contains(target)) return;
       setOpen(false);
     };
 
@@ -57,7 +61,7 @@ function DropdownMenu({ children }: DropdownMenuProps) {
   }, [open]);
 
   return (
-    <DropdownMenuContext.Provider value={{ open, setOpen, triggerRef }}>
+    <DropdownMenuContext.Provider value={{ open, setOpen, triggerRef, contentRef }}>
       <div className="relative inline-block text-left">{children}</div>
     </DropdownMenuContext.Provider>
   );
@@ -106,12 +110,13 @@ function DropdownMenuContent({
   children,
   ...props
 }: DropdownMenuContentProps) {
-  const { open } = useDropdownMenuContext();
+  const { open, contentRef } = useDropdownMenuContext();
 
   if (!open) return null;
 
   return (
     <div
+      ref={contentRef}
       className={cn(
         "absolute z-50 mt-2 min-w-[8rem] overflow-hidden rounded-md border border-gray-200 bg-white p-1 shadow-lg",
         align === "end" ? "right-0" : "left-0",
@@ -137,8 +142,12 @@ const DropdownMenuItem = React.forwardRef<
   const { setOpen } = useDropdownMenuContext();
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    onClick?.(e);
+    e.preventDefault();
+    e.stopPropagation();
     setOpen(false);
+    if (onClick) {
+      setTimeout(() => onClick(e), 0);
+    }
   };
 
   return (

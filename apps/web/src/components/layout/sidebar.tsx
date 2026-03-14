@@ -6,10 +6,16 @@ import { cn } from '@/lib/utils';
 import { NAV_ITEMS } from '@/lib/constants';
 import { ChevronLeft } from 'lucide-react';
 import { useUIStore } from '@/stores/ui-store';
+import { useAuthStore } from '@/stores/auth-store';
 
 export function Sidebar() {
   const pathname = usePathname();
   const { sidebarOpen, toggleSidebar } = useUIStore();
+  const { user } = useAuthStore();
+
+  const filteredItems = NAV_ITEMS.filter(
+    (item) => !(item as any).adminOnly || user?.role === 'ADMIN',
+  );
 
   return (
     <aside
@@ -40,8 +46,10 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="p-4 space-y-1">
-        {NAV_ITEMS.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+        {filteredItems.map((item) => {
+          const isActive = item.href === '/dashboard'
+            ? pathname === '/dashboard'
+            : pathname === item.href || pathname.startsWith(item.href + '/');
           const Icon = item.icon;
 
           return (

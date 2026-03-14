@@ -28,8 +28,14 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 && typeof window !== 'undefined') {
-      useAuthStore.getState().logout();
-      window.location.href = '/login';
+      // Don't redirect if already on auth pages — prevents refresh loop
+      const isAuthPage =
+        window.location.pathname.includes('/login') ||
+        window.location.pathname.includes('/register');
+      if (!isAuthPage) {
+        useAuthStore.getState().logout();
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   },

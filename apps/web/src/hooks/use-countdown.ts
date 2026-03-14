@@ -8,10 +8,22 @@ interface CountdownResult {
   isExpired: boolean;
 }
 
+const INITIAL_STATE: CountdownResult = {
+  days: 0,
+  hours: 0,
+  minutes: 0,
+  seconds: 0,
+  isExpired: false,
+};
+
 export function useCountdown(targetDate: Date): CountdownResult {
-  const [timeLeft, setTimeLeft] = useState<CountdownResult>(calculateTimeLeft(targetDate));
+  // Initialize with zeros to avoid SSR/client hydration mismatch
+  const [timeLeft, setTimeLeft] = useState<CountdownResult>(INITIAL_STATE);
 
   useEffect(() => {
+    // Set immediately on mount (client only)
+    setTimeLeft(calculateTimeLeft(targetDate));
+
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft(targetDate));
     }, 1000);

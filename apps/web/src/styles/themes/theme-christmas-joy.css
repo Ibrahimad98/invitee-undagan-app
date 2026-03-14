@@ -1,0 +1,72 @@
+/* Theme: Christmas Joy - Festive red & green with snowflakes */
+.invitation-root.theme-christmas-joy {
+  --inv-bg-primary: #faf5f0;
+  --inv-bg-secondary: #f0e8dd;
+  --inv-text-primary: #2d1b1b;
+  --inv-text-secondary: #7a5252;
+  --inv-accent: #c0392b;
+  --inv-accent-text: #ffffff;
+  font-family: 'Playfair Display', 'Georgia', serif;
+}
+
+/* Festive cover with subtle snow effect */
+.theme-christmas-joy .invitation-cover {
+  background: linear-gradient(160deg, #1a3c2a, #2d1b1b 60%, #1a3c2a);
+  position: relative;
+  overflow: hidden;
+}
+.theme-christmas-joy .invitation-cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.15) 2px, transparent 2px),
+    radial-gradient(circle at 60% 20%, rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 80% 60%, rgba(255, 255, 255, 0.12) 2px, transparent 2px),
+    radial-gradient(circle at 40% 70%, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    radial-gradient(circle at 10% 80%, rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px);
+  background-size: 100% 100%;
+  animation: snowfall 10s linear infinite;
+}
+
+@keyframes snowfall {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(20px); }
+}
+
+/* Holly/star section dividers */
+.theme-christmas-joy .invitation-section {
+  position: relative;
+  border-top: 1px solid rgba(192, 57, 43, 0.12);
+}
+.theme-christmas-joy .invitation-section::before {
+  content: '❄';
+  position: absolute;
+  top: -10px; left: 50%;
+  transform: translateX(-50%);
+  color: #c0392b;
+  font-size: 14px;
+  background: var(--inv-bg-primary);
+  padding: 0 10px;
+}
+
+/* Red-green gradient countdown */
+.theme-christmas-joy .invitation-countdown .text-3xl,
+.theme-christmas-joy .invitation-countdown .text-5xl {
+  background: linear-gradient(135deg, #c0392b, #27ae60);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Warm glow on buttons */
+.theme-christmas-joy button[type="submit"],
+.theme-christmas-joy .animate-bounce-slow {
+  box-shadow: 0 4px 15px rgba(192, 57, 43, 0.25);
+}
+
+/* Subtle gift ribbon on content */
+.theme-christmas-joy .invitation-content {
+  border-left: 3px solid rgba(192, 57, 43, 0.08);
+  border-right: 3px solid rgba(39, 174, 96, 0.08);
+}

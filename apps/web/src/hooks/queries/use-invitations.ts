@@ -1,15 +1,23 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import type { Invitation, PaginatedResponse } from '@invitee/shared';
+import type { Invitation } from '@invitee/shared';
 
-export function useInvitations(page = 1, limit = 10) {
-  return useQuery({
+interface PaginatedResult<T> {
+  data: T[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
+export function useInvitations(params?: { page?: number; limit?: number }) {
+  const page = params?.page || 1;
+  const limit = params?.limit || 10;
+  return useQuery<PaginatedResult<Invitation>>({
     queryKey: ['invitations', page, limit],
     queryFn: async () => {
-      const { data } = await api.get<PaginatedResponse<Invitation>>('/invitations', {
+      const { data } = await api.get('/invitations', {
         params: { page, limit },
       });
-      return data;
+      // Unwrap TransformInterceptor: { success, data: { data: [...], meta } }
+      return (data as any)?.data || data;
     },
   });
 }

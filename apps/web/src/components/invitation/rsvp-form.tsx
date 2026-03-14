@@ -22,13 +22,20 @@ export default function RsvpFormSection({ invitationId, guestName }: RsvpFormSec
     e.preventDefault();
     if (!name.trim()) return;
 
+    // Map frontend values to backend DTO field names
+    const attendanceMap: Record<string, string> = {
+      'PRESENT': 'ATTENDING',
+      'ABSENT': 'NOT_ATTENDING',
+      'MAYBE': 'MAYBE',
+    };
+
     try {
       await createRsvp.mutateAsync({
         invitationId,
-        name,
-        attendance: attendance as any,
-        numberOfGuests,
-        wishes: wishes || undefined,
+        guestName: name,
+        attendance: attendanceMap[attendance] || attendance,
+        numGuests: numberOfGuests,
+        message: wishes || undefined,
       });
       setSubmitted(true);
     } catch (error) {
@@ -103,7 +110,13 @@ export default function RsvpFormSection({ invitationId, guestName }: RsvpFormSec
                 min={1}
                 max={10}
                 value={numberOfGuests}
-                onChange={(e) => setNumberOfGuests(parseInt(e.target.value) || 1)}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value);
+                  setNumberOfGuests(isNaN(val) || val < 1 ? 1 : val > 10 ? 10 : val);
+                }}
+                onBlur={(e) => {
+                  if (!e.target.value || parseInt(e.target.value) < 1) setNumberOfGuests(1);
+                }}
                 className="w-full px-4 py-3 rounded-xl bg-[var(--inv-bg-primary)] border border-[var(--inv-accent)]/20 text-[var(--inv-text-primary)] text-sm focus:ring-2 focus:ring-[var(--inv-accent)] outline-none"
               />
             </div>

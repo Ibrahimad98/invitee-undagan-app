@@ -1,4 +1,4 @@
-import { LayoutDashboard, Mail, Palette, Users, MessageSquare, Settings, PlusCircle } from 'lucide-react';
+import { LayoutDashboard, Mail, Palette, Users, MessageSquare, User, PlusCircle, Shield } from 'lucide-react';
 
 export const NAV_ITEMS = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -6,7 +6,8 @@ export const NAV_ITEMS = [
   { label: 'Template', href: '/dashboard/templates', icon: Palette },
   { label: 'Kontak / Tamu', href: '/dashboard/contacts', icon: Users },
   { label: 'Testimoni', href: '/dashboard/testimonials', icon: MessageSquare },
-  { label: 'Pengaturan', href: '/dashboard/settings', icon: Settings },
+  { label: 'Profil', href: '/dashboard/profile', icon: User },
+  { label: 'Kelola User', href: '/dashboard/users', icon: Shield, adminOnly: true },
 ];
 
 export const STEPPER_LABELS = [

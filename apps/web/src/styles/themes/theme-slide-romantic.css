@@ -1,10 +1,73 @@
-/* Theme: Slide Romantic - Warm romantic blush & burgundy */
+/* Theme: Slide Romantic - Soft blush pink & rose with slide layout */
 .invitation-root.theme-slide-romantic {
-  --inv-bg-primary: #fef6f0;
-  --inv-bg-secondary: #fce8dc;
-  --inv-text-primary: #3a1e2e;
-  --inv-text-secondary: #8a5a6a;
-  --inv-accent: #a4343a;
-  --inv-accent-text: #fef6f0;
-  font-family: 'Dancing Script', 'Great Vibes', cursive;
+  --inv-bg-primary: #fef6f4;
+  --inv-bg-secondary: #fce8e4;
+  --inv-text-primary: #3d1e28;
+  --inv-text-secondary: #8c5c6a;
+  --inv-accent: #e8758a;
+  --inv-accent-text: #ffffff;
+  font-family: 'Dancing Script', 'Playfair Display', cursive, serif;
 }
+
+/* Dreamy romantic cover */
+.theme-slide-romantic .invitation-cover {
+  background: linear-gradient(135deg, #3d1e28, #5c2f3e 40%, #3d1e28);
+  position: relative;
+  overflow: hidden;
+}
+.theme-slide-romantic .invitation-cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(ellipse at 30% 70%, rgba(232, 117, 138, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 30%, rgba(232, 117, 138, 0.1) 0%, transparent 60%);
+}
+
+/* Heart dividers */
+.theme-slide-romantic .invitation-section {
+  position: relative;
+  border-top: 1px solid rgba(232, 117, 138, 0.12);
+}
+.theme-slide-romantic .invitation-section::before {
+  content: '♥';
+  position: absolute;
+  top: -10px; left: 50%;
+  transform: translateX(-50%);
+  color: #e8758a;
+  font-size: 14px;
+  background: var(--inv-bg-primary);
+  padding: 0 10px;
+}
+
+/* Romantic script headings */
+.theme-slide-romantic h1 {
+  font-family: 'Dancing Script', cursive;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+/* Soft glow on images */
+.theme-slide-romantic .invitation-gallery img {
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(232, 117, 138, 0.15);
+}
+
+/* Blush gradient on RSVP */
+.theme-slide-romantic .invitation-rsvp {
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, rgba(232, 117, 138, 0.06) 0%, transparent 60%);
+}
+
+/* Floating hearts corners */
+.theme-slide-romantic .invitation-content::before,
+.theme-slide-romantic .invitation-content::after {
+  content: '♡';
+  position: fixed;
+  color: #e8758a;
+  font-size: 16px;
+  opacity: 0.15;
+  z-index: 5;
+}
+.theme-slide-romantic .invitation-content::before { top: 16px; right: 16px; }
+.theme-slide-romantic .invitation-content::after { bottom: 16px; left: 16px; }

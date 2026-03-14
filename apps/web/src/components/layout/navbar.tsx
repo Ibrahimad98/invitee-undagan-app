@@ -14,6 +14,10 @@ export function Navbar() {
 
   const handleLogout = () => {
     logout();
+    // Ensure localStorage is fully cleared
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('auth-storage');
+    }
     router.push('/login');
   };
 
@@ -55,7 +59,7 @@ export function Navbar() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+              <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
                 <User className="w-4 h-4 mr-2" />
                 Profil
               </DropdownMenuItem>

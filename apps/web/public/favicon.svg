@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- White badge/shield background -->
+  <rect x="2" y="2" width="28" height="28" rx="8" ry="8" fill="#ffffff" stroke="#f97316" stroke-width="1.5"/>
+  <!-- Orange letter "i" -->
+  <text x="16" y="23" font-family="Georgia, serif" font-size="22" font-weight="bold" fill="#f97316" text-anchor="middle" font-style="italic">i</text>
+  <!-- Orange dot accent -->
+  <circle cx="17" cy="7.5" r="2.2" fill="#f97316"/>
+</svg>

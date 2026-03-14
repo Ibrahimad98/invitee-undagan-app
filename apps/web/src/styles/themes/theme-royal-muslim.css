@@ -1,0 +1,62 @@
+/* Theme: Royal Muslim - Elegant Islamic green & gold with geometric patterns */
+.invitation-root.theme-royal-muslim {
+  --inv-bg-primary: #f7f5ef;
+  --inv-bg-secondary: #e8e3d4;
+  --inv-text-primary: #1d3225;
+  --inv-text-secondary: #4a6b50;
+  --inv-accent: #2d6a4f;
+  --inv-accent-text: #f7f5ef;
+  font-family: 'Amiri', 'Playfair Display', serif;
+}
+
+/* Islamic geometric patterned cover */
+.theme-royal-muslim .invitation-cover {
+  background: linear-gradient(160deg, #1d3225, #264d35, #1d3225);
+  position: relative;
+  overflow: hidden;
+}
+.theme-royal-muslim .invitation-cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(30deg, rgba(45, 106, 79, 0.2) 12%, transparent 12.5%, transparent 87%, rgba(45, 106, 79, 0.2) 87.5%),
+    linear-gradient(150deg, rgba(45, 106, 79, 0.2) 12%, transparent 12.5%, transparent 87%, rgba(45, 106, 79, 0.2) 87.5%),
+    linear-gradient(30deg, rgba(45, 106, 79, 0.2) 12%, transparent 12.5%, transparent 87%, rgba(45, 106, 79, 0.2) 87.5%),
+    linear-gradient(150deg, rgba(45, 106, 79, 0.2) 12%, transparent 12.5%, transparent 87%, rgba(45, 106, 79, 0.2) 87.5%);
+  background-size: 80px 140px;
+  background-position: 0 0, 0 0, 40px 70px, 40px 70px;
+}
+
+/* Bismillah-style arch dividers */
+.theme-royal-muslim .invitation-section {
+  position: relative;
+  border-top: 2px solid rgba(45, 106, 79, 0.12);
+}
+.theme-royal-muslim .invitation-section::before {
+  content: '۞';
+  position: absolute;
+  top: -12px; left: 50%;
+  transform: translateX(-50%);
+  color: #2d6a4f;
+  font-size: 18px;
+  background: var(--inv-bg-primary);
+  padding: 0 12px;
+}
+
+/* Green crescent accent */
+.theme-royal-muslim .invitation-cover .text-4xl {
+  font-size: 2.5rem;
+}
+
+/* Geometric frame on RSVP */
+.theme-royal-muslim .invitation-rsvp {
+  background-image: 
+    radial-gradient(ellipse at 0% 0%, rgba(45, 106, 79, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 100%, rgba(45, 106, 79, 0.06) 0%, transparent 50%);
+}
+
+/* Gold-green gradient text */
+.theme-royal-muslim h1 {
+  color: #c9a84c;
+}

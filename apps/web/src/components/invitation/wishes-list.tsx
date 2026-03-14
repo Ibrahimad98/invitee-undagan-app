@@ -8,8 +8,8 @@ interface WishesListSectionProps {
 }
 
 export default function WishesListSection({ invitationId }: WishesListSectionProps) {
-  const { data: rsvps } = useRsvps(invitationId);
-  const wishes = (rsvps || []).filter((r: any) => r.wishes);
+  const { data: rsvpData } = useRsvps(invitationId);
+  const wishes = (rsvpData?.data || []).filter((r: any) => r.wishes);
 
   if (wishes.length === 0) return null;
 
