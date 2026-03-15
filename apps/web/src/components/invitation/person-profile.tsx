@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useScrollAnimation, animClass } from '@/hooks/use-scroll-animation';
+import SectionOrnament from './section-ornament';
 
 interface PersonProfile {
   fullName: string;
@@ -47,12 +49,16 @@ function ProfilePhoto({ profile }: { profile: PersonProfile }) {
 }
 
 export default function PersonProfileSection({ profiles }: PersonProfileSectionProps) {
+  const { ref, isVisible } = useScrollAnimation(0.1);
+
   return (
-    <section className="invitation-section invitation-profiles py-10 sm:py-16 px-4 sm:px-8 bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
-      <div className="max-w-2xl mx-auto">
+    <section ref={ref} className="invitation-section invitation-profiles px-4 sm:px-8 bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
+      <SectionOrnament position="frame" />
+
+      <div className="max-w-2xl mx-auto w-full">
         <div className={`grid ${profiles.length === 1 ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'} gap-8 sm:gap-12`}>
           {profiles.map((profile, index) => (
-            <div key={index} className="text-center space-y-3 sm:space-y-4">
+            <div key={index} className={`text-center space-y-3 sm:space-y-4 ${animClass(isVisible, index === 0 ? 'fade-right' : 'fade-left', index * 200)}`}>
               {/* Photo */}
               <ProfilePhoto profile={profile} />
 

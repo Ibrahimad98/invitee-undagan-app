@@ -29,7 +29,7 @@ export function Sidebar() {
         {sidebarOpen && (
           <Link href="/dashboard" className="flex items-center gap-2">
             <img src="/favicon.svg" alt="Invitee" className="w-8 h-8" />
-            <span className="font-bold text-lg text-gray-900">Invitee</span>
+            <span className="font-bold text-lg text-orange-500">Invitee</span>
           </Link>
         )}
         <button

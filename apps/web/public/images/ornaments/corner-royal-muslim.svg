@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Royal Muslim: Islamic geometric arch with arabesque patterns -->
+  <g opacity="0.9">
+    <!-- Islamic arch shape -->
+    <path d="M10,120 L10,50 Q10,10 50,10 L120,10" stroke="#2d6a4f" stroke-width="1.5" fill="none" opacity="0.5"/>
+    <path d="M18,110 L18,52 Q18,18 52,18 L110,18" stroke="#2d6a4f" stroke-width="1" fill="none" opacity="0.3"/>
+    <!-- Arabesque corner flower -->
+    <circle cx="45" cy="45" r="12" stroke="#2d6a4f" stroke-width="0.8" fill="#2d6a4f" fill-opacity="0.06"/>
+    <path d="M45,33 L50,45 L45,57 L40,45 Z" stroke="#2d6a4f" stroke-width="0.6" fill="#2d6a4f" fill-opacity="0.1"/>
+    <path d="M33,45 L45,40 L57,45 L45,50 Z" stroke="#2d6a4f" stroke-width="0.6" fill="#2d6a4f" fill-opacity="0.1"/>
+    <circle cx="45" cy="45" r="4" fill="#2d6a4f" opacity="0.2"/>
+    <circle cx="45" cy="45" r="1.5" fill="#c9a84c" opacity="0.4"/>
+    <!-- Eight-pointed star -->
+    <path d="M45,30 L48,40 L58,37 L50,44 L58,53 L48,50 L45,60 L42,50 L32,53 L40,44 L32,37 L42,40 Z" stroke="#2d6a4f" stroke-width="0.5" fill="none" opacity="0.2"/>
+    <!-- Geometric tile along horizontal edge -->
+    <path d="M70,10 L80,18 L70,26 L60,18 Z" stroke="#2d6a4f" stroke-width="0.6" fill="#2d6a4f" fill-opacity="0.08"/>
+    <path d="M90,10 L97,18 L90,26 L83,18 Z" stroke="#2d6a4f" stroke-width="0.6" fill="#2d6a4f" fill-opacity="0.06"/>
+    <path d="M107,10 L112,16 L107,22 L102,16 Z" stroke="#2d6a4f" stroke-width="0.5" fill="#2d6a4f" fill-opacity="0.05"/>
+    <!-- Geometric tile along vertical edge -->
+    <path d="M10,70 L18,80 L26,70 L18,60 Z" stroke="#2d6a4f" stroke-width="0.6" fill="#2d6a4f" fill-opacity="0.08"/>
+    <path d="M10,90 L18,97 L26,90 L18,83 Z" stroke="#2d6a4f" stroke-width="0.6" fill="#2d6a4f" fill-opacity="0.06"/>
+    <path d="M10,107 L16,112 L22,107 L16,102 Z" stroke="#2d6a4f" stroke-width="0.5" fill="#2d6a4f" fill-opacity="0.05"/>
+    <!-- Gold accent dots -->
+    <circle cx="80" cy="18" r="1.5" fill="#c9a84c" opacity="0.3"/>
+    <circle cx="18" cy="80" r="1.5" fill="#c9a84c" opacity="0.3"/>
+    <!-- Crescent moon small accent -->
+    <path d="M25,18 Q30,13 30,22 Q26,18 25,18" fill="#c9a84c" opacity="0.25"/>
+  </g>
+</svg>

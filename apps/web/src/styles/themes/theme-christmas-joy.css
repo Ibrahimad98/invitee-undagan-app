@@ -34,20 +34,31 @@
   100% { transform: translateY(20px); }
 }
 
-/* SVG snowflake section dividers */
+/* Festive section decorations */
 .theme-christmas-joy .invitation-section {
   position: relative;
-  border-top: 1px solid rgba(192, 57, 43, 0.12);
 }
 .theme-christmas-joy .invitation-section::before {
   content: '';
   position: absolute;
-  top: -12px; left: 50%;
-  transform: translateX(-50%);
-  width: 24px; height: 24px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cline x1='12' y1='0' x2='12' y2='24' stroke='%23c0392b' stroke-width='1.5'/%3E%3Cline x1='0' y1='12' x2='24' y2='12' stroke='%23c0392b' stroke-width='1.5'/%3E%3Cline x1='3.5' y1='3.5' x2='20.5' y2='20.5' stroke='%23c0392b' stroke-width='1'/%3E%3Cline x1='20.5' y1='3.5' x2='3.5' y2='20.5' stroke='%23c0392b' stroke-width='1'/%3E%3Ccircle cx='12' cy='4' r='1.5' fill='%23c0392b'/%3E%3Ccircle cx='12' cy='20' r='1.5' fill='%23c0392b'/%3E%3Ccircle cx='4' cy='12' r='1.5' fill='%23c0392b'/%3E%3Ccircle cx='20' cy='12' r='1.5' fill='%23c0392b'/%3E%3C/svg%3E") no-repeat center/contain;
-  background-color: var(--inv-bg-primary);
-  padding: 0 2px;
+  inset: 8px;
+  border: 1px solid rgba(192, 57, 43, 0.08);
+  border-radius: 4px;
+  pointer-events: none;
+}
+.theme-christmas-joy .invitation-section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 5% 8%, rgba(192, 57, 43, 0.06) 0%, transparent 25%),
+    radial-gradient(circle at 95% 10%, rgba(39, 174, 96, 0.06) 0%, transparent 25%),
+    radial-gradient(circle at 8% 92%, rgba(39, 174, 96, 0.06) 0%, transparent 25%),
+    radial-gradient(circle at 92% 90%, rgba(192, 57, 43, 0.06) 0%, transparent 25%),
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.03) 2px, transparent 2px),
+    radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.03) 2px, transparent 2px),
+    radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.02) 1.5px, transparent 1.5px);
+  pointer-events: none;
 }
 
 /* Red-green gradient countdown */

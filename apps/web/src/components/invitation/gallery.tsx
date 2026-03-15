@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useScrollAnimation, animClass } from '@/hooks/use-scroll-animation';
+import SectionOrnament from './section-ornament';
 
 interface MediaItem {
   id: string;
@@ -27,6 +29,7 @@ export default function GallerySection({ media }: GallerySectionProps) {
   const [current, setCurrent] = useState(0);
   const trackRef = useRef<HTMLDivElement>(null);
   const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { ref: sectionRef, isVisible } = useScrollAnimation(0.1);
   const galleryMedia = media.filter((m) => m.purpose === 'GALLERY' || m.purpose === 'HERO');
 
   const total = galleryMedia.length;
@@ -56,8 +59,11 @@ export default function GallerySection({ media }: GallerySectionProps) {
   const getImageSrc = (item: MediaItem) => item.fileUrl || item.url || '';
 
   return (
-    <section className="invitation-section invitation-gallery py-10 sm:py-16 px-4 sm:px-8 bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
-      <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8">
+    <section ref={sectionRef} className="invitation-section invitation-gallery px-4 sm:px-8 bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
+      <SectionOrnament position="frame" />
+
+      <div className={`max-w-2xl mx-auto space-y-6 sm:space-y-8 w-full ${animClass(isVisible, 'fade-up')}`}>
+        <SectionOrnament position="divider" className="mb-2" />
         <h3 className="text-center text-xs sm:text-sm uppercase tracking-widest text-[var(--inv-text-secondary)]">
           Galeri Kami
         </h3>

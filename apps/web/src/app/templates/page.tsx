@@ -15,7 +15,7 @@ export default function PublicTemplatesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <img src="/favicon.svg" alt="Invitee" className="w-8 h-8" />
-            <span className="font-bold text-lg text-gray-900">Invitee</span>
+            <span className="font-bold text-lg text-orange-500">Invitee</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link
@@ -141,7 +141,7 @@ export default function PublicTemplatesPage() {
       <footer className="bg-white border-t border-gray-200 py-6 text-center">
         <div className="flex items-center justify-center gap-2 mb-2">
           <img src="/favicon.svg" alt="Invitee" className="w-6 h-6" />
-          <span className="font-bold text-gray-900">Invitee</span>
+          <span className="font-bold text-orange-500">Invitee</span>
         </div>
         <p className="text-xs text-gray-400">&copy; {new Date().getFullYear()} Invitee. All rights reserved.</p>
       </footer>

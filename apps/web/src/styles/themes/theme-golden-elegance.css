@@ -39,20 +39,28 @@
   background-clip: text;
 }
 
-/* SVG ornate diamond dividers */
+/* Luxury gold section decorations */
 .theme-golden-elegance .invitation-section {
   position: relative;
-  border-top: 1px solid rgba(212, 168, 67, 0.12);
 }
 .theme-golden-elegance .invitation-section::before {
   content: '';
   position: absolute;
-  top: -10px; left: 50%;
-  transform: translateX(-50%);
-  width: 22px; height: 22px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l4 10-4 10-4-10z' fill='none' stroke='%23d4a843' stroke-width='1.5'/%3E%3Cpath d='M2 12l10-4 10 4-10 4z' fill='none' stroke='%23d4a843' stroke-width='1.5'/%3E%3Ccircle cx='12' cy='12' r='2' fill='%23d4a843'/%3E%3C/svg%3E") no-repeat center/contain;
-  background-color: var(--inv-bg-primary);
-  padding: 0 2px;
+  inset: 6px;
+  border: 1px solid rgba(212, 168, 67, 0.15);
+  pointer-events: none;
+}
+.theme-golden-elegance .invitation-section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse at 0% 0%, rgba(212, 168, 67, 0.08) 0%, transparent 35%),
+    radial-gradient(ellipse at 100% 0%, rgba(212, 168, 67, 0.08) 0%, transparent 35%),
+    radial-gradient(ellipse at 0% 100%, rgba(212, 168, 67, 0.08) 0%, transparent 35%),
+    radial-gradient(ellipse at 100% 100%, rgba(212, 168, 67, 0.08) 0%, transparent 35%),
+    radial-gradient(ellipse at 50% 50%, rgba(212, 168, 67, 0.03) 0%, transparent 60%);
+  pointer-events: none;
 }
 
 /* Gold shimmer on cards */

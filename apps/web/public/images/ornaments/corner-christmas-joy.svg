@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Christmas Joy: Holly, candy cane, snowflakes, gift bow -->
+  <g opacity="0.9">
+    <!-- Holly leaves -->
+    <path d="M40,30 Q50,20 55,30 Q52,28 50,32 Q48,28 45,30 Q42,28 40,30" fill="#27ae60" opacity="0.4"/>
+    <path d="M35,38 Q45,28 50,38 Q47,36 45,40 Q43,36 40,38 Q37,36 35,38" fill="#27ae60" opacity="0.35"/>
+    <!-- Holly berries -->
+    <circle cx="48" cy="28" r="3.5" fill="#c0392b" opacity="0.45"/>
+    <circle cx="43" cy="32" r="3" fill="#c0392b" opacity="0.4"/>
+    <circle cx="52" cy="33" r="2.5" fill="#c0392b" opacity="0.35"/>
+    <!-- Candy cane -->
+    <path d="M75,15 Q75,5 85,5 Q95,5 95,15" stroke="#c0392b" stroke-width="3" fill="none" opacity="0.3"/>
+    <path d="M75,15 L75,55" stroke="#c0392b" stroke-width="3" fill="none" opacity="0.3"/>
+    <!-- Candy cane stripes -->
+    <path d="M73,20 L77,20" stroke="#ffffff" stroke-width="1.5" opacity="0.2"/>
+    <path d="M73,28 L77,28" stroke="#ffffff" stroke-width="1.5" opacity="0.2"/>
+    <path d="M73,36 L77,36" stroke="#ffffff" stroke-width="1.5" opacity="0.2"/>
+    <path d="M73,44 L77,44" stroke="#ffffff" stroke-width="1.5" opacity="0.2"/>
+    <!-- Snowflake 1 -->
+    <g transform="translate(120,50)" opacity="0.3">
+      <line x1="0" y1="-12" x2="0" y2="12" stroke="#c0392b" stroke-width="0.8"/>
+      <line x1="-10" y1="-6" x2="10" y2="6" stroke="#c0392b" stroke-width="0.8"/>
+      <line x1="-10" y1="6" x2="10" y2="-6" stroke="#c0392b" stroke-width="0.8"/>
+      <line x1="0" y1="-12" x2="-3" y2="-8" stroke="#c0392b" stroke-width="0.6"/>
+      <line x1="0" y1="-12" x2="3" y2="-8" stroke="#c0392b" stroke-width="0.6"/>
+      <line x1="0" y1="12" x2="-3" y2="8" stroke="#c0392b" stroke-width="0.6"/>
+      <line x1="0" y1="12" x2="3" y2="8" stroke="#c0392b" stroke-width="0.6"/>
+      <circle cx="0" cy="0" r="2" fill="#c0392b" opacity="0.4"/>
+    </g>
+    <!-- Snowflake 2 smaller -->
+    <g transform="translate(50,110)" opacity="0.2">
+      <line x1="0" y1="-8" x2="0" y2="8" stroke="#27ae60" stroke-width="0.6"/>
+      <line x1="-7" y1="-4" x2="7" y2="4" stroke="#27ae60" stroke-width="0.6"/>
+      <line x1="-7" y1="4" x2="7" y2="-4" stroke="#27ae60" stroke-width="0.6"/>
+      <circle cx="0" cy="0" r="1.5" fill="#27ae60" opacity="0.3"/>
+    </g>
+    <!-- Gift bow -->
+    <path d="M15,60 Q20,50 25,60 Q30,50 35,60 L25,70 Z" fill="#c0392b" opacity="0.2"/>
+    <path d="M25,60 L25,70" stroke="#c0392b" stroke-width="0.8" opacity="0.3"/>
+    <!-- Star on top -->
+    <path d="M20,12 l1.5,4 4,0 -3,2.5 1,4 -3.5-2.5 -3.5,2.5 1-4 -3-2.5 4,0z" fill="#feca57" opacity="0.35"/>
+    <!-- Scattered small dots like snow -->
+    <circle cx="100" cy="25" r="1.5" fill="#c0392b" opacity="0.15"/>
+    <circle cx="140" cy="80" r="1.5" fill="#27ae60" opacity="0.12"/>
+    <circle cx="30" cy="140" r="1.5" fill="#c0392b" opacity="0.12"/>
+    <circle cx="90" cy="90" r="1" fill="#27ae60" opacity="0.1"/>
+    <circle cx="150" cy="30" r="1" fill="#c0392b" opacity="0.1"/>
+    <!-- Pine needles -->
+    <path d="M150,100 L145,110 L155,110 Z" fill="#27ae60" opacity="0.15"/>
+    <path d="M148,105 L142,115 L158,115 Z" fill="#27ae60" opacity="0.12"/>
+  </g>
+</svg>

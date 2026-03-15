@@ -25,20 +25,28 @@
 .theme-super-classic .invitation-cover::before { top: 30px; }
 .theme-super-classic .invitation-cover::after { bottom: 30px; }
 
-/* SVG four-pointed star divider between sections */
+/* Ornate gold section decorations */
 .theme-super-classic .invitation-section {
   position: relative;
-  border-top: 1px solid rgba(201, 168, 76, 0.15);
 }
 .theme-super-classic .invitation-section::before {
   content: '';
   position: absolute;
-  top: -10px; left: 50%;
-  transform: translateX(-50%);
-  width: 20px; height: 20px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z' fill='%23c9a84c'/%3E%3C/svg%3E") no-repeat center/contain;
-  background-color: var(--inv-bg-primary);
-  padding: 0 4px;
+  inset: 8px;
+  border: 1px solid rgba(201, 168, 76, 0.12);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.theme-super-classic .invitation-section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse at 0% 0%, rgba(201, 168, 76, 0.06) 0%, transparent 40%),
+    radial-gradient(ellipse at 100% 0%, rgba(201, 168, 76, 0.06) 0%, transparent 40%),
+    radial-gradient(ellipse at 0% 100%, rgba(201, 168, 76, 0.06) 0%, transparent 40%),
+    radial-gradient(ellipse at 100% 100%, rgba(201, 168, 76, 0.06) 0%, transparent 40%);
+  pointer-events: none;
 }
 
 /* Gold gradient headings */

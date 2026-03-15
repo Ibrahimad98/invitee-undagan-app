@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Classic Victorian scroll corner ornament -->
+  <g opacity="0.9">
+    <!-- Main corner scroll -->
+    <path d="M10,10 Q10,50 30,70 Q50,90 90,90" stroke="#c9a84c" stroke-width="2" fill="none"/>
+    <path d="M10,10 Q50,10 70,30 Q90,50 90,90" stroke="#c9a84c" stroke-width="2" fill="none"/>
+    <!-- Inner scroll curl -->
+    <path d="M20,20 Q20,45 35,60 Q50,75 75,75" stroke="#c9a84c" stroke-width="1.5" fill="none"/>
+    <path d="M20,20 Q45,20 60,35 Q75,50 75,75" stroke="#c9a84c" stroke-width="1.5" fill="none"/>
+    <!-- Decorative spirals -->
+    <path d="M90,90 Q100,70 95,55 Q90,40 80,45 Q70,50 75,60" stroke="#c9a84c" stroke-width="1.2" fill="none"/>
+    <path d="M90,90 Q70,100 55,95 Q40,90 45,80 Q50,70 60,75" stroke="#c9a84c" stroke-width="1.2" fill="none"/>
+    <!-- Leaf ornaments -->
+    <path d="M30,70 Q25,55 35,45 Q40,50 35,60 Z" fill="#c9a84c" opacity="0.4"/>
+    <path d="M70,30 Q55,25 45,35 Q50,40 60,35 Z" fill="#c9a84c" opacity="0.4"/>
+    <!-- Center diamond -->
+    <path d="M45,45 L55,35 L65,45 L55,55 Z" fill="#c9a84c" opacity="0.3"/>
+    <circle cx="55" cy="45" r="3" fill="#c9a84c" opacity="0.5"/>
+    <!-- Corner filigree -->
+    <path d="M10,10 L15,10 L10,15 Z" fill="#c9a84c" opacity="0.6"/>
+    <path d="M5,30 Q8,20 18,22" stroke="#c9a84c" stroke-width="0.8" fill="none"/>
+    <path d="M30,5 Q20,8 22,18" stroke="#c9a84c" stroke-width="0.8" fill="none"/>
+    <!-- Extended vine -->
+    <path d="M90,90 Q110,85 130,90 Q140,92 150,88" stroke="#c9a84c" stroke-width="0.8" fill="none" opacity="0.5"/>
+    <path d="M90,90 Q85,110 90,130 Q92,140 88,150" stroke="#c9a84c" stroke-width="0.8" fill="none" opacity="0.5"/>
+    <!-- Small leaf on vine -->
+    <path d="M130,88 Q135,80 128,82 Z" fill="#c9a84c" opacity="0.25"/>
+    <path d="M88,130 Q80,135 82,128 Z" fill="#c9a84c" opacity="0.25"/>
+  </g>
+</svg>

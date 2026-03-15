@@ -35,20 +35,30 @@
   50% { opacity: 1; }
 }
 
-/* SVG party hat dividers */
+/* Playful confetti section decorations */
 .theme-kids-party .invitation-section {
   position: relative;
-  border-top: 3px dashed rgba(255, 107, 53, 0.2);
 }
 .theme-kids-party .invitation-section::before {
   content: '';
   position: absolute;
-  top: -14px; left: 50%;
-  transform: translateX(-50%);
-  width: 28px; height: 28px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Cpath d='M14 2l5 18H9z' fill='%23ff6b35' opacity='0.8'/%3E%3Ccircle cx='14' cy='2' r='2.5' fill='%23feca57'/%3E%3Cline x1='14' y1='2' x2='8' y2='8' stroke='%2348dbfb' stroke-width='1'/%3E%3Cline x1='14' y1='2' x2='20' y2='8' stroke='%23ff9ff3' stroke-width='1'/%3E%3Cline x1='14' y1='2' x2='14' y2='10' stroke='%23feca57' stroke-width='1'/%3E%3C/svg%3E") no-repeat center/contain;
-  background-color: var(--inv-bg-primary);
-  padding: 0 2px;
+  inset: 8px;
+  border: 2px dashed rgba(255, 107, 53, 0.1);
+  border-radius: 20px;
+  pointer-events: none;
+}
+.theme-kids-party .invitation-section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 8% 15%, rgba(255, 107, 107, 0.08) 6px, transparent 6px),
+    radial-gradient(circle at 92% 12%, rgba(72, 219, 251, 0.08) 5px, transparent 5px),
+    radial-gradient(circle at 15% 88%, rgba(254, 202, 87, 0.08) 7px, transparent 7px),
+    radial-gradient(circle at 88% 85%, rgba(255, 159, 243, 0.08) 5px, transparent 5px),
+    radial-gradient(circle at 50% 8%, rgba(84, 160, 255, 0.06) 4px, transparent 4px),
+    radial-gradient(circle at 45% 92%, rgba(95, 39, 205, 0.06) 4px, transparent 4px);
+  pointer-events: none;
 }
 
 /* Rounded, bubbly buttons */

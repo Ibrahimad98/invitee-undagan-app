@@ -24,17 +24,27 @@
   transform: translateY(80px);
 }
 
-/* Thin line section dividers */
+/* Minimal geometric section decorations */
 .theme-modern-minimal .invitation-section {
   position: relative;
-  border-top: 1px solid rgba(26, 26, 26, 0.06);
 }
 .theme-modern-minimal .invitation-section::before {
   content: '';
   position: absolute;
-  top: -1px; left: 30%; right: 30%;
-  height: 2px;
-  background: #1a1a1a;
+  top: 12px; bottom: 12px;
+  left: 12px; right: 12px;
+  border-top: 1px solid rgba(26, 26, 26, 0.06);
+  border-bottom: 1px solid rgba(26, 26, 26, 0.06);
+  pointer-events: none;
+}
+.theme-modern-minimal .invitation-section::after {
+  content: '';
+  position: absolute;
+  top: 20px; bottom: 20px;
+  left: 8px; right: 8px;
+  border-left: 1px solid rgba(26, 26, 26, 0.04);
+  border-right: 1px solid rgba(26, 26, 26, 0.04);
+  pointer-events: none;
 }
 
 /* Sharp typography */

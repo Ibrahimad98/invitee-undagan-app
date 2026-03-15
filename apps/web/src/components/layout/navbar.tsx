@@ -34,7 +34,7 @@ export function Navbar() {
           </button>
           <div className="lg:hidden flex items-center gap-2">
             <img src="/favicon.svg" alt="Invitee" className="w-7 h-7" />
-            <span className="font-bold text-gray-900">Invitee</span>
+            <span className="font-bold text-orange-500">Invitee</span>
           </div>
         </div>
 

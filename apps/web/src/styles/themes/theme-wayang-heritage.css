@@ -33,20 +33,28 @@
   border-radius: 4px;
 }
 
-/* SVG triple-diamond dividers */
+/* Batik-inspired section decorations */
 .theme-wayang-heritage .invitation-section {
   position: relative;
-  border-top: 1px solid rgba(139, 69, 19, 0.15);
 }
 .theme-wayang-heritage .invitation-section::before {
   content: '';
   position: absolute;
-  top: -8px; left: 50%;
-  transform: translateX(-50%);
-  width: 40px; height: 16px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 16'%3E%3Cpath d='M8 1l5 7-5 7-5-7z' fill='%238b4513'/%3E%3Cpath d='M20 3l4 5-4 5-4-5z' fill='none' stroke='%238b4513' stroke-width='1'/%3E%3Cpath d='M32 1l5 7-5 7-5-7z' fill='%238b4513'/%3E%3C/svg%3E") no-repeat center/contain;
-  background-color: var(--inv-bg-primary);
-  padding: 0 2px;
+  inset: 8px;
+  border: 2px solid rgba(139, 69, 19, 0.08);
+  border-radius: 3px;
+  pointer-events: none;
+}
+.theme-wayang-heritage .invitation-section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(139, 69, 19, 0.03) 0px, rgba(139, 69, 19, 0.03) 1px, transparent 1px, transparent 20px),
+    repeating-linear-gradient(-45deg, rgba(139, 69, 19, 0.03) 0px, rgba(139, 69, 19, 0.03) 1px, transparent 1px, transparent 20px),
+    radial-gradient(ellipse at 5% 5%, rgba(139, 69, 19, 0.06) 0%, transparent 30%),
+    radial-gradient(ellipse at 95% 95%, rgba(139, 69, 19, 0.06) 0%, transparent 30%);
+  pointer-events: none;
 }
 
 /* Warm sepia glow on images */

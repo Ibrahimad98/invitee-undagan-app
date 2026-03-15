@@ -2,6 +2,8 @@
 
 import { useRsvps } from '@/hooks/queries/use-rsvps';
 import { formatDate } from '@invitee/shared';
+import { useScrollAnimation, animClass } from '@/hooks/use-scroll-animation';
+import SectionOrnament from './section-ornament';
 
 interface WishesListSectionProps {
   invitationId: string;
@@ -10,12 +12,16 @@ interface WishesListSectionProps {
 export default function WishesListSection({ invitationId }: WishesListSectionProps) {
   const { data: rsvpData } = useRsvps(invitationId);
   const wishes = (rsvpData?.data || []).filter((r: any) => r.message);
+  const { ref, isVisible } = useScrollAnimation(0.1);
 
   if (wishes.length === 0) return null;
 
   return (
-    <section className="invitation-section invitation-wishes py-10 sm:py-16 px-4 sm:px-8 bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
-      <div className="max-w-md mx-auto space-y-6 sm:space-y-8">
+    <section ref={ref} className="invitation-section invitation-wishes px-4 sm:px-8 bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
+      <SectionOrnament position="frame" />
+
+      <div className={`max-w-md mx-auto space-y-6 sm:space-y-8 w-full ${animClass(isVisible, 'fade-up')}`}>
+        <SectionOrnament position="divider" className="mb-2" />
         <h3 className="text-center text-xs sm:text-sm uppercase tracking-widest text-[var(--inv-text-secondary)]">
           Ucapan & Doa
         </h3>

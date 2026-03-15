@@ -7,19 +7,63 @@
   --inv-text-secondary: #6b6560;
   --inv-accent: #b08968;
   --inv-accent-text: #ffffff;
+  --inv-ornament-scale: 1;
 
   font-family: 'Playfair Display', 'Georgia', serif;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
+/* Scroll-snap container for full-screen slide feel */
 .invitation-content {
   animation: invitation-fade-in 1s ease-out;
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-snap-type: y proximity;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
+/* Each section fills the screen and snaps */
 .invitation-section {
   position: relative;
   overflow: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+
+/* Theme pseudo-element decorations stay behind content */
+.invitation-section::before,
+.invitation-section::after {
+  z-index: 0;
+}
+
+/* Ornament layer stays behind content */
+.invitation-section > [aria-hidden="true"] {
+  z-index: 0 !important;
+}
+
+/* Actual section content stays above decorations */
+.invitation-section > *:not([aria-hidden="true"]) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Smooth scrollbar for the snap container */
+.invitation-content::-webkit-scrollbar {
+  width: 0;
+  display: none;
+}
+.invitation-content {
+  scrollbar-width: none;
 }
 
 /* Responsive section padding */

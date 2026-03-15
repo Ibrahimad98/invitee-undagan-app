@@ -71,7 +71,7 @@ export default function InvitationPreviewPage() {
         />
       )}
 
-      {/* Main Content */}
+      {/* Main Content — scroll-snap container */}
       {isOpen && (
         <main className="invitation-content">
           {/* Hero / Opening */}

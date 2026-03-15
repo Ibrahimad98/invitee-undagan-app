@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Slide Romantic: Hearts, roses, love birds silhouette -->
+  <g opacity="0.9">
+    <!-- Main heart -->
+    <path d="M50,55 C50,40 30,30 30,45 C30,60 50,75 50,75 C50,75 70,60 70,45 C70,30 50,40 50,55" fill="#e8758a" opacity="0.2" stroke="#e8758a" stroke-width="0.5"/>
+    <!-- Smaller hearts scattered -->
+    <path d="M25,20 C25,15 18,12 18,17 C18,22 25,28 25,28 C25,28 32,22 32,17 C32,12 25,15 25,20" fill="#e8758a" opacity="0.18"/>
+    <path d="M85,30 C85,26 80,24 80,27 C80,30 85,34 85,34 C85,34 90,30 90,27 C90,24 85,26 85,30" fill="#e8758a" opacity="0.12"/>
+    <path d="M20,90 C20,87 16,85 16,88 C16,91 20,94 20,94 C20,94 24,91 24,88 C24,85 20,87 20,90" fill="#e8758a" opacity="0.12"/>
+    <!-- Rose vine -->
+    <path d="M50,75 Q55,90 50,110 Q47,130 52,150" stroke="#e8758a" stroke-width="1" fill="none" opacity="0.3"/>
+    <path d="M70,45 Q90,42 110,50 Q130,55 150,48" stroke="#e8758a" stroke-width="1" fill="none" opacity="0.3"/>
+    <!-- Small leaves on vine -->
+    <path d="M52,95 Q58,88 56,98 Q54,92 52,95 Z" fill="#8c5c6a" opacity="0.25"/>
+    <path d="M48,120 Q42,113 45,123 Q46,118 48,120 Z" fill="#8c5c6a" opacity="0.2"/>
+    <path d="M95,45 Q102,38 98,48 Q96,43 95,45 Z" fill="#8c5c6a" opacity="0.25"/>
+    <path d="M125,52 Q131,45 128,55 Q126,50 125,52 Z" fill="#8c5c6a" opacity="0.2"/>
+    <!-- Tiny rose buds -->
+    <circle cx="50" cy="140" r="4" fill="#e8758a" opacity="0.15"/>
+    <circle cx="140" cy="50" r="4" fill="#e8758a" opacity="0.15"/>
+    <!-- Swirl decorations -->
+    <path d="M10,10 Q15,5 20,10 Q25,15 20,20 Q15,18 15,12" stroke="#e8758a" stroke-width="0.8" fill="none" opacity="0.25"/>
+    <path d="M35,8 Q38,5 40,8" stroke="#e8758a" stroke-width="0.5" fill="none" opacity="0.2"/>
+    <path d="M8,35 Q5,38 8,40" stroke="#e8758a" stroke-width="0.5" fill="none" opacity="0.2"/>
+    <!-- Tiny dots -->
+    <circle cx="105" cy="60" r="1.5" fill="#e8758a" opacity="0.15"/>
+    <circle cx="60" cy="105" r="1.5" fill="#e8758a" opacity="0.15"/>
+    <circle cx="130" cy="48" r="1" fill="#e8758a" opacity="0.12"/>
+    <circle cx="48" cy="135" r="1" fill="#e8758a" opacity="0.12"/>
+  </g>
+</svg>

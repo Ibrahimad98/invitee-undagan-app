@@ -255,15 +255,21 @@ export default function TemplatePreviewPage() {
       </div>
 
       {/* Phone Frame Container */}
-      <div className="flex-1 flex items-start justify-center py-4 sm:py-6 px-4 overflow-auto">
-        <div className="w-full max-w-[430px] bg-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl shadow-black/40 relative">
+      <div className="flex-1 flex items-start justify-center py-4 sm:py-6 px-4 overflow-hidden">
+        <div className="w-full max-w-[430px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl shadow-black/40 relative" style={{ height: 'calc(100vh - 56px)', maxHeight: '900px' }}>
           {/* Override fixed positioning within phone frame */}
           <style>{`
             .phone-frame .invitation-cover {
               position: absolute !important;
             }
+            .phone-frame .invitation-content {
+              height: 100% !important;
+            }
+            .phone-frame .invitation-section {
+              min-height: 100% !important;
+            }
           `}</style>
-          <div className={`phone-frame invitation-root ${themeClass}`}>
+          <div className={`phone-frame invitation-root ${themeClass} h-full`} style={{ background: themeConf.frameBg }}>
             {/* Cover Screen */}
             {!isOpen && (
               <CoverScreen
