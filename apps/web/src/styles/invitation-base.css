@@ -22,6 +22,20 @@
   overflow: hidden;
 }
 
+/* Responsive section padding */
+.invitation-section,
+.invitation-cover .text-center {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+@media (min-width: 640px) {
+  .invitation-section,
+  .invitation-cover .text-center {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
 /* Animations */
 @keyframes invitation-fade-in {
   from {

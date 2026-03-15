@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="g4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ede7f6"/>
+      <stop offset="100%" stop-color="#d1c4e9"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#g4)"/>
+  <!-- Cake tiers -->
+  <rect x="155" y="240" width="90" height="45" rx="6" fill="#9575cd" opacity="0.2"/>
+  <rect x="140" y="195" width="120" height="50" rx="8" fill="#7e57c2" opacity="0.18"/>
+  <rect x="125" y="145" width="150" height="55" rx="10" fill="#673ab7" opacity="0.15"/>
+  <!-- Cake topper -->
+  <circle cx="185" cy="130" r="10" fill="#4527a0" opacity="0.15"/>
+  <circle cx="215" cy="128" r="9" fill="#4527a0" opacity="0.15"/>
+  <path d="M200,118 Q200,108 192,112 Q185,116 192,122 L200,128 L208,122 Q215,116 208,112 Q200,108 200,118Z" fill="#7c4dff" opacity="0.2"/>
+  <!-- Cake decorations -->
+  <circle cx="165" cy="215" r="4" fill="#b39ddb" opacity="0.3"/>
+  <circle cx="200" cy="210" r="4" fill="#b39ddb" opacity="0.3"/>
+  <circle cx="235" cy="215" r="4" fill="#b39ddb" opacity="0.3"/>
+  <line x1="155" y1="265" x2="245" y2="265" stroke="#ce93d8" stroke-width="1" opacity="0.3"/>
+  <!-- Table surface -->
+  <ellipse cx="200" cy="290" rx="110" ry="12" fill="#b39ddb" opacity="0.1"/>
+  <!-- Confetti -->
+  <rect x="80" y="100" width="8" height="3" rx="1" transform="rotate(25,84,101)" fill="#e040fb" opacity="0.2"/>
+  <rect x="310" y="80" width="8" height="3" rx="1" transform="rotate(-15,314,81)" fill="#7c4dff" opacity="0.2"/>
+  <rect x="90" y="200" width="6" height="3" rx="1" transform="rotate(45,93,201)" fill="#e040fb" opacity="0.15"/>
+  <!-- Text -->
+  <text x="200" y="340" text-anchor="middle" font-family="serif" font-size="16" fill="#4527a0" opacity="0.4">Wedding Cake</text>
+</svg>

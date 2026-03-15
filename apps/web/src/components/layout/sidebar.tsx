@@ -28,9 +28,7 @@ export function Sidebar() {
       <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
         {sidebarOpen && (
           <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">IN</span>
-            </div>
+            <img src="/favicon.svg" alt="Invitee" className="w-8 h-8" />
             <span className="font-bold text-lg text-gray-900">Invitee</span>
           </Link>
         )}

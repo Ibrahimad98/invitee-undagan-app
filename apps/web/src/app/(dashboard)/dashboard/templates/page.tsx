@@ -88,20 +88,27 @@ export default function TemplatesPage() {
                 className="overflow-hidden hover:shadow-lg transition-shadow group"
               >
                 {/* Thumbnail */}
-                <div className="h-48 bg-gradient-to-br from-primary-50 to-secondary-50 relative overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-4xl font-serif text-primary-300">
-                      {template.name.charAt(0)}
-                    </span>
+                <div className="h-48 bg-gradient-to-br from-primary-50 to-secondary-50 relative overflow-hidden flex items-center justify-center">
+                  {/* Typography fallback behind the image */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center pointer-events-none">
+                    <div className="text-3xl mb-1">💌</div>
+                    <p className="text-sm font-semibold text-gray-400 capitalize">{template.name}</p>
+                    <p className="text-xs text-gray-300 mt-1">{template.category || 'Template'}</p>
                   </div>
+                  <img
+                    src={`/images/templates/${template.slug}.svg`}
+                    alt={template.name}
+                    className="w-full h-full object-cover relative z-[1]"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  />
                   {template.isPremium && (
-                    <Badge className="absolute top-2 right-2 bg-yellow-500">
+                    <Badge className="absolute top-2 right-2 z-[2] bg-yellow-500">
                       Premium
                     </Badge>
                   )}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                  <div className="absolute inset-0 z-[2] bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
                     <Link
-                      href={`/khitanan-muhammad-zidan-febriansyah/${template.id}`}
+                      href={`/preview/${template.slug}`}
                       target="_blank"
                       className="px-4 py-2 bg-white rounded-lg text-sm font-medium text-gray-900 hover:bg-gray-50"
                     >

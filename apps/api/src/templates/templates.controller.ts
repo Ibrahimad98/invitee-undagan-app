@@ -20,6 +20,13 @@ export class TemplatesController {
   }
 
   @Public()
+  @Get('public')
+  @ApiOperation({ summary: 'Get all templates for public display (filtered fields)' })
+  async findAllPublic() {
+    return this.templatesService.findAllPublic();
+  }
+
+  @Public()
   @Get(':id')
   @ApiOperation({ summary: 'Get template by ID (public)' })
   async findOne(@Param('id') id: string) {

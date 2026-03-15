@@ -2,54 +2,134 @@
 
 import { formatDate } from '@invitee/shared';
 
+interface ThemeConfig {
+  frameBg: string;
+  coverBg: string;
+  coverOverlay?: string;
+  accent: string;
+  textPrimary: string;
+  textSecondary: string;
+  borderColor: string;
+  ornamentTop: string;
+  ornamentBottom: string;
+}
+
 interface CoverScreenProps {
   title: string;
   guestName: string;
   eventDate: Date | null;
   onOpen: () => void;
+  themeConfig?: ThemeConfig;
 }
 
-export default function CoverScreen({ title, guestName, eventDate, onOpen }: CoverScreenProps) {
-  return (
-    <div className="invitation-cover fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-b from-[var(--inv-bg-primary)] to-[var(--inv-bg-secondary)] text-[var(--inv-text-primary)]">
-      <div className="text-center space-y-6 px-8 max-w-md animate-fade-in">
-        {/* Ornament Top */}
-        <div className="text-[var(--inv-accent)] text-4xl font-serif">✦</div>
+export default function CoverScreen({ title, guestName, eventDate, onOpen, themeConfig }: CoverScreenProps) {
+  // If themeConfig is provided (preview), use its colors; otherwise fall back to CSS vars
+  const tc = themeConfig;
+  const bgStyle = tc ? { background: tc.coverBg } : {};
+  const textColor = tc ? tc.textPrimary : 'var(--inv-text-primary)';
+  const textSecondary = tc ? tc.textSecondary : 'var(--inv-text-secondary)';
+  const accentColor = tc ? tc.accent : 'var(--inv-accent)';
+  const borderColor = tc ? tc.borderColor : 'var(--inv-accent)';
 
-        {/* Title */}
-        <h1 className="text-3xl md:text-4xl font-serif leading-tight">{title}</h1>
+  return (
+    <div
+      className="invitation-cover fixed inset-0 z-50 flex flex-col items-center justify-center"
+      style={{
+        ...bgStyle,
+        ...(!tc ? {
+          background: 'linear-gradient(to bottom, var(--inv-bg-primary), var(--inv-bg-secondary))',
+        } : {}),
+        color: textColor,
+      }}
+    >
+      {/* Decorative border frame */}
+      <div
+        className="absolute inset-4 sm:inset-5 rounded-sm pointer-events-none"
+        style={{ border: `1.5px solid ${borderColor}`, opacity: 0.3 }}
+      />
+      <div
+        className="absolute inset-6 sm:inset-8 rounded-sm pointer-events-none"
+        style={{ border: `1px solid ${borderColor}`, opacity: 0.15 }}
+      />
+
+      <div className="text-center space-y-4 sm:space-y-5 px-6 sm:px-10 max-w-sm animate-fade-in relative z-10">
+        {/* Top ornament */}
+        <div
+          className="flex justify-center"
+          dangerouslySetInnerHTML={{
+            __html: tc
+              ? tc.ornamentTop
+              : `<svg width="32" height="32" viewBox="0 0 24 24"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z" fill="${accentColor}"/></svg>`
+          }}
+        />
+
+        {/* "UNDANGAN" label — matching thumbnail style */}
+        <p
+          className="text-[10px] sm:text-xs tracking-[0.3em] uppercase font-medium"
+          style={{ color: textSecondary }}
+        >
+          Undangan Pernikahan
+        </p>
+
+        {/* Title / Names */}
+        <h1
+          className="text-2xl sm:text-3xl md:text-4xl font-serif leading-tight"
+          style={{ color: textColor }}
+        >
+          {title}
+        </h1>
 
         {/* Date */}
         {eventDate && (
-          <p className="text-sm text-[var(--inv-text-secondary)] tracking-widest uppercase">
+          <p
+            className="text-xs sm:text-sm tracking-widest uppercase"
+            style={{ color: textSecondary }}
+          >
             {formatDate(eventDate.toISOString())}
           </p>
         )}
 
-        {/* Divider */}
-        <div className="w-16 h-px bg-[var(--inv-accent)] mx-auto opacity-50" />
+        {/* Divider line */}
+        <div
+          className="w-14 sm:w-20 h-px mx-auto"
+          style={{ background: borderColor, opacity: 0.4 }}
+        />
 
         {/* Guest Name */}
         <div>
-          <p className="text-xs text-[var(--inv-text-secondary)] uppercase tracking-wider mb-2">
+          <p
+            className="text-[10px] sm:text-xs uppercase tracking-[0.2em] mb-2"
+            style={{ color: textSecondary }}
+          >
             Kepada Yth.
           </p>
-          <p className="text-xl font-semibold">{guestName}</p>
+          <p className="text-lg sm:text-xl font-semibold" style={{ color: textColor }}>
+            {guestName}
+          </p>
         </div>
 
         {/* Open Button */}
         <button
           onClick={onOpen}
-          className="mt-8 px-8 py-3 bg-[var(--inv-accent)] text-[var(--inv-accent-text)] rounded-full text-sm font-medium tracking-wider uppercase hover:opacity-90 transition-opacity animate-bounce-slow"
+          className="mt-6 sm:mt-8 px-6 sm:px-8 py-3 rounded-full text-sm font-medium tracking-wider uppercase hover:opacity-90 transition-opacity animate-bounce-slow"
+          style={{
+            background: tc ? tc.accent : 'var(--inv-accent)',
+            color: tc ? (tc.accent === '#1a1a1a' ? '#ffffff' : tc.textPrimary.startsWith('#f') || tc.textPrimary === '#ffffff' ? '#ffffff' : tc.frameBg) : 'var(--inv-accent-text)',
+          }}
         >
           Buka Undangan
         </button>
       </div>
 
-      {/* Ornament Bottom */}
-      <div className="absolute bottom-8 text-[var(--inv-accent)] text-2xl font-serif opacity-50">
-        ❦
-      </div>
+      {/* Bottom ornament */}
+      <div
+        className="absolute bottom-6 sm:bottom-10 flex justify-center opacity-60"
+        dangerouslySetInnerHTML={{
+          __html: tc
+            ? tc.ornamentBottom
+            : `<svg width="28" height="28" viewBox="0 0 32 32"><path d="M16 4c2 6 6 10 12 12-6 2-10 6-12 12-2-6-6-10-12-12 6-2 10-6 12-12z" fill="none" stroke="${accentColor}" stroke-width="1.5"/><circle cx="16" cy="16" r="2.5" fill="${accentColor}"/></svg>`
+        }}
+      />
     </div>
   );
 }

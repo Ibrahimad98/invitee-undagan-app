@@ -214,7 +214,7 @@ export default function ProfilePage() {
       {activeTab === 'password' && (
         <div className="space-y-6">
           {/* Step Indicator */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-center">
             {PASSWORD_STEPS.map((step, index) => {
               const StepIcon = step.icon;
               const stepNum = index + 1;
@@ -222,11 +222,11 @@ export default function ProfilePage() {
               const isCompleted = passwordStep > stepNum;
 
               return (
-                <div key={step.label} className="flex items-center flex-1">
-                  <div className="flex flex-col items-center flex-1">
+                <div key={step.label} className="flex items-center">
+                  <div className="flex flex-col items-center">
                     <div
                       className={cn(
-                        'w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300',
+                        'w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300',
                         isCompleted
                           ? 'bg-primary-600 border-primary-600 text-white'
                           : isActive
@@ -235,14 +235,14 @@ export default function ProfilePage() {
                       )}
                     >
                       {isCompleted ? (
-                        <CheckCircle2 className="w-5 h-5" />
+                        <CheckCircle2 className="w-4 h-4" />
                       ) : (
-                        <StepIcon className="w-5 h-5" />
+                        <StepIcon className="w-4 h-4" />
                       )}
                     </div>
                     <span
                       className={cn(
-                        'mt-2 text-xs font-medium',
+                        'mt-1.5 text-xs font-medium whitespace-nowrap',
                         isActive || isCompleted ? 'text-primary-700' : 'text-gray-400',
                       )}
                     >
@@ -252,7 +252,7 @@ export default function ProfilePage() {
                   {index < PASSWORD_STEPS.length - 1 && (
                     <div
                       className={cn(
-                        'h-0.5 w-full mx-2 -mt-5 transition-colors duration-300',
+                        'h-0.5 w-12 sm:w-20 mx-2 mb-6 transition-colors duration-300',
                         isCompleted ? 'bg-primary-600' : 'bg-gray-200',
                       )}
                     />

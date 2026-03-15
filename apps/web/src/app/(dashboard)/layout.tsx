@@ -7,6 +7,7 @@ import { useUIStore } from '@/stores/ui-store';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Navbar } from '@/components/layout/navbar';
 import { MobileNav } from '@/components/layout/mobile-nav';
+import { LoadingScreen } from '@/components/ui/loading-screen';
 import { cn } from '@/lib/utils';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -21,11 +22,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [_hasHydrated, isAuthenticated, router]);
 
   if (!_hasHydrated || !isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (

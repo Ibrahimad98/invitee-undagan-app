@@ -1,18 +1,24 @@
 'use client';
 
 import { useDashboardStats } from '@/hooks/queries/use-dashboard-stats';
+import { useTemplates } from '@/hooks/queries/use-templates';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Eye, Mail, Users, CheckCircle, XCircle, Clock, PlusCircle, Palette } from 'lucide-react';
+import { useAuthStore } from '@/stores/auth-store';
+import { Eye, Mail, Users, CheckCircle, XCircle, Clock, PlusCircle, Palette, Star, ArrowRight, Send, BookOpen } from 'lucide-react';
 import { formatRelativeTime } from '@/lib/utils';
 import { EVENT_TYPE_LABELS } from '@invitee/shared';
 import Link from 'next/link';
 
 export default function DashboardPage() {
   const { data: stats, isLoading } = useDashboardStats();
+  const { data: templateData } = useTemplates();
+  const { user } = useAuthStore();
   const router = useRouter();
+
+  const templates = templateData?.data || [];
 
   const statCards = [
     { label: 'Total Undangan', value: stats?.totalInvitations ?? 0, icon: Mail, color: 'text-blue-600 bg-blue-50' },
@@ -25,22 +31,46 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-500 mt-1">Selamat datang di Invitee</p>
-        </div>
-        <div className="flex gap-3">
-          <Button variant="outline" onClick={() => router.push('/dashboard/templates')}>
-            <Palette className="w-4 h-4 mr-2" />
-            Template
-          </Button>
-          <Button onClick={() => router.push('/dashboard/invitations/new')}>
+      {/* Welcome Banner */}
+      <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl p-6 sm:p-8 text-white">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold">
+              Selamat Datang{user?.fullName ? `, ${user.fullName}` : ''}! 👋
+            </h1>
+            <p className="text-primary-100 text-sm mt-1">
+              Buat dan kelola undangan digital Anda dengan mudah dan cepat.
+            </p>
+          </div>
+          <Button
+            onClick={() => router.push('/dashboard/invitations/new')}
+            className="bg-white text-primary-600 hover:bg-primary-50 shrink-0"
+          >
             <PlusCircle className="w-4 h-4 mr-2" />
             Buat Undangan
           </Button>
         </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { label: 'Buat Undangan', icon: PlusCircle, href: '/dashboard/invitations/new', color: 'bg-blue-50 text-blue-600' },
+          { label: 'Template', icon: Palette, href: '/dashboard/templates', color: 'bg-purple-50 text-purple-600' },
+          { label: 'Kontak', icon: BookOpen, href: '/dashboard/contacts', color: 'bg-green-50 text-green-600' },
+          { label: 'Kirim Undangan', icon: Send, href: '/dashboard/invitations', color: 'bg-amber-50 text-amber-600' },
+        ].map((action) => (
+          <Link
+            key={action.label}
+            href={action.href}
+            className="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-100 hover:shadow-md transition-shadow"
+          >
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${action.color}`}>
+              <action.icon className="w-5 h-5" />
+            </div>
+            <span className="text-sm font-medium text-gray-900">{action.label}</span>
+          </Link>
+        ))}
       </div>
 
       {/* Stats Grid */}
@@ -66,6 +96,47 @@ export default function DashboardPage() {
           </Card>
         ))}
       </div>
+
+      {/* Template Showcase */}
+      {templates.length > 0 && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Template Populer</CardTitle>
+            <Link
+              href="/dashboard/templates"
+              className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+            >
+              Lihat Semua <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1">
+              {templates.slice(0, 6).map((template: any) => (
+                <Link
+                  key={template.id}
+                  href={`/preview/${template.slug}`}
+                  target="_blank"
+                  className="flex-shrink-0 w-36 group"
+                >
+                  <div className="h-44 rounded-lg overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 mb-2">
+                    <img
+                      src={`/images/templates/${template.slug}.svg`}
+                      alt={template.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                  </div>
+                  <p className="text-xs font-medium text-gray-900 truncate">{template.name}</p>
+                  <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
+                    <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                    {template.ratingAvg?.toFixed(1) || '0.0'}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Recent Invitations */}
       <Card>

@@ -29,9 +29,9 @@ export default function InvitationPreviewPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center space-y-4">
-          <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto" />
-          <p className="text-gray-500">Memuat undangan...</p>
+        <div className="relative flex items-center justify-center">
+          <div className="w-14 h-14 rounded-full border-[3px] border-gray-200 border-t-primary-600 animate-spin" />
+          <img src="/favicon.svg" alt="Invitee" className="absolute w-7 h-7" />
         </div>
       </div>
     );

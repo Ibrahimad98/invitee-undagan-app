@@ -54,7 +54,7 @@ async function main() {
       data: {
         name: 'Super Classic',
         slug: 'super-classic',
-        thumbnailUrl: '/images/templates/super-classic.jpg',
+        thumbnailUrl: '/images/templates/super-classic.svg',
         category: 'elegan',
         tags: ['elegan', 'formal', 'classic', 'gold'],
         cssClass: 'theme-super-classic',
@@ -69,7 +69,7 @@ async function main() {
       data: {
         name: 'Simple Java',
         slug: 'simple-java',
-        thumbnailUrl: '/images/templates/simple-java.jpg',
+        thumbnailUrl: '/images/templates/simple-java.svg',
         category: 'budaya',
         tags: ['budaya', 'jawa', 'batik', 'traditional'],
         cssClass: 'theme-simple-java',
@@ -84,7 +84,7 @@ async function main() {
       data: {
         name: 'Floral Garden',
         slug: 'floral-garden',
-        thumbnailUrl: '/images/templates/floral-garden.jpg',
+        thumbnailUrl: '/images/templates/floral-garden.svg',
         category: 'bunga',
         tags: ['bunga', 'floral', 'pink', 'romantic'],
         cssClass: 'theme-floral-garden',
@@ -99,7 +99,7 @@ async function main() {
       data: {
         name: 'Golden Elegance',
         slug: 'golden-elegance',
-        thumbnailUrl: '/images/templates/golden-elegance.jpg',
+        thumbnailUrl: '/images/templates/golden-elegance.svg',
         category: 'gold',
         tags: ['gold', 'formal', 'elegan', 'luxury'],
         cssClass: 'theme-golden-elegance',
@@ -114,7 +114,7 @@ async function main() {
       data: {
         name: 'Royal Muslim',
         slug: 'royal-muslim',
-        thumbnailUrl: '/images/templates/royal-muslim.jpg',
+        thumbnailUrl: '/images/templates/royal-muslim.svg',
         category: 'muslim',
         tags: ['muslim', 'islamic', 'green', 'gold'],
         cssClass: 'theme-royal-muslim',
@@ -129,7 +129,7 @@ async function main() {
       data: {
         name: 'Kids Party',
         slug: 'kids-party',
-        thumbnailUrl: '/images/templates/kids-party.jpg',
+        thumbnailUrl: '/images/templates/kids-party.svg',
         category: 'anak',
         tags: ['anak', 'colorful', 'fun', 'birthday'],
         cssClass: 'theme-kids-party',
@@ -144,7 +144,7 @@ async function main() {
       data: {
         name: 'Wayang Heritage',
         slug: 'wayang-heritage',
-        thumbnailUrl: '/images/templates/wayang-heritage.jpg',
+        thumbnailUrl: '/images/templates/wayang-heritage.svg',
         category: 'budaya',
         tags: ['budaya', 'wayang', 'traditional', 'brown'],
         cssClass: 'theme-wayang-heritage',
@@ -159,7 +159,7 @@ async function main() {
       data: {
         name: 'Modern Minimal',
         slug: 'modern-minimal',
-        thumbnailUrl: '/images/templates/modern-minimal.jpg',
+        thumbnailUrl: '/images/templates/modern-minimal.svg',
         category: 'simple',
         tags: ['simple', 'minimal', 'clean', 'modern'],
         cssClass: 'theme-modern-minimal',
@@ -174,7 +174,7 @@ async function main() {
       data: {
         name: 'Christmas Joy',
         slug: 'christmas-joy',
-        thumbnailUrl: '/images/templates/christmas-joy.jpg',
+        thumbnailUrl: '/images/templates/christmas-joy.svg',
         category: 'natal',
         tags: ['natal', 'christmas', 'red', 'green'],
         cssClass: 'theme-christmas-joy',
@@ -189,7 +189,7 @@ async function main() {
       data: {
         name: 'Slide Romantic',
         slug: 'slide-romantic',
-        thumbnailUrl: '/images/templates/slide-romantic.jpg',
+        thumbnailUrl: '/images/templates/slide-romantic.svg',
         category: 'slide',
         tags: ['slide', 'elegan', 'romantic', 'pink'],
         cssClass: 'theme-slide-romantic',

@@ -39,20 +39,20 @@
   background-clip: text;
 }
 
-/* Ornate section dividers */
+/* SVG ornate diamond dividers */
 .theme-golden-elegance .invitation-section {
   position: relative;
   border-top: 1px solid rgba(212, 168, 67, 0.12);
 }
 .theme-golden-elegance .invitation-section::before {
-  content: '◈';
+  content: '';
   position: absolute;
   top: -10px; left: 50%;
   transform: translateX(-50%);
-  color: #d4a843;
-  font-size: 14px;
-  background: var(--inv-bg-primary);
-  padding: 0 12px;
+  width: 22px; height: 22px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l4 10-4 10-4-10z' fill='none' stroke='%23d4a843' stroke-width='1.5'/%3E%3Cpath d='M2 12l10-4 10 4-10 4z' fill='none' stroke='%23d4a843' stroke-width='1.5'/%3E%3Ccircle cx='12' cy='12' r='2' fill='%23d4a843'/%3E%3C/svg%3E") no-repeat center/contain;
+  background-color: var(--inv-bg-primary);
+  padding: 0 2px;
 }
 
 /* Gold shimmer on cards */
@@ -65,16 +65,16 @@
   box-shadow: 0 0 15px rgba(212, 168, 67, 0.15);
 }
 
-/* Luxury corner marks */
+/* SVG luxury corner mark */
 .theme-golden-elegance .invitation-content {
   position: relative;
 }
 .theme-golden-elegance .invitation-content::before {
-  content: '⟐';
+  content: '';
   position: fixed;
   top: 10px; left: 10px;
-  color: #d4a843;
-  font-size: 18px;
+  width: 28px; height: 28px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l3 7h7l-5.5 4.5 2 7.5L12 17l-6.5 4 2-7.5L2 9h7z' fill='none' stroke='%23d4a843' stroke-width='0.8'/%3E%3C/svg%3E") no-repeat center/contain;
   opacity: 0.2;
   z-index: 5;
 }

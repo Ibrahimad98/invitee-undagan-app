@@ -19,9 +19,9 @@ interface EventDetailsSectionProps {
 
 export default function EventDetailsSection({ events }: EventDetailsSectionProps) {
   return (
-    <section className="invitation-section invitation-events py-16 px-8 bg-[var(--inv-bg-secondary)] text-[var(--inv-text-primary)]">
-      <div className="max-w-2xl mx-auto space-y-12">
-        <h3 className="text-center text-sm uppercase tracking-widest text-[var(--inv-text-secondary)]">
+    <section className="invitation-section invitation-events py-10 sm:py-16 px-4 sm:px-8 bg-[var(--inv-bg-secondary)] text-[var(--inv-text-primary)]">
+      <div className="max-w-2xl mx-auto space-y-8 sm:space-y-12">
+        <h3 className="text-center text-xs sm:text-sm uppercase tracking-widest text-[var(--inv-text-secondary)]">
           Detail Acara
         </h3>
 

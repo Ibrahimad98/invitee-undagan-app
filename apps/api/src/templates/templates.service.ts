@@ -40,6 +40,27 @@ export class TemplatesService {
     };
   }
 
+  async findAllPublic() {
+    const templates = await this.prisma.template.findMany({
+      where: { isActive: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        thumbnailUrl: true,
+        category: true,
+        tags: true,
+        cssClass: true,
+        isPremium: true,
+        ratingAvg: true,
+        usageCount: true,
+      },
+      orderBy: [{ usageCount: 'desc' }, { sortOrder: 'asc' }],
+    });
+
+    return { data: templates };
+  }
+
   async findById(id: string) {
     const template = await this.prisma.template.findUnique({ where: { id } });
     if (!template) throw new NotFoundException('Template not found');

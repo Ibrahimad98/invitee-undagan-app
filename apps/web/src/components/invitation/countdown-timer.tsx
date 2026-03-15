@@ -11,9 +11,9 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
 
   if (isExpired) {
     return (
-      <section className="invitation-section invitation-countdown py-16 px-8 text-center bg-[var(--inv-bg-secondary)] text-[var(--inv-text-primary)]">
+      <section className="invitation-section invitation-countdown py-10 sm:py-16 px-4 sm:px-8 text-center bg-[var(--inv-bg-secondary)] text-[var(--inv-text-primary)]">
         <div className="max-w-lg mx-auto">
-          <p className="text-lg font-serif text-[var(--inv-accent)]">Acara telah berlangsung</p>
+          <p className="text-base sm:text-lg font-serif text-[var(--inv-accent)]">Acara telah berlangsung</p>
         </div>
       </section>
     );
@@ -27,18 +27,18 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
   ];
 
   return (
-    <section className="invitation-section invitation-countdown py-16 px-8 text-center bg-[var(--inv-bg-secondary)] text-[var(--inv-text-primary)]">
-      <div className="max-w-lg mx-auto space-y-8">
-        <h3 className="text-sm uppercase tracking-widest text-[var(--inv-text-secondary)]">
+    <section className="invitation-section invitation-countdown py-10 sm:py-16 px-4 sm:px-8 text-center bg-[var(--inv-bg-secondary)] text-[var(--inv-text-primary)]">
+      <div className="max-w-lg mx-auto space-y-6 sm:space-y-8">
+        <h3 className="text-xs sm:text-sm uppercase tracking-widest text-[var(--inv-text-secondary)]">
           Menghitung Hari
         </h3>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 gap-2 sm:gap-4">
           {units.map((unit) => (
-            <div key={unit.label} className="space-y-2">
-              <div className="text-3xl md:text-5xl font-bold text-[var(--inv-accent)] font-mono">
+            <div key={unit.label} className="space-y-1 sm:space-y-2">
+              <div className="text-2xl sm:text-3xl md:text-5xl font-bold text-[var(--inv-accent)] font-mono">
                 {String(unit.value).padStart(2, '0')}
               </div>
-              <div className="text-xs uppercase tracking-wider text-[var(--inv-text-secondary)]">
+              <div className="text-[10px] sm:text-xs uppercase tracking-wider text-[var(--inv-text-secondary)]">
                 {unit.label}
               </div>
             </div>
