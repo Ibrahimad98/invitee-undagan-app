@@ -2,7 +2,7 @@ import { LayoutDashboard, Mail, Palette, Users, MessageSquare, User, PlusCircle,
 
 export const NAV_ITEMS = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Undangan Saya', href: '/dashboard/invitations/new', icon: PlusCircle },
+  { label: 'Undangan Saya', href: '/dashboard/invitations', icon: Mail },
   { label: 'Template', href: '/dashboard/templates', icon: Palette },
   { label: 'Kontak / Tamu', href: '/dashboard/contacts', icon: Users },
   { label: 'Testimoni', href: '/dashboard/testimonials', icon: MessageSquare },
@@ -17,6 +17,7 @@ export const STEPPER_LABELS = [
   'Galeri',
   'Amplop Digital',
   'Pilih Tema',
+  'Preview',
 ];
 
 export const CATEGORY_COLORS: Record<string, string> = {

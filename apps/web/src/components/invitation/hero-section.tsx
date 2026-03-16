@@ -7,12 +7,17 @@ import SectionOrnament from './section-ornament';
 interface HeroSectionProps {
   openingText?: string | null;
   title: string;
+  eventType?: string;
 }
 
-/** Split "Pernikahan Budi & Ani" → { prefix: "Pernikahan", names: "Budi & Ani" } */
+/** Split title into prefix and names.
+ *  "Pernikahan Budi & Ani" → { prefix: "Pernikahan", name1: "Budi", amp: "&", name2: "Ani", names: "Budi & Ani" }
+ *  "Khitanan Muhammad Zidan" → { prefix: "Khitanan", name1: "Muhammad Zidan", amp: "", name2: "", names: "Muhammad Zidan" }
+ */
 function splitTitle(title: string) {
   const parts = title.split(' ');
   const ampIdx = parts.indexOf('&');
+  // Has "&" — split around it (wedding/engagement/anniversary style)
   if (ampIdx >= 2) {
     return {
       prefix: parts.slice(0, ampIdx - 1).join(' '),
@@ -20,6 +25,16 @@ function splitTitle(title: string) {
       amp: '&',
       name2: parts.slice(ampIdx + 1).join(' '),
       names: parts.slice(ampIdx - 1).join(' '),
+    };
+  }
+  // No "&" — first word is prefix, rest is the name
+  if (parts.length >= 2) {
+    return {
+      prefix: parts[0],
+      name1: parts.slice(1).join(' '),
+      amp: '',
+      name2: '',
+      names: parts.slice(1).join(' '),
     };
   }
   return { prefix: '', name1: '', amp: '', name2: '', names: title };
@@ -32,7 +47,7 @@ const THEME_SLUGS = [
   'modern-minimal', 'simple-java',
 ];
 
-export default function HeroSection({ openingText, title }: HeroSectionProps) {
+export default function HeroSection({ openingText, title, eventType }: HeroSectionProps) {
   const { ref, isVisible } = useScrollAnimation(0.15);
   const [theme, setTheme] = useState('');
   const sectionElRef = useRef<HTMLElement | null>(null);

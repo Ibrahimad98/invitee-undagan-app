@@ -4,7 +4,7 @@ import type { CreateInvitationPayload, EventType } from '@invitee/shared';
 interface InvitationDraft {
   title: string;
   slug: string;
-  eventType: EventType;
+  eventType: EventType | '';
   coverImageUrl: string;
   openingText: string;
   closingText: string;
@@ -27,6 +27,14 @@ interface InvitationDraft {
     childOrder: string;
     role: string;
     instagram: string;
+    dateOfBirth: string;
+    bio: string;
+    gender: string;
+    address: string;
+    phone: string;
+    age: string;
+    jobTitle: string;
+    organization: string;
   }>;
   giftAccounts: Array<{
     bankName: string;
@@ -56,7 +64,7 @@ interface InvitationState {
 const initialDraft: InvitationDraft = {
   title: '',
   slug: '',
-  eventType: 'WEDDING',
+  eventType: '',
   coverImageUrl: '',
   openingText: '',
   closingText: '',
@@ -82,6 +90,14 @@ const initialDraft: InvitationDraft = {
       childOrder: '',
       role: 'primary',
       instagram: '',
+      dateOfBirth: '',
+      bio: '',
+      gender: '',
+      address: '',
+      phone: '',
+      age: '',
+      jobTitle: '',
+      organization: '',
     },
   ],
   giftAccounts: [],
@@ -162,6 +178,14 @@ export const useInvitationStore = create<InvitationState>()((set) => ({
               childOrder: p.childOrder || '',
               role: p.role || 'primary',
               instagram: p.instagram || '',
+              dateOfBirth: p.dateOfBirth || '',
+              bio: p.bio || '',
+              gender: p.gender || '',
+              address: p.address || '',
+              phone: p.phone || '',
+              age: p.age || '',
+              jobTitle: p.jobTitle || '',
+              organization: p.organization || '',
             }))
           : initialDraft.personProfiles,
         giftAccounts: data.giftAccounts || [],

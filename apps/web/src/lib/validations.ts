@@ -15,7 +15,7 @@ export const registerSchema = z.object({
 export const basicInfoSchema = z.object({
   title: z.string().min(3, 'Judul minimal 3 karakter'),
   slug: z.string().min(3, 'Slug minimal 3 karakter'),
-  eventType: z.enum(['WEDDING', 'KHITANAN', 'BIRTHDAY', 'AQIQAH', 'ENGAGEMENT', 'CUSTOM']),
+  eventType: z.enum(['WEDDING', 'KHITANAN', 'BIRTHDAY', 'AQIQAH', 'ENGAGEMENT', 'GRADUATION', 'REUNION', 'CORPORATE', 'SYUKURAN', 'ANNIVERSARY', 'WALIMAH', 'CUSTOM']),
   openingText: z.string().optional(),
   closingText: z.string().optional(),
 });
@@ -38,6 +38,14 @@ export const personProfileSchema = z.object({
   childOrder: z.string().optional(),
   role: z.string().default('primary'),
   instagram: z.string().optional(),
+  dateOfBirth: z.string().optional(),
+  bio: z.string().optional(),
+  gender: z.string().optional(),
+  address: z.string().optional(),
+  phone: z.string().optional(),
+  age: z.string().optional(),
+  jobTitle: z.string().optional(),
+  organization: z.string().optional(),
 });
 
 export const giftAccountSchema = z.object({

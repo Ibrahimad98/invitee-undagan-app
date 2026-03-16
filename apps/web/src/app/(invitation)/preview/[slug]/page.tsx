@@ -278,6 +278,7 @@ export default function TemplatePreviewPage() {
                 eventDate={sample.eventDate}
                 onOpen={() => setIsOpen(true)}
                 themeConfig={themeConf}
+                eventType="WEDDING"
               />
             )}
 
@@ -287,9 +288,10 @@ export default function TemplatePreviewPage() {
                 <HeroSection
                   openingText={sample.openingText}
                   title={sample.title}
+                  eventType="WEDDING"
                 />
 
-                <PersonProfileSection profiles={sample.personProfiles} />
+                <PersonProfileSection profiles={sample.personProfiles} eventType="WEDDING" />
 
                 <CountdownTimer targetDate={sample.eventDate} />
 

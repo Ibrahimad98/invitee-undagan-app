@@ -8,7 +8,7 @@ export class TemplatesService {
   constructor(private prisma: PrismaService) {}
 
   async findAll(filter: FilterTemplateDto) {
-    const { page = 1, limit = 20, search, category, isPremium, layoutType } = filter;
+    const { page = 1, limit = 20, search, category, isPremium, layoutType, eventType } = filter;
     const skip = (page - 1) * limit;
 
     const where: any = {
@@ -24,6 +24,11 @@ export class TemplatesService {
       }),
     };
 
+    // If eventType is specified, filter by supportedEventTypes
+    if (eventType) {
+      where.supportedEventTypes = { has: eventType };
+    }
+
     const [templates, total] = await Promise.all([
       this.prisma.template.findMany({
         where,
@@ -33,6 +38,37 @@ export class TemplatesService {
       }),
       this.prisma.template.count({ where }),
     ]);
+
+    // Fallback: if eventType filter returned no results, return all templates
+    if (eventType && total === 0) {
+      const fallbackWhere: any = {
+        isActive: true,
+        ...(category && { category }),
+        ...(isPremium !== undefined && { isPremium }),
+        ...(layoutType && { layoutType }),
+        ...(search && {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' } },
+            { tags: { hasSome: [search.toLowerCase()] } },
+          ],
+        }),
+      };
+
+      const [fallbackTemplates, fallbackTotal] = await Promise.all([
+        this.prisma.template.findMany({
+          where: fallbackWhere,
+          orderBy: [{ usageCount: 'desc' }, { sortOrder: 'asc' }],
+          skip,
+          take: limit,
+        }),
+        this.prisma.template.count({ where: fallbackWhere }),
+      ]);
+
+      return {
+        data: fallbackTemplates,
+        meta: { total: fallbackTotal, page, limit, totalPages: Math.ceil(fallbackTotal / limit) },
+      };
+    }
 
     return {
       data: templates,

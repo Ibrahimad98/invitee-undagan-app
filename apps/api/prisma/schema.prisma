@@ -18,6 +18,12 @@ enum EventType {
   BIRTHDAY
   AQIQAH
   ENGAGEMENT
+  GRADUATION
+  REUNION
+  CORPORATE
+  SYUKURAN
+  ANNIVERSARY
+  WALIMAH
   CUSTOM
 }
 
@@ -117,10 +123,18 @@ model PersonProfile {
   photoUrl     String?  @map("photo_url")
   parentFather String?  @map("parent_father")
   parentMother String?  @map("parent_mother")
-  childOrder   String?  @map("child_order")
-  role         String   @default("primary")
-  instagram    String?
-  sortOrder    Int      @default(0) @map("sort_order")
+  childOrder    String?  @map("child_order")
+  role          String   @default("primary")
+  instagram     String?
+  dateOfBirth   String?  @map("date_of_birth")
+  bio           String?
+  gender        String?
+  address       String?
+  phone         String?
+  age           String?
+  jobTitle      String?  @map("job_title")
+  organization  String?
+  sortOrder     Int      @default(0) @map("sort_order")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
@@ -136,9 +150,10 @@ model Template {
   slug         String     @unique
   thumbnailUrl String?    @map("thumbnail_url")
   category     String
-  tags         String[]
-  cssClass     String     @map("css_class")
-  layoutType   LayoutType @default(SCROLL) @map("layout_type")
+  tags                String[]
+  supportedEventTypes String[]   @default([]) @map("supported_event_types")
+  cssClass            String     @map("css_class")
+  layoutType          LayoutType @default(SCROLL) @map("layout_type")
   usageCount   Int        @default(0) @map("usage_count")
   ratingAvg    Float      @default(0) @map("rating_avg")
   isPremium    Boolean    @default(false) @map("is_premium")
@@ -255,11 +270,13 @@ model CoInvitor {
 
 model Testimonial {
   id         String   @id @default(uuid())
+  userId     String?  @map("user_id")
   userName   String   @map("user_name")
   message    String
   rating     Int      @default(5)
   isApproved Boolean  @default(false) @map("is_approved")
   createdAt  DateTime @default(now()) @map("created_at")
 
+  @@index([userId])
   @@map("testimonials")
 }

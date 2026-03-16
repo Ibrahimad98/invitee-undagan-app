@@ -68,6 +68,7 @@ export default function InvitationPreviewPage() {
           guestName={guestName}
           eventDate={eventDate}
           onOpen={() => setIsOpen(true)}
+          eventType={invitation.eventType}
         />
       )}
 
@@ -78,11 +79,12 @@ export default function InvitationPreviewPage() {
           <HeroSection
             openingText={invitation.openingText}
             title={invitation.title}
+            eventType={invitation.eventType}
           />
 
           {/* Person Profiles */}
           {invitation.personProfiles && invitation.personProfiles.length > 0 && (
-            <PersonProfileSection profiles={invitation.personProfiles} />
+            <PersonProfileSection profiles={invitation.personProfiles} eventType={invitation.eventType} />
           )}
 
           {/* Countdown */}

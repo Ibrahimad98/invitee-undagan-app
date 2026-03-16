@@ -21,6 +21,16 @@ export function useTestimonials(page = 1, limit = 20, all = false) {
   });
 }
 
+export function useMyTestimonials() {
+  return useQuery<{ data: Testimonial[] }>({
+    queryKey: ['testimonials', 'mine'],
+    queryFn: async () => {
+      const { data } = await api.get('/testimonials/mine');
+      return (data as any)?.data || data;
+    },
+  });
+}
+
 export function useCreateTestimonial() {
   const queryClient = useQueryClient();
 

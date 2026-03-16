@@ -4,6 +4,12 @@ export const EVENT_TYPES = {
   BIRTHDAY: 'BIRTHDAY',
   AQIQAH: 'AQIQAH',
   ENGAGEMENT: 'ENGAGEMENT',
+  GRADUATION: 'GRADUATION',
+  REUNION: 'REUNION',
+  CORPORATE: 'CORPORATE',
+  SYUKURAN: 'SYUKURAN',
+  ANNIVERSARY: 'ANNIVERSARY',
+  WALIMAH: 'WALIMAH',
   CUSTOM: 'CUSTOM',
 } as const;
 
@@ -13,6 +19,12 @@ export const EVENT_TYPE_LABELS: Record<string, string> = {
   BIRTHDAY: 'Ulang Tahun',
   AQIQAH: 'Aqiqah',
   ENGAGEMENT: 'Pertunangan',
+  GRADUATION: 'Wisuda',
+  REUNION: 'Reuni',
+  CORPORATE: 'Acara Perusahaan',
+  SYUKURAN: 'Syukuran',
+  ANNIVERSARY: 'Anniversary',
+  WALIMAH: 'Walimatul Ursy',
   CUSTOM: 'Lainnya',
 };
 

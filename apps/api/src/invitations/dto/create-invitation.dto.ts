@@ -102,6 +102,46 @@ class CreatePersonProfileDto {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsString()
+  dateOfBirth?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  bio?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  gender?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  age?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  jobTitle?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  organization?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsNumber()
   sortOrder?: number;
 }
@@ -152,8 +192,8 @@ export class CreateInvitationDto {
   @MinLength(3)
   slug: string;
 
-  @ApiProperty({ enum: ['WEDDING', 'KHITANAN', 'BIRTHDAY', 'AQIQAH', 'ENGAGEMENT', 'CUSTOM'] })
-  @IsEnum(['WEDDING', 'KHITANAN', 'BIRTHDAY', 'AQIQAH', 'ENGAGEMENT', 'CUSTOM'])
+  @ApiProperty({ enum: ['WEDDING', 'KHITANAN', 'BIRTHDAY', 'AQIQAH', 'ENGAGEMENT', 'GRADUATION', 'REUNION', 'CORPORATE', 'SYUKURAN', 'ANNIVERSARY', 'WALIMAH', 'CUSTOM'] })
+  @IsEnum(['WEDDING', 'KHITANAN', 'BIRTHDAY', 'AQIQAH', 'ENGAGEMENT', 'GRADUATION', 'REUNION', 'CORPORATE', 'SYUKURAN', 'ANNIVERSARY', 'WALIMAH', 'CUSTOM'])
   eventType: string;
 
   @ApiPropertyOptional()

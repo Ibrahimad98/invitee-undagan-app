@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useScrollAnimation, animClass } from '@/hooks/use-scroll-animation';
 import SectionOrnament from './section-ornament';
+import { getEventTypeConfig } from '@/lib/event-type-config';
 
 interface PersonProfile {
   fullName: string;
@@ -13,10 +14,17 @@ interface PersonProfile {
   childOrder?: string;
   role: string;
   instagram?: string;
+  dateOfBirth?: string;
+  bio?: string;
+  gender?: string;
+  age?: string;
+  jobTitle?: string;
+  organization?: string;
 }
 
 interface PersonProfileSectionProps {
   profiles: PersonProfile[];
+  eventType?: string;
 }
 
 function ProfilePhoto({ profile }: { profile: PersonProfile }) {
@@ -48,8 +56,9 @@ function ProfilePhoto({ profile }: { profile: PersonProfile }) {
   );
 }
 
-export default function PersonProfileSection({ profiles }: PersonProfileSectionProps) {
+export default function PersonProfileSection({ profiles, eventType }: PersonProfileSectionProps) {
   const { ref, isVisible } = useScrollAnimation(0.1);
+  const config = getEventTypeConfig(eventType || 'WEDDING');
 
   return (
     <section ref={ref} className="invitation-section invitation-profiles px-4 sm:px-8 bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
@@ -65,13 +74,31 @@ export default function PersonProfileSection({ profiles }: PersonProfileSectionP
               {/* Name */}
               <h3 className="text-xl sm:text-2xl font-serif">{profile.fullName}</h3>
 
+              {/* Job Title & Organization (for CORPORATE/GRADUATION) */}
+              {(profile.jobTitle || profile.organization) && (
+                <p className="text-sm text-[var(--inv-text-secondary)]">
+                  {profile.jobTitle && profile.organization
+                    ? `${profile.jobTitle} — ${profile.organization}`
+                    : profile.jobTitle || profile.organization}
+                </p>
+              )}
+
               {/* Child Order */}
               {profile.childOrder && (
                 <p className="text-sm text-[var(--inv-text-secondary)]">{profile.childOrder}</p>
               )}
 
-              {/* Parents */}
-              {(profile.parentFather || profile.parentMother) && (
+              {/* Age / Date of Birth */}
+              {(profile.age || profile.dateOfBirth) && (
+                <p className="text-sm text-[var(--inv-text-secondary)]">
+                  {profile.age && profile.dateOfBirth
+                    ? `${profile.age} • ${profile.dateOfBirth}`
+                    : profile.age || profile.dateOfBirth}
+                </p>
+              )}
+
+              {/* Parents — only show when config says so */}
+              {config.showParents && (profile.parentFather || profile.parentMother) && (
                 <p className="text-sm text-[var(--inv-text-secondary)]">
                   {profile.parentFather && profile.parentMother
                     ? `Putra/i dari Bpk. ${profile.parentFather} & Ibu ${profile.parentMother}`
@@ -79,6 +106,11 @@ export default function PersonProfileSection({ profiles }: PersonProfileSectionP
                       ? `Putra/i dari Bpk. ${profile.parentFather}`
                       : `Putra/i dari Ibu ${profile.parentMother}`}
                 </p>
+              )}
+
+              {/* Bio */}
+              {profile.bio && (
+                <p className="text-sm text-[var(--inv-text-secondary)] italic">{profile.bio}</p>
               )}
 
               {/* Instagram */}
@@ -93,8 +125,8 @@ export default function PersonProfileSection({ profiles }: PersonProfileSectionP
                 </a>
               )}
 
-              {/* Ampersand between profiles */}
-              {index === 0 && profiles.length > 1 && (
+              {/* Ampersand between profiles — only for event types that use it */}
+              {config.showAmpersand && index === 0 && profiles.length > 1 && (
                 <div className="md:hidden text-4xl font-serif text-[var(--inv-accent)] py-4">
                   &
                 </div>
@@ -103,8 +135,8 @@ export default function PersonProfileSection({ profiles }: PersonProfileSectionP
           ))}
         </div>
 
-        {/* Ampersand for desktop between columns */}
-        {profiles.length === 2 && (
+        {/* Ampersand for desktop between columns — only for event types that use it */}
+        {config.showAmpersand && profiles.length === 2 && (
           <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl font-serif text-[var(--inv-accent)]">
             &
           </div>

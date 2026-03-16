@@ -1,14 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { useTestimonials, useApproveTestimonial, useDeleteTestimonial } from '@/hooks/queries/use-testimonials';
+import { useTestimonials, useMyTestimonials, useCreateTestimonial, useApproveTestimonial, useDeleteTestimonial } from '@/hooks/queries/use-testimonials';
+import { useAuthStore } from '@/stores/auth-store';
 import { useUIStore } from '@/stores/ui-store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
-import { Tabs } from '@/components/ui/tabs';
 import { Avatar } from '@/components/ui/avatar';
 import {
   Star,
@@ -19,15 +20,276 @@ import {
   MessageCircle,
   ThumbsUp,
   ThumbsDown,
+  Send,
 } from 'lucide-react';
 
 type FilterTab = 'all' | 'approved' | 'pending';
 
-export default function TestimonialsPage() {
+/* ═══════════════════════════════════════════════════
+   USER VIEW — Check existing, then show form or prev review
+   ═══════════════════════════════════════════════════ */
+function UserTestimonialView() {
+  const { user } = useAuthStore();
+  const { addToast } = useUIStore();
+  const createTestimonial = useCreateTestimonial();
+  const { data: myData, isLoading: loadingMine } = useMyTestimonials();
+
+  const myTestimonials = myData?.data || [];
+  const hasExisting = myTestimonials.length > 0;
+  const latestTestimonial = myTestimonials[0];
+
+  const [showForm, setShowForm] = useState(false);
+  const [rating, setRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [message, setMessage] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!message.trim()) {
+      addToast('Silakan tulis ulasan Anda', 'error');
+      return;
+    }
+    if (rating === 0) {
+      addToast('Silakan beri rating bintang', 'error');
+      return;
+    }
+    try {
+      await createTestimonial.mutateAsync({
+        userName: user?.fullName || 'Anonim',
+        message: message.trim(),
+        rating,
+      });
+      addToast('Terima kasih! Testimoni Anda telah dikirim dan menunggu persetujuan.', 'success');
+      setSubmitted(true);
+      setShowForm(false);
+    } catch {
+      addToast('Gagal mengirim testimoni', 'error');
+    }
+  };
+
+  const renderStars = (r: number) =>
+    Array.from({ length: 5 }).map((_, i) => (
+      <Star
+        key={i}
+        className={`w-4 h-4 ${i < r ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`}
+      />
+    ));
+
+  // Loading state
+  if (loadingMine) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Testimoni</h1>
+          <p className="text-gray-500 mt-1">Beri ulasan tentang pengalaman Anda menggunakan Invitee</p>
+        </div>
+        <Skeleton className="h-48 w-full" />
+      </div>
+    );
+  }
+
+  // Just submitted success state
+  if (submitted) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Testimoni</h1>
+          <p className="text-gray-500 mt-1">Beri ulasan tentang pengalaman Anda menggunakan Invitee</p>
+        </div>
+        <Card>
+          <CardContent className="p-12 text-center space-y-4">
+            <div className="w-16 h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center">
+              <CheckCircle className="w-8 h-8 text-green-600" />
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900">Terima Kasih!</h2>
+            <p className="text-gray-500 max-w-md mx-auto">
+              Testimoni Anda telah berhasil dikirim dan sedang menunggu persetujuan admin. 
+              Ulasan Anda sangat berarti bagi kami.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // User has existing testimonials — show them and ask if they want to add another
+  if (hasExisting && !showForm) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Testimoni</h1>
+          <p className="text-gray-500 mt-1">Ulasan yang telah Anda berikan</p>
+        </div>
+
+        {/* Previous testimonials */}
+        <div className="space-y-4">
+          {myTestimonials.map((t: any) => (
+            <Card key={t.id}>
+              <CardContent className="p-5">
+                <div className="flex items-start gap-4">
+                  <Avatar name={t.userName || '?'} />
+                  <div className="space-y-1 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-sm">{t.userName}</h3>
+                      {t.isApproved ? (
+                        <Badge variant="success">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Disetujui
+                        </Badge>
+                      ) : (
+                        <Badge variant="warning">
+                          <Clock className="w-3 h-3 mr-1" />
+                          Menunggu Persetujuan
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-0.5">
+                      {renderStars(t.rating)}
+                    </div>
+                    <p className="text-sm text-gray-700 mt-2 leading-relaxed">
+                      &ldquo;{t.message}&rdquo;
+                    </p>
+                    <p className="text-xs text-gray-400 mt-2">
+                      {new Date(t.createdAt).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Ask if user wants to submit another */}
+        <Card>
+          <CardContent className="p-6 text-center space-y-4">
+            <div className="w-12 h-12 mx-auto rounded-full bg-primary-100 flex items-center justify-center">
+              <MessageCircle className="w-6 h-6 text-primary-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">Ingin memberikan ulasan lagi?</h3>
+              <p className="text-sm text-gray-500 mt-1">
+                Anda sudah pernah memberikan testimoni. Apakah ingin menambahkan ulasan baru?
+              </p>
+            </div>
+            <Button
+              onClick={() => {
+                setShowForm(true);
+                setMessage('');
+                setRating(5);
+              }}
+              className="flex items-center gap-2"
+            >
+              <Send className="w-4 h-4" />
+              Tulis Ulasan Baru
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show form (either first time or user chose to add another)
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Testimoni</h1>
+          <p className="text-gray-500 mt-1">Beri ulasan tentang pengalaman Anda menggunakan Invitee</p>
+        </div>
+        {hasExisting && (
+          <Button variant="outline" size="sm" onClick={() => setShowForm(false)}>
+            Kembali
+          </Button>
+        )}
+      </div>
+
+      <Card>
+        <CardContent className="p-6 sm:p-8 space-y-6">
+          {/* Header */}
+          <div className="text-center space-y-2">
+            <div className="w-14 h-14 mx-auto rounded-full bg-primary-100 flex items-center justify-center">
+              <MessageCircle className="w-7 h-7 text-primary-600" />
+            </div>
+            <h2 className="text-lg font-semibold text-gray-900">Bagaimana pengalaman Anda?</h2>
+            <p className="text-sm text-gray-500">Ceritakan pendapat Anda tentang layanan Invitee</p>
+          </div>
+
+          {/* Star Rating */}
+          <div className="text-center space-y-2">
+            <p className="text-sm font-medium text-gray-700">Beri Rating</p>
+            <div className="flex items-center justify-center gap-1">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onMouseEnter={() => setHoverRating(i + 1)}
+                  onMouseLeave={() => setHoverRating(0)}
+                  onClick={() => setRating(i + 1)}
+                  className="p-1 transition-transform hover:scale-110"
+                >
+                  <Star
+                    className={`w-8 h-8 transition-colors ${
+                      i < (hoverRating || rating)
+                        ? 'text-yellow-500 fill-yellow-500'
+                        : 'text-gray-300'
+                    }`}
+                  />
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-gray-400">
+              {rating === 1 && 'Kurang Baik'}
+              {rating === 2 && 'Cukup'}
+              {rating === 3 && 'Baik'}
+              {rating === 4 && 'Sangat Baik'}
+              {rating === 5 && 'Luar Biasa!'}
+            </p>
+          </div>
+
+          {/* Message */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Ulasan Anda</label>
+            <Textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Ceritakan pengalaman Anda menggunakan Invitee..."
+              rows={4}
+              maxLength={500}
+            />
+            <p className="text-xs text-gray-400 text-right">{message.length}/500</p>
+          </div>
+
+          {/* Submit */}
+          <Button
+            onClick={handleSubmit}
+            disabled={createTestimonial.isPending || !message.trim()}
+            className="w-full flex items-center justify-center gap-2"
+          >
+            <Send className="w-4 h-4" />
+            {createTestimonial.isPending ? 'Mengirim...' : 'Kirim Testimoni'}
+          </Button>
+
+          <p className="text-xs text-gray-400 text-center">
+            Testimoni Anda akan ditampilkan setelah disetujui oleh admin.
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   ADMIN VIEW — Full management: list, approve, delete
+   ═══════════════════════════════════════════════════ */
+function AdminTestimonialView() {
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const { addToast } = useUIStore();
 
-  const { data: allData, isLoading: loadingAll } = useTestimonials();
+  const { data: allData, isLoading: loadingAll } = useTestimonials(1, 20, true);
   const approveTestimonial = useApproveTestimonial();
   const deleteTestimonial = useDeleteTestimonial();
 
@@ -87,12 +349,12 @@ export default function TestimonialsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Testimoni</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Kelola Testimoni</h1>
         <p className="text-gray-500 mt-1">Kelola testimoni dari pengguna</p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 bg-blue-100 rounded-lg">
@@ -263,4 +525,14 @@ export default function TestimonialsPage() {
       />
     </div>
   );
+}
+
+/* ═══════════════════════════════════════════════════
+   MAIN PAGE — Route based on user role
+   ═══════════════════════════════════════════════════ */
+export default function TestimonialsPage() {
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === 'ADMIN';
+
+  return isAdmin ? <AdminTestimonialView /> : <UserTestimonialView />;
 }

@@ -17,4 +17,9 @@ export class FilterTemplateDto extends PaginationDto {
   @IsOptional()
   @IsEnum(['SCROLL', 'SLIDE'])
   layoutType?: string;
+
+  @ApiPropertyOptional({ description: 'Filter templates by supported event type' })
+  @IsOptional()
+  @IsString()
+  eventType?: string;
 }

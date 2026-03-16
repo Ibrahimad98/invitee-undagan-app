@@ -1,6 +1,7 @@
 'use client';
 
 import { formatDate } from '@invitee/shared';
+import { getEventTypeConfig } from '@/lib/event-type-config';
 
 interface ThemeConfig {
   frameBg: string;
@@ -20,9 +21,10 @@ interface CoverScreenProps {
   eventDate: Date | null;
   onOpen: () => void;
   themeConfig?: ThemeConfig;
+  eventType?: string;
 }
 
-export default function CoverScreen({ title, guestName, eventDate, onOpen, themeConfig }: CoverScreenProps) {
+export default function CoverScreen({ title, guestName, eventDate, onOpen, themeConfig, eventType }: CoverScreenProps) {
   // If themeConfig is provided (preview), use its colors; otherwise fall back to CSS vars
   const tc = themeConfig;
   const bgStyle = tc ? { background: tc.coverBg } : {};
@@ -30,6 +32,8 @@ export default function CoverScreen({ title, guestName, eventDate, onOpen, theme
   const textSecondary = tc ? tc.textSecondary : 'var(--inv-text-secondary)';
   const accentColor = tc ? tc.accent : 'var(--inv-accent)';
   const borderColor = tc ? tc.borderColor : 'var(--inv-accent)';
+
+  const coverLabel = eventType ? getEventTypeConfig(eventType).coverLabel : 'Undangan Pernikahan';
 
   return (
     <div
@@ -68,7 +72,7 @@ export default function CoverScreen({ title, guestName, eventDate, onOpen, theme
           className="text-[10px] sm:text-xs tracking-[0.3em] uppercase font-medium"
           style={{ color: textSecondary }}
         >
-          Undangan Pernikahan
+          {coverLabel}
         </p>
 
         {/* Title / Names */}

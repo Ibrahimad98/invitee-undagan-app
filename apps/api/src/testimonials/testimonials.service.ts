@@ -26,6 +26,14 @@ export class TestimonialsService {
     };
   }
 
+  async findByUser(userId: string) {
+    const testimonials = await this.prisma.testimonial.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    });
+    return { data: testimonials };
+  }
+
   async create(dto: CreateTestimonialDto) {
     return this.prisma.testimonial.create({
       data: { ...dto, isApproved: false },

@@ -49,6 +49,14 @@ export interface PersonProfile {
   childOrder?: string;
   role: string;
   instagram?: string;
+  dateOfBirth?: string;
+  bio?: string;
+  gender?: string;
+  address?: string;
+  phone?: string;
+  age?: string;
+  jobTitle?: string;
+  organization?: string;
   sortOrder: number;
 }
 
@@ -60,7 +68,7 @@ export interface CoInvitor {
   sortOrder: number;
 }
 
-export type EventType = 'WEDDING' | 'KHITANAN' | 'BIRTHDAY' | 'AQIQAH' | 'ENGAGEMENT' | 'CUSTOM';
+export type EventType = 'WEDDING' | 'KHITANAN' | 'BIRTHDAY' | 'AQIQAH' | 'ENGAGEMENT' | 'GRADUATION' | 'REUNION' | 'CORPORATE' | 'SYUKURAN' | 'ANNIVERSARY' | 'WALIMAH' | 'CUSTOM';
 
 export interface CreateInvitationPayload {
   title: string;
