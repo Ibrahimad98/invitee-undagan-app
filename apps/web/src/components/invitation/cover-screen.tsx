@@ -73,10 +73,24 @@ export default function CoverScreen({ title, guestName, eventDate, onOpen, theme
 
         {/* Title / Names */}
         <h1
-          className="text-2xl sm:text-3xl md:text-4xl font-serif leading-tight"
+          className="text-2xl sm:text-3xl md:text-4xl font-serif leading-tight text-center"
           style={{ color: textColor }}
         >
-          {title}
+          {(() => {
+            const parts = title.split(' ');
+            const ampIdx = parts.indexOf('&');
+            if (ampIdx >= 2) {
+              const prefix = parts.slice(0, ampIdx - 1).join(' ');
+              const names = parts.slice(ampIdx - 1).join(' ');
+              return (
+                <>
+                  <span className="block text-sm sm:text-base tracking-[0.25em] uppercase opacity-70 mb-2" style={{ color: textSecondary }}>{prefix}</span>
+                  <span className="block">{names}</span>
+                </>
+              );
+            }
+            return title;
+          })()}
         </h1>
 
         {/* Date */}
