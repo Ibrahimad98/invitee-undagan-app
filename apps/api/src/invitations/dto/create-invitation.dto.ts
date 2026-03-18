@@ -211,6 +211,11 @@ export class CreateInvitationDto {
   @IsString()
   closingText?: string;
 
+  @ApiPropertyOptional({ description: 'Background story of the event (optional)' })
+  @IsOptional()
+  @IsString()
+  story?: string;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()

@@ -13,6 +13,8 @@ import { GuestsModule } from './guests/guests.module';
 import { RsvpModule } from './rsvp/rsvp.module';
 import { TestimonialsModule } from './testimonials/testimonials.module';
 import { MediaModule } from './media/media.module';
+import { CommentsModule } from './comments/comments.module';
+import { SettingsModule } from './settings/settings.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 
 @Module({
@@ -46,6 +48,8 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     RsvpModule,
     TestimonialsModule,
     MediaModule,
+    CommentsModule,
+    SettingsModule,
   ],
   providers: [
     {

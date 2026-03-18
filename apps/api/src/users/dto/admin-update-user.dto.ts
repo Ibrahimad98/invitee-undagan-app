@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsEnum } from 'class-validator';
+import { IsOptional, IsString, IsEnum, IsDateString } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class AdminUpdateUserDto {
@@ -16,4 +16,14 @@ export class AdminUpdateUserDto {
   @IsOptional()
   @IsEnum(['USER', 'ADMIN'], { message: 'Role harus USER atau ADMIN' })
   role?: string;
+
+  @ApiPropertyOptional({ enum: ['BASIC', 'PREMIUM'] })
+  @IsOptional()
+  @IsEnum(['BASIC', 'PREMIUM'], { message: 'Subscription harus BASIC atau PREMIUM' })
+  subscriptionType?: string;
+
+  @ApiPropertyOptional({ description: 'Subscription expiry date (ISO date string)' })
+  @IsOptional()
+  @IsDateString()
+  subscriptionExpireDate?: string;
 }

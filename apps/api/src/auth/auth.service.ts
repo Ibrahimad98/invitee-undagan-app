@@ -18,7 +18,7 @@ export class AuthService {
       where: { email: dto.email },
     });
 
-    if (existing) {
+    if (existing && !existing.isDeleted) {
       throw new ConflictException('Email already registered');
     }
 
@@ -46,7 +46,7 @@ export class AuthService {
       where: { email: dto.email },
     });
 
-    if (!user) {
+    if (!user || user.isDeleted) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
