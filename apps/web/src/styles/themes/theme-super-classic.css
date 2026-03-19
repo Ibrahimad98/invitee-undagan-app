@@ -6,6 +6,9 @@
   --inv-text-secondary: #7a6c56;
   --inv-accent: #c9a84c;
   --inv-accent-text: #2c2418;
+  --inv-cover-text: #c9a84c;
+  --inv-cover-text-secondary: rgba(201,168,76,0.7);
+  --inv-cover-border: #c9a84c;
   font-family: 'Cormorant Garamond', 'Georgia', serif;
 }
 

@@ -6,12 +6,17 @@ import { useUIStore } from '@/stores/ui-store';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Avatar } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { User, Lock, Save, Mail, Phone, ShieldCheck, KeyRound, CheckCircle2, ArrowLeft, ArrowRight } from 'lucide-react';
+import {
+  User, Lock, Save, Mail, Phone, ShieldCheck, KeyRound, CheckCircle2,
+  ArrowLeft, ArrowRight, Pencil, X, MapPin, Calendar, Crown, Star,
+  CreditCard, Sparkles, Clock, BadgeCheck, ExternalLink,
+} from 'lucide-react';
+import { SubscriptionBadge } from '@/components/ui/subscription-badge';
 
-type TabId = 'profile' | 'password';
+type TabId = 'profile' | 'password' | 'plan';
 
 const PASSWORD_STEPS = [
   { label: 'Konfirmasi', icon: ShieldCheck },
@@ -19,15 +24,27 @@ const PASSWORD_STEPS = [
   { label: 'Password Baru', icon: CheckCircle2 },
 ];
 
+function formatDisplayDate(dateStr: string | null | undefined): string {
+  if (!dateStr) return '-';
+  try {
+    return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  } catch {
+    return '-';
+  }
+}
+
 export default function ProfilePage() {
   const { user, setUser } = useAuthStore();
   const { addToast } = useUIStore();
   const [activeTab, setActiveTab] = useState<TabId>('profile');
+  const [isEditing, setIsEditing] = useState(false);
   const [passwordStep, setPasswordStep] = useState(1);
 
   const [profileForm, setProfileForm] = useState({
     fullName: '',
     phone: '',
+    dateOfBirth: '',
+    address: '',
   });
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -43,17 +60,31 @@ export default function ProfilePage() {
     if (user) {
       setProfileForm({
         fullName: user.fullName || '',
-        phone: (user as any).phone || '',
+        phone: user.phone || '',
+        dateOfBirth: user.dateOfBirth ? new Date(user.dateOfBirth).toISOString().split('T')[0] : '',
+        address: user.address || '',
       });
     }
   }, [user]);
 
-  // Reset password wizard when switching tabs
   const handleTabChange = (tab: TabId) => {
     setActiveTab(tab);
+    setIsEditing(false);
     if (tab === 'password') {
       setPasswordStep(1);
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    if (user) {
+      setProfileForm({
+        fullName: user.fullName || '',
+        phone: user.phone || '',
+        dateOfBirth: user.dateOfBirth ? new Date(user.dateOfBirth).toISOString().split('T')[0] : '',
+        address: user.address || '',
+      });
     }
   };
 
@@ -65,10 +96,19 @@ export default function ProfilePage() {
 
     setProfileLoading(true);
     try {
-      const { data } = await api.patch('/users/me', profileForm);
+      const payload: any = {
+        fullName: profileForm.fullName,
+        phone: profileForm.phone || undefined,
+        address: profileForm.address || undefined,
+      };
+      if (profileForm.dateOfBirth) {
+        payload.dateOfBirth = profileForm.dateOfBirth;
+      }
+      const { data } = await api.patch('/users/me', payload);
       const updatedUser = data.data || data;
       setUser(updatedUser);
       addToast('Profil berhasil diperbarui', 'success');
+      setIsEditing(false);
     } catch (error: any) {
       addToast(error.response?.data?.message || 'Gagal memperbarui profil', 'error');
     } finally {
@@ -126,7 +166,6 @@ export default function ProfilePage() {
     } catch (error: any) {
       const msg = error.response?.data?.message || 'Gagal mengubah password';
       addToast(msg, 'error');
-      // If current password is wrong, go back to step 2
       if (msg.toLowerCase().includes('password saat ini')) {
         setPasswordStep(2);
         setPasswordForm((f) => ({ ...f, currentPassword: '', newPassword: '', confirmPassword: '' }));
@@ -138,20 +177,34 @@ export default function ProfilePage() {
 
   const tabs = [
     { id: 'profile' as TabId, label: 'Informasi Profil', icon: User },
+    { id: 'plan' as TabId, label: 'Paket Saya', icon: CreditCard },
     { id: 'password' as TabId, label: 'Ubah Password', icon: Lock },
   ];
+
+  const subscriptionType = (user as any)?.subscriptionType || 'BASIC';
+  const subscriptionExpireDate = (user as any)?.subscriptionExpireDate;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Avatar name={user?.fullName || 'U'} size="lg" />
+        <div className="relative">
+          <Avatar name={user?.fullName || 'U'} size="lg" />
+          {subscriptionType === 'PREMIUM' && (
+            <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full flex items-center justify-center shadow-sm">
+              <Crown className="w-3 h-3 text-white" />
+            </div>
+          )}
+        </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{user?.fullName}</h1>
           <p className="text-gray-500">{user?.email}</p>
-          <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-700">
-            {user?.role === 'ADMIN' ? 'Administrator' : 'Pengguna'}
-          </span>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-700">
+              {user?.role === 'ADMIN' ? 'Administrator' : 'Pengguna'}
+            </span>
+            <SubscriptionBadge type={subscriptionType} />
+          </div>
         </div>
       </div>
 
@@ -177,10 +230,98 @@ export default function ProfilePage() {
         })}
       </div>
 
-      {/* Profile Tab */}
-      {activeTab === 'profile' && (
+      {/* Profile Tab — View Mode */}
+      {activeTab === 'profile' && !isEditing && (
+        <Card>
+          <CardContent className="p-6 space-y-1">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-semibold text-gray-900">Data Profil</h3>
+              <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                <Pencil className="w-3.5 h-3.5 mr-1.5" />
+                Edit Profil
+              </Button>
+            </div>
+
+            <div className="divide-y divide-gray-100">
+              {/* Email */}
+              <div className="flex items-start gap-3 py-3">
+                <Mail className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-gray-500">Email</p>
+                  <p className="text-sm font-medium text-gray-800">{user?.email}</p>
+                </div>
+              </div>
+
+              {/* Full Name */}
+              <div className="flex items-start gap-3 py-3">
+                <User className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-gray-500">Nama Lengkap</p>
+                  <p className="text-sm font-medium text-gray-800">{user?.fullName || '-'}</p>
+                </div>
+              </div>
+
+              {/* Phone */}
+              <div className="flex items-start gap-3 py-3">
+                <Phone className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-gray-500">Nomor Telepon</p>
+                  <p className="text-sm font-medium text-gray-800">{user?.phone || '-'}</p>
+                </div>
+              </div>
+
+              {/* Date of Birth */}
+              <div className="flex items-start gap-3 py-3">
+                <Calendar className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-gray-500">Tanggal Lahir</p>
+                  <p className="text-sm font-medium text-gray-800">{formatDisplayDate(user?.dateOfBirth)}</p>
+                </div>
+              </div>
+
+              {/* Address */}
+              <div className="flex items-start gap-3 py-3">
+                <MapPin className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-gray-500">Alamat</p>
+                  <p className="text-sm font-medium text-gray-800">{user?.address || '-'}</p>
+                </div>
+              </div>
+
+              {/* Subscription */}
+              <div className="flex items-start gap-3 py-3">
+                <Crown className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-gray-500">Langganan</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <SubscriptionBadge type={subscriptionType} />
+                    {subscriptionType === 'PREMIUM' && subscriptionExpireDate && (
+                      <span className="text-xs text-gray-500">
+                        hingga {formatDisplayDate(subscriptionExpireDate)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Profile Tab — Edit Mode */}
+      {activeTab === 'profile' && isEditing && (
         <Card>
           <CardContent className="p-6 space-y-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-base font-semibold text-gray-900">Edit Profil</h3>
+              <button
+                onClick={handleCancelEdit}
+                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
               <Mail className="w-4 h-4 text-gray-400" />
               <div>
@@ -188,6 +329,7 @@ export default function ProfilePage() {
                 <p className="text-sm font-medium text-gray-700">{user?.email}</p>
               </div>
             </div>
+
             <Input
               label="Nama Lengkap"
               placeholder="Nama lengkap Anda"
@@ -200,7 +342,27 @@ export default function ProfilePage() {
               value={profileForm.phone}
               onChange={(e) => setProfileForm((f) => ({ ...f, phone: e.target.value }))}
             />
-            <div className="flex justify-end pt-2">
+            <Input
+              label="Tanggal Lahir"
+              type="date"
+              value={profileForm.dateOfBirth}
+              onChange={(e) => setProfileForm((f) => ({ ...f, dateOfBirth: e.target.value }))}
+            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
+              <textarea
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none"
+                placeholder="Alamat lengkap Anda"
+                rows={3}
+                value={profileForm.address}
+                onChange={(e) => setProfileForm((f) => ({ ...f, address: e.target.value }))}
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <Button variant="outline" onClick={handleCancelEdit}>
+                Batal
+              </Button>
               <Button onClick={handleUpdateProfile} loading={profileLoading}>
                 <Save className="w-4 h-4 mr-2" />
                 Simpan Profil
@@ -208,6 +370,156 @@ export default function ProfilePage() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Plan Tab */}
+      {activeTab === 'plan' && (
+        <div className="space-y-6">
+          {/* Current Plan Card */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-base font-semibold text-gray-900">Status Paket</h3>
+                <SubscriptionBadge type={subscriptionType} />
+              </div>
+
+              <div className="space-y-4">
+                {/* Plan Name */}
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200">
+                  <div className={cn(
+                    'w-10 h-10 rounded-full flex items-center justify-center shrink-0',
+                    subscriptionType === 'PREMIUM'
+                      ? 'bg-gradient-to-br from-amber-400 to-yellow-500'
+                      : 'bg-gray-200',
+                  )}>
+                    {subscriptionType === 'PREMIUM' ? (
+                      <Crown className="w-5 h-5 text-white" />
+                    ) : (
+                      <Star className="w-5 h-5 text-gray-500" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      Paket {subscriptionType === 'PREMIUM' ? 'Premium' : 'Basic'}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {subscriptionType === 'PREMIUM'
+                        ? 'Akses penuh ke semua fitur'
+                        : 'Fitur dasar untuk membuat undangan'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Plan Details */}
+                <div className="divide-y divide-gray-100">
+                  <div className="flex items-center gap-3 py-3">
+                    <BadgeCheck className="w-4 h-4 text-gray-400 shrink-0" />
+                    <div>
+                      <p className="text-xs text-gray-500">Status</p>
+                      <p className="text-sm font-medium">
+                        {subscriptionType === 'PREMIUM' ? (
+                          <span className="text-green-600">● Aktif</span>
+                        ) : (
+                          <span className="text-gray-600">● Paket Gratis</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 py-3">
+                    <Clock className="w-4 h-4 text-gray-400 shrink-0" />
+                    <div>
+                      <p className="text-xs text-gray-500">Berlaku Hingga</p>
+                      <p className="text-sm font-medium text-gray-800">
+                        {subscriptionType === 'PREMIUM' && subscriptionExpireDate
+                          ? formatDisplayDate(subscriptionExpireDate)
+                          : subscriptionType === 'PREMIUM'
+                            ? 'Selamanya'
+                            : '-'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 py-3">
+                    <Sparkles className="w-4 h-4 text-gray-400 shrink-0" />
+                    <div>
+                      <p className="text-xs text-gray-500">Fitur</p>
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {subscriptionType === 'PREMIUM' ? (
+                          <>
+                            <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-amber-50 text-amber-700">Semua Tema</span>
+                            <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-amber-50 text-amber-700">Unlimited Undangan</span>
+                            <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-amber-50 text-amber-700">Custom Domain</span>
+                            <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-amber-50 text-amber-700">Prioritas Support</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-gray-100 text-gray-600">3 Tema Dasar</span>
+                            <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-gray-100 text-gray-600">1 Undangan</span>
+                            <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-gray-100 text-gray-600">Galeri Terbatas</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Upgrade CTA */}
+          {subscriptionType !== 'PREMIUM' && (
+            <Card className="border-dashed border-2 border-amber-200 bg-gradient-to-br from-amber-50/50 to-yellow-50/50">
+              <CardContent className="p-6 text-center space-y-4">
+                <div className="mx-auto w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center">
+                  <Crown className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Upgrade ke Premium</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Dapatkan akses ke semua tema, unlimited undangan, custom domain, dan fitur eksklusif lainnya.
+                  </p>
+                </div>
+                <Button
+                  onClick={() => window.location.href = '/dashboard/plan'}
+                  className="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Lihat Paket — Coming Soon
+                  <ExternalLink className="w-3.5 h-3.5 ml-2 opacity-70" />
+                </Button>
+                <p className="text-[10px] text-gray-400">
+                  Fitur langganan akan segera hadir. Nantikan!
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Already Premium */}
+          {subscriptionType === 'PREMIUM' && (
+            <Card className="border border-amber-200 bg-gradient-to-br from-amber-50/30 to-yellow-50/30">
+              <CardContent className="p-6 text-center space-y-3">
+                <div className="mx-auto w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center">
+                  <CheckCircle2 className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-gray-900">Anda Pengguna Premium! 🎉</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Nikmati semua fitur premium tanpa batasan.
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => window.location.href = '/dashboard/plan'}
+                  className="text-sm"
+                >
+                  Kelola Langganan — Coming Soon
+                  <ExternalLink className="w-3.5 h-3.5 ml-2 opacity-70" />
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       )}
 
       {/* Password Tab — 3-Step Wizard */}

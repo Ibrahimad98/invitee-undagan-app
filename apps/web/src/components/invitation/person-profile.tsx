@@ -61,7 +61,7 @@ export default function PersonProfileSection({ profiles, eventType }: PersonProf
   const config = getEventTypeConfig(eventType || 'WEDDING');
 
   return (
-    <section ref={ref} className="invitation-section invitation-profiles px-4 sm:px-8 bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
+    <section ref={ref} className="invitation-section invitation-profiles px-8 sm:px-12 py-14 sm:py-16 bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
       <SectionOrnament position="frame" />
 
       <div className="max-w-2xl mx-auto w-full">

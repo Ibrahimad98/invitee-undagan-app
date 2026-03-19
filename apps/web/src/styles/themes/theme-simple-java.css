@@ -6,6 +6,9 @@
   --inv-text-secondary: #7a6a52;
   --inv-accent: #8b6914;
   --inv-accent-text: #ffffff;
+  --inv-cover-text: #d4b254;
+  --inv-cover-text-secondary: rgba(212,178,84,0.65);
+  --inv-cover-border: #8b6914;
   font-family: 'Lora', 'Georgia', serif;
 }
 

@@ -6,6 +6,9 @@
   --inv-text-secondary: #6b7280;
   --inv-accent: #1a1a1a;
   --inv-accent-text: #ffffff;
+  --inv-cover-text: #ffffff;
+  --inv-cover-text-secondary: rgba(255,255,255,0.5);
+  --inv-cover-border: rgba(255,255,255,0.1);
   font-family: 'Inter', 'Helvetica Neue', sans-serif;
 }
 

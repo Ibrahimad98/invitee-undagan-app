@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useTemplatesPublic } from '@/hooks/queries/use-templates-public';
 import { useTestimonialsPublic } from '@/hooks/queries/use-testimonials-public';
+import { PublicNavbar } from '@/components/layout/public-navbar';
+import { HeroBackground } from '@/components/layout/hero-background';
 import {
   Star,
   Sparkles,
@@ -32,15 +34,6 @@ const HERO_HEADLINES = [
   { text: 'Buat Tamu Terkesan dengan', highlight: 'Desain Eksklusif' },
   { text: 'Undang Semua Orang dengan', highlight: 'Satu Klik Saja' },
   { text: 'Hemat Waktu & Biaya dengan', highlight: 'Undangan Premium' },
-];
-
-/* ─── Hero background images for slideshow ─── */
-const HERO_BG_IMAGES = [
-  'https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=80',
-  'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1920&q=80',
-  'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=1920&q=80',
-  'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=1920&q=80',
-  'https://images.unsplash.com/photo-1507504031003-b417219a0fde?w=1920&q=80',
 ];
 
 /* ─── Stats / social proof numbers ─── */
@@ -117,16 +110,6 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  /* ─── Hero background slideshow ─── */
-  const [bgIdx, setBgIdx] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setBgIdx((prev) => (prev + 1) % HERO_BG_IMAGES.length);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, []);
-
   /* ─── Testimonial carousel ─── */
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const testimonialList = testimonials || [];
@@ -150,55 +133,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <header className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-b border-gray-100 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img src="/favicon.svg" alt="Invitee" className="w-8 h-8" />
-            <span className="font-bold text-lg text-orange-500">Invitee</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/templates"
-              className="hidden sm:inline text-sm text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              Template
-            </Link>
-            <Link
-              href="/login"
-              className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              Masuk
-            </Link>
-            <Link
-              href="/register"
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
-            >
-              Daftar Gratis
-            </Link>
-          </div>
-        </div>
-      </header>
+      <PublicNavbar />
 
       {/* ═══════════ HERO SECTION — animated bg + rotating text ═══════════ */}
       <section className="relative pt-28 pb-20 sm:pt-36 sm:pb-28 px-4 text-center overflow-hidden min-h-[520px] flex items-center justify-center">
-        {/* Animated background slideshow */}
-        {HERO_BG_IMAGES.map((src, i) => (
-          <div
-            key={i}
-            className="absolute inset-0 bg-cover bg-center transition-opacity duration-[2000ms] ease-in-out"
-            style={{
-              backgroundImage: `url(${src})`,
-              opacity: i === bgIdx ? 0.6 : 0,
-            }}
-            aria-hidden="true"
-          />
-        ))}
-        {/* Gradient overlay for readability */}
-        <div
-          className="absolute inset-0 bg-gradient-to-b from-white/80 via-primary-50/60 to-white"
-          aria-hidden="true"
-        />
+        <HeroBackground />
 
         <div className="relative z-10 max-w-3xl mx-auto space-y-6">
           <span className="inline-flex items-center gap-1.5 bg-primary-100/90 text-primary-700 text-xs font-medium px-3 py-1 rounded-full backdrop-blur-sm">
@@ -441,19 +380,39 @@ export default function Home() {
                     {visibleTestimonials[testimonialIdx]?.message || ''}
                   </p>
 
-                  {/* Stars */}
-                  <div className="flex items-center justify-center gap-0.5 mb-3">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-4 h-4 ${
-                          i < (visibleTestimonials[testimonialIdx]?.rating || 5)
-                            ? 'text-yellow-500 fill-yellow-500'
-                            : 'text-gray-200'
-                        }`}
-                      />
-                    ))}
+                  {/* 3 Category Ratings */}
+                  <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mb-4">
+                    {[
+                      { label: 'Desain', key: 'ratingDesain', icon: Palette, color: 'text-purple-500' },
+                      { label: 'Kemudahan', key: 'ratingKemudahan', icon: Users, color: 'text-blue-500' },
+                      { label: 'Layanan', key: 'ratingLayanan', icon: Heart, color: 'text-green-500' },
+                    ].map((cat) => {
+                      const val = (visibleTestimonials[testimonialIdx] as any)?.[cat.key] || 5;
+                      return (
+                        <div key={cat.key} className="flex items-center gap-1.5">
+                          <cat.icon className={`w-3.5 h-3.5 ${cat.color}`} />
+                          <span className="text-xs text-gray-500">{cat.label}</span>
+                          <div className="flex gap-0.5">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-3 h-3 ${
+                                  i < val ? 'text-yellow-500 fill-yellow-500' : 'text-gray-200'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
+
+                  {/* Notes if available */}
+                  {(visibleTestimonials[testimonialIdx] as any)?.notes && (
+                    <div className="max-w-md mx-auto mb-4 px-4 py-2 bg-gray-50 rounded-lg text-xs text-gray-500 italic">
+                      📝 {(visibleTestimonials[testimonialIdx] as any).notes}
+                    </div>
+                  )}
 
                   <p className="font-semibold text-gray-900">
                     {visibleTestimonials[testimonialIdx]?.userName || ''}
@@ -592,6 +551,10 @@ const FALLBACK_TESTIMONIALS = [
     userName: 'Rina & Andi',
     message: 'Invitee benar-benar membantu kami membuat undangan pernikahan yang cantik dalam waktu singkat. Tamu-tamu kami sangat terkesan dengan desainnya!',
     rating: 5,
+    ratingDesain: 5,
+    ratingKemudahan: 5,
+    ratingLayanan: 5,
+    notes: 'Sangat recommended untuk pasangan yang ingin undangan digital berkualitas.',
     createdAt: '',
   },
   {
@@ -599,6 +562,10 @@ const FALLBACK_TESTIMONIALS = [
     userName: 'Dian & Fajar',
     message: 'Prosesnya sangat mudah dan cepat. Kami suka sekali template-nya yang elegan. Fitur RSVP dan ucapan juga sangat membantu.',
     rating: 5,
+    ratingDesain: 5,
+    ratingKemudahan: 5,
+    ratingLayanan: 4,
+    notes: 'Berharap ada lebih banyak pilihan font.',
     createdAt: '',
   },
   {
@@ -606,6 +573,9 @@ const FALLBACK_TESTIMONIALS = [
     userName: 'Sarah & Budi',
     message: 'Awalnya ragu pakai undangan digital, tapi setelah coba Invitee, hasilnya luar biasa! Hemat biaya dan tamu bisa langsung konfirmasi kehadiran.',
     rating: 5,
+    ratingDesain: 4,
+    ratingKemudahan: 5,
+    ratingLayanan: 5,
     createdAt: '',
   },
   {
@@ -613,6 +583,10 @@ const FALLBACK_TESTIMONIALS = [
     userName: 'Mega & Rizki',
     message: 'Template wayang heritage-nya keren banget! Cocok dengan tema pernikahan Jawa kami. Terima kasih Invitee!',
     rating: 4,
+    ratingDesain: 5,
+    ratingKemudahan: 4,
+    ratingLayanan: 4,
+    notes: 'Template budaya lokal sangat diapresiasi!',
     createdAt: '',
   },
   {
@@ -620,6 +594,9 @@ const FALLBACK_TESTIMONIALS = [
     userName: 'Fitri & Hasan',
     message: 'Sangat puas dengan fitur amplop digital dan galeri fotonya. Undangan kami terlihat sangat profesional dan modern.',
     rating: 5,
+    ratingDesain: 5,
+    ratingKemudahan: 4,
+    ratingLayanan: 5,
     createdAt: '',
   },
 ];

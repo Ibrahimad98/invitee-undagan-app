@@ -6,6 +6,9 @@
   --inv-text-secondary: #a09878;
   --inv-accent: #d4a843;
   --inv-accent-text: #0d0d0d;
+  --inv-cover-text: #d4a843;
+  --inv-cover-text-secondary: rgba(212,168,67,0.7);
+  --inv-cover-border: #d4a843;
   font-family: 'Cinzel', 'Georgia', serif;
 }
 

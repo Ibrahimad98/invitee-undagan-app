@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTestimonials, useMyTestimonials, useCreateTestimonial, useApproveTestimonial, useDeleteTestimonial } from '@/hooks/queries/use-testimonials';
 import { useAuthStore } from '@/stores/auth-store';
 import { useUIStore } from '@/stores/ui-store';
@@ -21,9 +21,118 @@ import {
   ThumbsUp,
   ThumbsDown,
   Send,
+  Palette,
+  MousePointerClick,
+  HeartHandshake,
+  BarChart3,
+  TrendingUp,
+  StickyNote,
 } from 'lucide-react';
 
 type FilterTab = 'all' | 'approved' | 'pending';
+
+/* ─── Rating categories ─── */
+const RATING_CATEGORIES = [
+  {
+    key: 'ratingDesain' as const,
+    label: 'Desain & Tampilan',
+    icon: Palette,
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-50',
+    description: 'Kualitas visual dan estetika undangan',
+  },
+  {
+    key: 'ratingKemudahan' as const,
+    label: 'Kemudahan Penggunaan',
+    icon: MousePointerClick,
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-50',
+    description: 'Kemudahan dalam membuat undangan',
+  },
+  {
+    key: 'ratingLayanan' as const,
+    label: 'Kepuasan Layanan',
+    icon: HeartHandshake,
+    color: 'text-green-600',
+    bgColor: 'bg-green-50',
+    description: 'Kualitas layanan dan dukungan',
+  },
+];
+
+const RATING_LABELS: Record<number, string> = {
+  1: 'Kurang Baik',
+  2: 'Cukup',
+  3: 'Baik',
+  4: 'Sangat Baik',
+  5: 'Luar Biasa!',
+};
+
+/* ─── Star Rating Component ─── */
+function StarRating({
+  value,
+  onChange,
+  hoverValue,
+  onHover,
+  size = 'md',
+}: {
+  value: number;
+  onChange?: (v: number) => void;
+  hoverValue?: number;
+  onHover?: (v: number) => void;
+  size?: 'sm' | 'md';
+}) {
+  const sizeClass = size === 'sm' ? 'w-4 h-4' : 'w-7 h-7';
+  const padClass = size === 'sm' ? 'p-0' : 'p-0.5';
+  return (
+    <div className="flex items-center gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <button
+          key={i}
+          type="button"
+          disabled={!onChange}
+          onMouseEnter={() => onHover?.(i + 1)}
+          onMouseLeave={() => onHover?.(0)}
+          onClick={() => onChange?.(i + 1)}
+          className={`${padClass} transition-transform ${onChange ? 'hover:scale-110 cursor-pointer' : 'cursor-default'}`}
+        >
+          <Star
+            className={`${sizeClass} transition-colors ${
+              i < ((hoverValue && hoverValue > 0 ? hoverValue : undefined) || value)
+                ? 'text-yellow-500 fill-yellow-500'
+                : 'text-gray-300'
+            }`}
+          />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/* ─── Category Rating Row (for display) ─── */
+function CategoryRatingDisplay({ testimonial }: { testimonial: any }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
+      {RATING_CATEGORIES.map((cat) => (
+        <div key={cat.key} className="flex items-center gap-2">
+          <cat.icon className={`w-3.5 h-3.5 ${cat.color} flex-shrink-0`} />
+          <span className="text-xs text-gray-500 flex-shrink-0">{cat.label}:</span>
+          <div className="flex items-center gap-0.5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className={`w-3 h-3 ${
+                  i < (testimonial[cat.key] || 0)
+                    ? 'text-yellow-500 fill-yellow-500'
+                    : 'text-gray-200'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 /* ═══════════════════════════════════════════════════
    USER VIEW — Check existing, then show form or prev review
@@ -36,28 +145,40 @@ function UserTestimonialView() {
 
   const myTestimonials = myData?.data || [];
   const hasExisting = myTestimonials.length > 0;
-  const latestTestimonial = myTestimonials[0];
 
   const [showForm, setShowForm] = useState(false);
-  const [rating, setRating] = useState(5);
-  const [hoverRating, setHoverRating] = useState(0);
+  const [ratings, setRatings] = useState({
+    ratingDesain: 5,
+    ratingKemudahan: 5,
+    ratingLayanan: 5,
+  });
+  const [hoverRatings, setHoverRatings] = useState({
+    ratingDesain: 0,
+    ratingKemudahan: 0,
+    ratingLayanan: 0,
+  });
   const [message, setMessage] = useState('');
+  const [notes, setNotes] = useState('');
   const [submitted, setSubmitted] = useState(false);
+
+  const overallRating = Math.round(
+    (ratings.ratingDesain + ratings.ratingKemudahan + ratings.ratingLayanan) / 3
+  );
 
   const handleSubmit = async () => {
     if (!message.trim()) {
       addToast('Silakan tulis ulasan Anda', 'error');
       return;
     }
-    if (rating === 0) {
-      addToast('Silakan beri rating bintang', 'error');
-      return;
-    }
     try {
       await createTestimonial.mutateAsync({
         userName: user?.fullName || 'Anonim',
         message: message.trim(),
-        rating,
+        rating: overallRating,
+        ratingDesain: ratings.ratingDesain,
+        ratingKemudahan: ratings.ratingKemudahan,
+        ratingLayanan: ratings.ratingLayanan,
+        notes: notes.trim() || undefined,
       });
       addToast('Terima kasih! Testimoni Anda telah dikirim dan menunggu persetujuan.', 'success');
       setSubmitted(true);
@@ -66,14 +187,6 @@ function UserTestimonialView() {
       addToast('Gagal mengirim testimoni', 'error');
     }
   };
-
-  const renderStars = (r: number) =>
-    Array.from({ length: 5 }).map((_, i) => (
-      <Star
-        key={i}
-        className={`w-4 h-4 ${i < r ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`}
-      />
-    ));
 
   // Loading state
   if (loadingMine) {
@@ -143,12 +256,25 @@ function UserTestimonialView() {
                         </Badge>
                       )}
                     </div>
-                    <div className="flex items-center gap-0.5">
-                      {renderStars(t.rating)}
-                    </div>
+
+                    {/* Category ratings */}
+                    <CategoryRatingDisplay testimonial={t} />
+
                     <p className="text-sm text-gray-700 mt-2 leading-relaxed">
                       &ldquo;{t.message}&rdquo;
                     </p>
+
+                    {/* Notes */}
+                    {t.notes && (
+                      <div className="mt-2 p-2.5 bg-gray-50 rounded-lg border border-gray-100">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <StickyNote className="w-3 h-3 text-gray-400" />
+                          <span className="text-xs font-medium text-gray-500">Catatan</span>
+                        </div>
+                        <p className="text-xs text-gray-600 leading-relaxed">{t.notes}</p>
+                      </div>
+                    )}
+
                     <p className="text-xs text-gray-400 mt-2">
                       {new Date(t.createdAt).toLocaleDateString('id-ID', {
                         day: 'numeric',
@@ -179,7 +305,8 @@ function UserTestimonialView() {
               onClick={() => {
                 setShowForm(true);
                 setMessage('');
-                setRating(5);
+                setNotes('');
+                setRatings({ ratingDesain: 5, ratingKemudahan: 5, ratingLayanan: 5 });
               }}
               className="flex items-center gap-2"
             >
@@ -215,39 +342,47 @@ function UserTestimonialView() {
               <MessageCircle className="w-7 h-7 text-primary-600" />
             </div>
             <h2 className="text-lg font-semibold text-gray-900">Bagaimana pengalaman Anda?</h2>
-            <p className="text-sm text-gray-500">Ceritakan pendapat Anda tentang layanan Invitee</p>
+            <p className="text-sm text-gray-500">Nilai layanan kami di 3 kategori berikut</p>
           </div>
 
-          {/* Star Rating */}
-          <div className="text-center space-y-2">
-            <p className="text-sm font-medium text-gray-700">Beri Rating</p>
-            <div className="flex items-center justify-center gap-1">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onMouseEnter={() => setHoverRating(i + 1)}
-                  onMouseLeave={() => setHoverRating(0)}
-                  onClick={() => setRating(i + 1)}
-                  className="p-1 transition-transform hover:scale-110"
-                >
-                  <Star
-                    className={`w-8 h-8 transition-colors ${
-                      i < (hoverRating || rating)
-                        ? 'text-yellow-500 fill-yellow-500'
-                        : 'text-gray-300'
-                    }`}
+          {/* 3 Category Ratings */}
+          <div className="space-y-5">
+            {RATING_CATEGORIES.map((cat) => (
+              <div
+                key={cat.key}
+                className={`p-4 rounded-xl border border-gray-100 ${cat.bgColor}/30 space-y-2`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-9 h-9 rounded-lg ${cat.bgColor} flex items-center justify-center`}>
+                    <cat.icon className={`w-5 h-5 ${cat.color}`} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">{cat.label}</p>
+                    <p className="text-xs text-gray-400">{cat.description}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 pl-[46px]">
+                  <StarRating
+                    value={ratings[cat.key]}
+                    onChange={(v) => setRatings((prev) => ({ ...prev, [cat.key]: v }))}
+                    hoverValue={hoverRatings[cat.key]}
+                    onHover={(v) => setHoverRatings((prev) => ({ ...prev, [cat.key]: v }))}
                   />
-                </button>
-              ))}
+                  <span className="text-xs text-gray-400 min-w-[80px]">
+                    {RATING_LABELS[hoverRatings[cat.key] || ratings[cat.key]]}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Overall rating indicator */}
+          <div className="text-center p-3 bg-primary-50 rounded-xl">
+            <p className="text-xs text-gray-500 mb-1">Rating Keseluruhan</p>
+            <div className="flex items-center justify-center gap-2">
+              <StarRating value={overallRating} size="sm" />
+              <span className="text-sm font-bold text-primary-700">{overallRating}/5</span>
             </div>
-            <p className="text-xs text-gray-400">
-              {rating === 1 && 'Kurang Baik'}
-              {rating === 2 && 'Cukup'}
-              {rating === 3 && 'Baik'}
-              {rating === 4 && 'Sangat Baik'}
-              {rating === 5 && 'Luar Biasa!'}
-            </p>
           </div>
 
           {/* Message */}
@@ -261,6 +396,23 @@ function UserTestimonialView() {
               maxLength={500}
             />
             <p className="text-xs text-gray-400 text-right">{message.length}/500</p>
+          </div>
+
+          {/* Notes / Catatan */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+              <StickyNote className="w-4 h-4 text-gray-400" />
+              Catatan Tambahan
+              <span className="text-xs text-gray-400 font-normal">(opsional)</span>
+            </label>
+            <Textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Saran, kritik, atau hal lain yang ingin Anda sampaikan..."
+              rows={3}
+              maxLength={300}
+            />
+            <p className="text-xs text-gray-400 text-right">{notes.length}/300</p>
           </div>
 
           {/* Submit */}
@@ -283,13 +435,173 @@ function UserTestimonialView() {
 }
 
 /* ═══════════════════════════════════════════════════
+   CUSTOMER FEEDBACK SECTION — Aggregate stats per category
+   ═══════════════════════════════════════════════════ */
+function CustomerFeedbackSection({ testimonials }: { testimonials: any[] }) {
+  const approved = testimonials.filter((t: any) => t.isApproved);
+
+  const stats = useMemo(() => {
+    if (approved.length === 0) return null;
+
+    const sum = { desain: 0, kemudahan: 0, layanan: 0 };
+    approved.forEach((t: any) => {
+      sum.desain += t.ratingDesain || 0;
+      sum.kemudahan += t.ratingKemudahan || 0;
+      sum.layanan += t.ratingLayanan || 0;
+    });
+
+    const count = approved.length;
+    return {
+      desain: sum.desain / count,
+      kemudahan: sum.kemudahan / count,
+      layanan: sum.layanan / count,
+      overall: (sum.desain + sum.kemudahan + sum.layanan) / (count * 3),
+      total: count,
+    };
+  }, [approved]);
+
+  if (!stats) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center">
+          <BarChart3 className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+          <p className="text-gray-500 font-medium">Belum ada feedback</p>
+          <p className="text-sm text-gray-400 mt-1">Data feedback akan muncul setelah ada testimoni yang disetujui.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const categoryData = [
+    { label: 'Desain & Tampilan', avg: stats.desain, icon: Palette, color: 'bg-purple-500', lightColor: 'bg-purple-100', textColor: 'text-purple-700' },
+    { label: 'Kemudahan Penggunaan', avg: stats.kemudahan, icon: MousePointerClick, color: 'bg-blue-500', lightColor: 'bg-blue-100', textColor: 'text-blue-700' },
+    { label: 'Kepuasan Layanan', avg: stats.layanan, icon: HeartHandshake, color: 'bg-green-500', lightColor: 'bg-green-100', textColor: 'text-green-700' },
+  ];
+
+  // Distribution bars per rating (1-5) for approved testimonials
+  const ratingDistribution = [5, 4, 3, 2, 1].map((r) => {
+    const count = approved.filter((t: any) => Math.round(((t.ratingDesain || 0) + (t.ratingKemudahan || 0) + (t.ratingLayanan || 0)) / 3) === r).length;
+    return { rating: r, count, pct: stats.total > 0 ? (count / stats.total) * 100 : 0 };
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <BarChart3 className="w-5 h-5 text-primary-600" />
+        <h2 className="text-lg font-bold text-gray-900">Customer Feedback</h2>
+        <Badge variant="default">{stats.total} ulasan</Badge>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Left — Overall + Category Bars */}
+        <Card>
+          <CardContent className="p-5 space-y-5">
+            {/* Overall score */}
+            <div className="text-center p-4 bg-gradient-to-br from-primary-50 to-primary-100/50 rounded-xl">
+              <p className="text-3xl font-bold text-primary-700">{stats.overall.toFixed(1)}</p>
+              <div className="flex items-center justify-center gap-0.5 my-1">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-5 h-5 ${
+                      i < Math.round(stats.overall) ? 'text-yellow-500 fill-yellow-500' : 'text-gray-200'
+                    }`}
+                  />
+                ))}
+              </div>
+              <p className="text-xs text-gray-500">Rating Keseluruhan</p>
+            </div>
+
+            {/* Per-category progress bars */}
+            <div className="space-y-4">
+              {categoryData.map((cat) => (
+                <div key={cat.label} className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-7 h-7 rounded-lg ${cat.lightColor} flex items-center justify-center`}>
+                        <cat.icon className={`w-4 h-4 ${cat.textColor}`} />
+                      </div>
+                      <span className="text-sm font-medium text-gray-700">{cat.label}</span>
+                    </div>
+                    <span className={`text-sm font-bold ${cat.textColor}`}>
+                      {cat.avg.toFixed(1)}
+                    </span>
+                  </div>
+                  <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full ${cat.color} rounded-full transition-all duration-700`}
+                      style={{ width: `${(cat.avg / 5) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Right — Rating distribution */}
+        <Card>
+          <CardContent className="p-5 space-y-4">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-gray-500" />
+              <h3 className="text-sm font-semibold text-gray-700">Distribusi Rating</h3>
+            </div>
+            <div className="space-y-3">
+              {ratingDistribution.map((d) => (
+                <div key={d.rating} className="flex items-center gap-3">
+                  <div className="flex items-center gap-0.5 w-14 justify-end flex-shrink-0">
+                    <span className="text-sm font-medium text-gray-600">{d.rating}</span>
+                    <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
+                  </div>
+                  <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-yellow-400 rounded-full transition-all duration-700"
+                      style={{ width: `${d.pct}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-gray-500 w-8 text-right flex-shrink-0">
+                    {d.count}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Recent notes */}
+            {(() => {
+              const recentNotes = approved.filter((t: any) => t.notes).slice(0, 3);
+              if (recentNotes.length === 0) return null;
+              return (
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <StickyNote className="w-4 h-4 text-gray-400" />
+                    <h4 className="text-sm font-semibold text-gray-700">Catatan Terbaru</h4>
+                  </div>
+                  <div className="space-y-2">
+                    {recentNotes.map((t: any) => (
+                      <div key={t.id} className="p-2.5 bg-gray-50 rounded-lg">
+                        <p className="text-xs text-gray-600 leading-relaxed">{t.notes}</p>
+                        <p className="text-[10px] text-gray-400 mt-1">— {t.userName}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
    ADMIN VIEW — Full management: list, approve, delete
    ═══════════════════════════════════════════════════ */
 function AdminTestimonialView() {
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const { addToast } = useUIStore();
 
-  const { data: allData, isLoading: loadingAll } = useTestimonials(1, 20, true);
+  const { data: allData, isLoading: loadingAll } = useTestimonials(1, 50, true);
   const approveTestimonial = useApproveTestimonial();
   const deleteTestimonial = useDeleteTestimonial();
 
@@ -329,15 +641,6 @@ function AdminTestimonialView() {
     } finally {
       setDeleteTestimonialId(null);
     }
-  };
-
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }).map((_, i) => (
-      <Star
-        key={i}
-        className={`w-4 h-4 ${i < rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`}
-      />
-    ));
   };
 
   const tabs = [
@@ -401,6 +704,9 @@ function AdminTestimonialView() {
         </Card>
       </div>
 
+      {/* ═══ Customer Feedback Section ═══ */}
+      <CustomerFeedbackSection testimonials={allTestimonials} />
+
       {/* Filter Tabs */}
       <div className="flex gap-2 border-b pb-3">
         {tabs.map((tab) => (
@@ -443,9 +749,9 @@ function AdminTestimonialView() {
             <Card key={testimonial.id} className={!testimonial.isApproved ? 'border-yellow-200 bg-yellow-50/30' : ''}>
               <CardContent className="p-5">
                 <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-4 flex-1">
                     <Avatar name={testimonial.userName || '?'} />
-                    <div className="space-y-1">
+                    <div className="space-y-1 flex-1">
                       <div className="flex items-center gap-2">
                         <h3 className="font-semibold text-sm">{testimonial.userName}</h3>
                         {testimonial.isApproved ? (
@@ -460,15 +766,25 @@ function AdminTestimonialView() {
                           </Badge>
                         )}
                       </div>
-                      {testimonial.eventType && (
-                        <p className="text-xs text-gray-400">{testimonial.eventType}</p>
-                      )}
-                      <div className="flex items-center gap-0.5">
-                        {renderStars(testimonial.rating)}
-                      </div>
+
+                      {/* Category ratings */}
+                      <CategoryRatingDisplay testimonial={testimonial} />
+
                       <p className="text-sm text-gray-700 mt-2 leading-relaxed">
                         &ldquo;{testimonial.message}&rdquo;
                       </p>
+
+                      {/* Notes */}
+                      {testimonial.notes && (
+                        <div className="mt-2 p-2.5 bg-gray-50 rounded-lg border border-gray-100">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <StickyNote className="w-3 h-3 text-gray-400" />
+                            <span className="text-xs font-medium text-gray-500">Catatan</span>
+                          </div>
+                          <p className="text-xs text-gray-600 leading-relaxed">{testimonial.notes}</p>
+                        </div>
+                      )}
+
                       <p className="text-xs text-gray-400 mt-2">
                         {new Date(testimonial.createdAt).toLocaleDateString('id-ID', {
                           day: 'numeric',

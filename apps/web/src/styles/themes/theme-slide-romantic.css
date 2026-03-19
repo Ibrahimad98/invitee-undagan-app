@@ -6,6 +6,9 @@
   --inv-text-secondary: #8c5c6a;
   --inv-accent: #e8758a;
   --inv-accent-text: #ffffff;
+  --inv-cover-text: #fef6f4;
+  --inv-cover-text-secondary: rgba(254,246,244,0.7);
+  --inv-cover-border: #e8758a;
   font-family: 'Dancing Script', 'Playfair Display', cursive, serif;
 }
 

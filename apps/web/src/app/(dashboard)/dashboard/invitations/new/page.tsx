@@ -329,6 +329,7 @@ export default function NewInvitationPage() {
         eventType: draft.eventType,
         openingText: draft.openingText || undefined,
         closingText: draft.closingText || undefined,
+        story: draft.story || undefined,
         musicUrl: draft.musicUrl || undefined,
         events: draft.events.filter((e) => e.eventName && e.eventDate),
         personProfiles: draft.personProfiles.filter((p) => p.fullName),
@@ -436,6 +437,23 @@ export default function NewInvitationPage() {
                 onChange={(e) => setField('closingText', e.target.value)}
                 rows={4}
               />
+
+              {/* Story — Optional */}
+              <div className="border-t pt-4 mt-2">
+                <p className="text-xs text-gray-400 mb-2">Opsional</p>
+                <Textarea
+                  label="Kisah / Cerita Latar Belakang"
+                  placeholder={draft.eventType === 'WEDDING' || draft.eventType === 'ENGAGEMENT' || draft.eventType === 'ANNIVERSARY'
+                    ? 'Ceritakan perjalanan cinta kalian... Bagaimana pertama kali bertemu, momen spesial, hingga memutuskan untuk bersama.'
+                    : 'Ceritakan latar belakang atau kisah di balik acara ini...'}
+                  value={draft.story}
+                  onChange={(e) => setField('story', e.target.value)}
+                  rows={5}
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  Jika diisi, kisah ini akan tampil di halaman undangan sebagai section tersendiri.
+                </p>
+              </div>
             </div>
           )}
 

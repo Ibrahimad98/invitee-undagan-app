@@ -79,7 +79,7 @@ export default function HeroSection({ openingText, title, eventType }: HeroSecti
   const hasNames = !!prefix;
 
   return (
-    <section ref={sectionRef} className="invitation-section invitation-hero px-4 sm:px-8 text-center bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
+    <section ref={sectionRef} className="invitation-section invitation-hero px-8 sm:px-12 py-14 sm:py-16 text-center bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
       <SectionOrnament position="frame" />
 
       <div className={`max-w-lg mx-auto w-full ${animClass(isVisible, 'fade-up')}`}>
@@ -102,7 +102,6 @@ export default function HeroSection({ openingText, title, eventType }: HeroSecti
               <h2 className="text-4xl sm:text-5xl md:text-6xl font-serif leading-none tracking-wide">{name2}</h2>
               <div className="w-16 h-px mx-auto bg-[var(--inv-accent)] opacity-40 mt-4" />
             </div>
-            <SectionOrnament position="divider" className={animClass(isVisible, 'fade', 400)} />
           </div>
         )}
 
@@ -130,7 +129,6 @@ export default function HeroSection({ openingText, title, eventType }: HeroSecti
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif italic leading-tight">{name2}</h2>
             </div>
-            <SectionOrnament position="divider" className={animClass(isVisible, 'fade', 400)} />
           </div>
         )}
 
@@ -157,7 +155,6 @@ export default function HeroSection({ openingText, title, eventType }: HeroSecti
                 <span className="inline-block" style={{ color: '#48dbfb' }}>{name2}</span>
               </h2>
             </div>
-            <SectionOrnament position="divider" className={animClass(isVisible, 'fade', 400)} />
           </div>
         )}
 
@@ -194,7 +191,6 @@ export default function HeroSection({ openingText, title, eventType }: HeroSecti
                 <div className="flex-1 max-w-[60px] h-px bg-gradient-to-l from-transparent to-[var(--inv-accent)] opacity-50" />
               </div>
             </div>
-            <SectionOrnament position="divider" className={animClass(isVisible, 'fade', 400)} />
           </div>
         )}
 
@@ -220,7 +216,6 @@ export default function HeroSection({ openingText, title, eventType }: HeroSecti
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif leading-tight" style={{ color: '#c9a84c' }}>{name2}</h2>
             </div>
-            <SectionOrnament position="divider" className={animClass(isVisible, 'fade', 400)} />
           </div>
         )}
 
@@ -243,7 +238,6 @@ export default function HeroSection({ openingText, title, eventType }: HeroSecti
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif leading-tight">{name2}</h2>
               </div>
             </div>
-            <SectionOrnament position="divider" className={animClass(isVisible, 'fade', 400)} />
           </div>
         )}
 
@@ -262,7 +256,6 @@ export default function HeroSection({ openingText, title, eventType }: HeroSecti
               <p className="text-2xl sm:text-3xl text-[var(--inv-accent)] my-1" style={{ fontFamily: "'Dancing Script', cursive" }}>{amp}</p>
               <h2 className="text-4xl sm:text-5xl md:text-6xl leading-none" style={{ fontFamily: "'Dancing Script', cursive", fontWeight: 700 }}>{name2}</h2>
             </div>
-            <SectionOrnament position="divider" className={animClass(isVisible, 'fade', 400)} />
           </div>
         )}
 
@@ -285,7 +278,6 @@ export default function HeroSection({ openingText, title, eventType }: HeroSecti
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif leading-tight" style={{ color: '#27ae60' }}>{name2}</h2>
             </div>
-            <SectionOrnament position="divider" className={animClass(isVisible, 'fade', 400)} />
           </div>
         )}
 
@@ -325,7 +317,6 @@ export default function HeroSection({ openingText, title, eventType }: HeroSecti
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif leading-tight">{name2}</h2>
             </div>
-            <SectionOrnament position="divider" className={animClass(isVisible, 'fade', 400)} />
           </div>
         )}
 
@@ -347,7 +338,6 @@ export default function HeroSection({ openingText, title, eventType }: HeroSecti
                 </>
               ) : title}
             </h2>
-            <SectionOrnament position="divider" className={animClass(isVisible, 'fade', 400)} />
           </div>
         )}
       </div>

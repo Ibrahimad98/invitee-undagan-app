@@ -6,6 +6,9 @@
   --inv-text-secondary: #4a6b50;
   --inv-accent: #2d6a4f;
   --inv-accent-text: #f7f5ef;
+  --inv-cover-text: #c9a84c;
+  --inv-cover-text-secondary: rgba(201,168,76,0.65);
+  --inv-cover-border: #2d6a4f;
   font-family: 'Amiri', 'Playfair Display', serif;
 }
 

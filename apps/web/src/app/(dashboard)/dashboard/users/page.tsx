@@ -25,7 +25,12 @@ import {
   UserX,
   Mail,
   Phone,
+  Crown,
+  Star,
+  Calendar,
+  MapPin,
 } from 'lucide-react';
+import { SubscriptionBadge } from '@/components/ui/subscription-badge';
 
 interface UserData {
   id: string;
@@ -34,6 +39,10 @@ interface UserData {
   phone?: string;
   avatarUrl?: string;
   role: 'USER' | 'ADMIN';
+  dateOfBirth?: string | null;
+  address?: string | null;
+  subscriptionType: 'BASIC' | 'PREMIUM';
+  subscriptionExpireDate?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -42,6 +51,8 @@ interface EditUserForm {
   fullName: string;
   phone: string;
   role: string;
+  subscriptionType: string;
+  subscriptionExpireDate: string;
 }
 
 export default function UsersManagementPage() {
@@ -58,6 +69,8 @@ export default function UsersManagementPage() {
     fullName: '',
     phone: '',
     role: 'USER',
+    subscriptionType: 'BASIC',
+    subscriptionExpireDate: '',
   });
   const [editLoading, setEditLoading] = useState(false);
 
@@ -94,6 +107,10 @@ export default function UsersManagementPage() {
       fullName: user.fullName,
       phone: user.phone || '',
       role: user.role,
+      subscriptionType: user.subscriptionType || 'BASIC',
+      subscriptionExpireDate: user.subscriptionExpireDate
+        ? new Date(user.subscriptionExpireDate).toISOString().split('T')[0]
+        : '',
     });
     setIsEditModalOpen(true);
   };
@@ -107,7 +124,16 @@ export default function UsersManagementPage() {
 
     setEditLoading(true);
     try {
-      await api.patch(`/users/${editingUser.id}`, editForm);
+      const payload: any = {
+        fullName: editForm.fullName,
+        phone: editForm.phone,
+        role: editForm.role,
+        subscriptionType: editForm.subscriptionType,
+      };
+      if (editForm.subscriptionType === 'PREMIUM' && editForm.subscriptionExpireDate) {
+        payload.subscriptionExpireDate = editForm.subscriptionExpireDate;
+      }
+      await api.patch(`/users/${editingUser.id}`, payload);
       addToast('Data pengguna berhasil diperbarui', 'success');
       setIsEditModalOpen(false);
       fetchUsers();
@@ -142,6 +168,8 @@ export default function UsersManagementPage() {
   const totalUsers = users.length;
   const adminCount = users.filter((u) => u.role === 'ADMIN').length;
   const userCount = users.filter((u) => u.role === 'USER').length;
+  const premiumCount = users.filter((u) => u.subscriptionType === 'PREMIUM').length;
+  const basicCount = users.filter((u) => u.subscriptionType !== 'PREMIUM').length;
 
   if (currentUser?.role !== 'ADMIN') {
     return null;
@@ -155,7 +183,7 @@ export default function UsersManagementPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 bg-blue-100 rounded-lg">
@@ -180,12 +208,23 @@ export default function UsersManagementPage() {
         </Card>
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
+            <div className="p-2 bg-amber-100 rounded-lg">
+              <Crown className="w-5 h-5 text-amber-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{premiumCount}</p>
+              <p className="text-xs text-gray-500">Premium</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 bg-green-100 rounded-lg">
               <UserCheck className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{userCount}</p>
-              <p className="text-xs text-gray-500">User Biasa</p>
+              <p className="text-2xl font-bold">{basicCount}</p>
+              <p className="text-xs text-gray-500">Basic</p>
             </div>
           </CardContent>
         </Card>
@@ -236,6 +275,9 @@ export default function UsersManagementPage() {
                       Role
                     </th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">
+                      Subscription
+                    </th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">
                       Terdaftar
                     </th>
                     <th className="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase">
@@ -265,6 +307,16 @@ export default function UsersManagementPage() {
                             'User'
                           )}
                         </Badge>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-col gap-0.5">
+                          <SubscriptionBadge type={u.subscriptionType || 'BASIC'} size="sm" />
+                          {u.subscriptionType === 'PREMIUM' && u.subscriptionExpireDate && (
+                            <span className="text-[10px] text-gray-400">
+                              s/d {new Date(u.subscriptionExpireDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-500">
                         {new Date(u.createdAt).toLocaleDateString('id-ID', {
@@ -341,6 +393,40 @@ export default function UsersManagementPage() {
               ⚠️ Anda tidak bisa menurunkan role akun sendiri
             </p>
           )}
+
+          {/* Subscription Section */}
+          <div className="border-t pt-4 mt-2">
+            <p className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-1.5">
+              <Crown className="w-4 h-4 text-amber-500" />
+              Pengaturan Subscription
+            </p>
+            <div className="space-y-3">
+              <Select
+                label="Status Subscription"
+                options={[
+                  { value: 'BASIC', label: 'Basic' },
+                  { value: 'PREMIUM', label: 'Premium' },
+                ]}
+                value={editForm.subscriptionType}
+                onChange={(e) => setEditForm((f) => ({ ...f, subscriptionType: e.target.value }))}
+              />
+              {editForm.subscriptionType === 'PREMIUM' && (
+                <Input
+                  label="Tanggal Berakhir Subscription"
+                  type="date"
+                  value={editForm.subscriptionExpireDate}
+                  onChange={(e) => setEditForm((f) => ({ ...f, subscriptionExpireDate: e.target.value }))}
+                />
+              )}
+              {editForm.subscriptionType === 'PREMIUM' && !editForm.subscriptionExpireDate && (
+                <p className="text-xs text-amber-600 flex items-center gap-1">
+                  <Calendar className="w-3 h-3" />
+                  Disarankan untuk mengisi tanggal berakhir subscription
+                </p>
+              )}
+            </div>
+          </div>
+
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
               Batal

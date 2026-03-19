@@ -7,6 +7,7 @@ export interface Invitation {
   coverImageUrl?: string;
   openingText?: string;
   closingText?: string;
+  story?: string;
   musicUrl?: string;
   isPublished: boolean;
   isActive: boolean;
@@ -77,6 +78,7 @@ export interface CreateInvitationPayload {
   coverImageUrl?: string;
   openingText?: string;
   closingText?: string;
+  story?: string;
   musicUrl?: string;
   events?: Omit<InvitationEvent, 'id' | 'invitationId'>[];
   personProfiles?: Omit<PersonProfile, 'id' | 'invitationId'>[];

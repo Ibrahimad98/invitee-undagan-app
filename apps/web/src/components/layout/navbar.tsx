@@ -1,11 +1,12 @@
 'use client';
 
-import { Menu, Bell, LogOut, User } from 'lucide-react';
+import { Menu, Bell, LogOut, User, Crown } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 import { useUIStore } from '@/stores/ui-store';
 import { useRouter } from 'next/navigation';
 import { Avatar } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
+import { SubscriptionBadge } from '@/components/ui/subscription-badge';
 
 export function Navbar() {
   const { user, logout } = useAuthStore();
@@ -20,6 +21,8 @@ export function Navbar() {
     }
     router.push('/login');
   };
+
+  const subscriptionType = (user as any)?.subscriptionType || 'BASIC';
 
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-gray-200">
@@ -48,14 +51,29 @@ export function Navbar() {
           <DropdownMenu>
             <DropdownMenuTrigger>
               <div className="flex items-center gap-2 cursor-pointer">
-                <Avatar name={user?.fullName || 'U'} size="sm" />
-                <span className="hidden sm:block text-sm font-medium text-gray-700">
-                  {user?.fullName}
-                </span>
+                <div className="relative">
+                  <Avatar name={user?.fullName || 'U'} size="sm" />
+                  {subscriptionType === 'PREMIUM' && (
+                    <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full flex items-center justify-center shadow-sm">
+                      <Crown className="w-2 h-2 text-white" />
+                    </div>
+                  )}
+                </div>
+                <div className="hidden sm:flex items-center gap-1.5">
+                  <span className="text-sm font-medium text-gray-700">
+                    {user?.fullName}
+                  </span>
+                  <SubscriptionBadge type={subscriptionType} size="sm" />
+                </div>
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
+              <DropdownMenuLabel>
+                <div className="flex flex-col gap-1">
+                  <span>{user?.email}</span>
+                  <SubscriptionBadge type={subscriptionType} size="sm" />
+                </div>
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
                 <User className="w-4 h-4 mr-2" />

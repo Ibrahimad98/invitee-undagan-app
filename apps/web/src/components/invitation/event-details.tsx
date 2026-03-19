@@ -23,11 +23,10 @@ export default function EventDetailsSection({ events }: EventDetailsSectionProps
   const { ref, isVisible } = useScrollAnimation(0.1);
 
   return (
-    <section ref={ref} className="invitation-section invitation-events px-4 sm:px-8 bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
+    <section ref={ref} className="invitation-section invitation-events px-8 sm:px-12 py-14 sm:py-16 bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
       <SectionOrnament position="frame" />
 
       <div className={`max-w-2xl mx-auto space-y-8 sm:space-y-12 w-full ${animClass(isVisible, 'fade-up')}`}>
-        <SectionOrnament position="divider" className="mb-2" />
         <h3 className="text-center text-xs sm:text-sm uppercase tracking-widest text-[var(--inv-text-secondary)]">
           Detail Acara
         </h3>

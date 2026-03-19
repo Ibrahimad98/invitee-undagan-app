@@ -26,6 +26,7 @@ import {
   Search,
   Download,
   X,
+  MousePointerClick,
 } from 'lucide-react';
 
 interface GuestForm {
@@ -188,12 +189,37 @@ export default function ContactsPage() {
         <CardContent className="p-4">
           <Select
             label="Pilih Undangan"
-            options={[{ value: '', label: 'Pilih undangan...' }, ...invitationOptions]}
+            placeholder="Pilih undangan untuk melihat daftar tamu..."
+            options={invitationOptions}
             value={selectedInvitationId}
             onChange={(e) => setSelectedInvitationId(e.target.value)}
           />
         </CardContent>
       </Card>
+
+      {/* Empty State — No invitation selected */}
+      {!selectedInvitationId && (
+        <Card>
+          <CardContent className="p-0">
+            <div className="py-16 px-6 text-center">
+              <div className="mx-auto w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mb-4">
+                <MousePointerClick className="w-8 h-8 text-primary-400" />
+              </div>
+              <h3 className="text-base font-semibold text-gray-700">
+                Belum ada undangan yang dipilih
+              </h3>
+              <p className="text-sm text-gray-400 mt-1.5 max-w-sm mx-auto">
+                Silakan pilih undangan pada dropdown di atas untuk menampilkan dan mengelola daftar tamu.
+              </p>
+              {invitations.length === 0 && (
+                <p className="text-xs text-amber-500 mt-3">
+                  Anda belum memiliki undangan. Buat undangan terlebih dahulu untuk mulai menambahkan tamu.
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {selectedInvitationId && (
         <>

@@ -30,6 +30,16 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/about" className="hover:text-primary-600 transition-colors">
+                  Tentang Kami
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-primary-600 transition-colors">
+                  Kontak
+                </Link>
+              </li>
+              <li>
                 <Link href="/dashboard" className="hover:text-primary-600 transition-colors">
                   Dashboard
                 </Link>

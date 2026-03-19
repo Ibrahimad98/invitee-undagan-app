@@ -6,6 +6,9 @@
   --inv-text-secondary: #6b5b8a;
   --inv-accent: #ff6b35;
   --inv-accent-text: #ffffff;
+  --inv-cover-text: #ffffff;
+  --inv-cover-text-secondary: rgba(255,255,255,0.8);
+  --inv-cover-border: #ff6b35;
   font-family: 'Nunito', 'Comic Sans MS', cursive, sans-serif;
 }
 

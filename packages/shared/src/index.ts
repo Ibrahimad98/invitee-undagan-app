@@ -51,6 +51,11 @@ export type {
 } from './types/testimonial';
 
 export type {
+  InvitationComment,
+  CreateCommentPayload,
+} from './types/comment';
+
+export type {
   ApiResponse,
   PaginatedResponse,
   AuthTokens,

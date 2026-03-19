@@ -17,12 +17,10 @@ export default function ClosingSection({ closingText, coInvitors }: ClosingSecti
   const { ref, isVisible } = useScrollAnimation(0.1);
 
   return (
-    <section ref={ref} className="invitation-section invitation-closing px-4 sm:px-8 text-center bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
+    <section ref={ref} className="invitation-section invitation-closing px-8 sm:px-12 py-14 sm:py-16 text-center bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
       <SectionOrnament position="frame" />
 
       <div className={`max-w-lg mx-auto space-y-6 sm:space-y-8 w-full ${animClass(isVisible, 'fade-up')}`}>
-        <SectionOrnament position="divider" />
-
         {closingText && (
           <p className="text-sm leading-relaxed text-[var(--inv-text-secondary)] whitespace-pre-line">
             {closingText}
@@ -45,8 +43,6 @@ export default function ClosingSection({ closingText, coInvitors }: ClosingSecti
             ))}
           </div>
         )}
-
-        <SectionOrnament position="divider" />
 
         <p className="text-xs text-[var(--inv-text-secondary)]">
           Powered by <span className="font-semibold text-[var(--inv-accent)]">Invitee</span>

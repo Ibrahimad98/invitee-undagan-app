@@ -3,6 +3,9 @@
 import Link from 'next/link';
 import { useTemplatesPublic } from '@/hooks/queries/use-templates-public';
 import { Star, Users, Eye } from 'lucide-react';
+import { Footer } from '@/components/layout/footer';
+import { PublicNavbar } from '@/components/layout/public-navbar';
+import { HeroBackground } from '@/components/layout/hero-background';
 
 export default function PublicTemplatesPage() {
   const { data, isLoading, error } = useTemplatesPublic();
@@ -10,33 +13,12 @@ export default function PublicTemplatesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <img src="/favicon.svg" alt="Invitee" className="w-8 h-8" />
-            <span className="font-bold text-lg text-orange-500">Invitee</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              Masuk
-            </Link>
-            <Link
-              href="/register"
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
-            >
-              Daftar Gratis
-            </Link>
-          </div>
-        </div>
-      </header>
+      <PublicNavbar />
 
       {/* Hero */}
-      <section className="bg-gradient-to-b from-primary-50 to-white py-16 px-4 text-center">
-        <div className="max-w-2xl mx-auto space-y-4">
+      <section className="relative bg-gradient-to-b from-primary-50 to-white pt-28 pb-16 sm:pt-36 sm:pb-20 px-4 text-center overflow-hidden">
+        <HeroBackground />
+        <div className="relative z-10 max-w-2xl mx-auto space-y-4">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
             Koleksi Template Undangan
           </h1>
@@ -137,14 +119,7 @@ export default function PublicTemplatesPage() {
         )}
       </section>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 py-6 text-center">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <img src="/favicon.svg" alt="Invitee" className="w-6 h-6" />
-          <span className="font-bold text-orange-500">Invitee</span>
-        </div>
-        <p className="text-xs text-gray-400">&copy; {new Date().getFullYear()} Invitee. All rights reserved.</p>
-      </footer>
+      <Footer />
     </div>
   );
 }

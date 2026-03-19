@@ -14,7 +14,7 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
 
   if (isExpired) {
     return (
-      <section ref={ref} className="invitation-section invitation-countdown px-4 sm:px-8 text-center bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
+      <section ref={ref} className="invitation-section invitation-countdown px-8 sm:px-12 py-14 sm:py-16 text-center bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
         <SectionOrnament position="frame" />
         <div className={`max-w-lg mx-auto w-full ${animClass(isVisible, 'fade-up')}`}>
           <p className="text-base sm:text-lg font-serif text-[var(--inv-accent)]">Acara telah berlangsung</p>
@@ -31,11 +31,10 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
   ];
 
   return (
-    <section ref={ref} className="invitation-section invitation-countdown px-4 sm:px-8 text-center bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
+    <section ref={ref} className="invitation-section invitation-countdown px-8 sm:px-12 py-14 sm:py-16 text-center bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
       <SectionOrnament position="frame" />
 
       <div className={`max-w-lg mx-auto space-y-6 sm:space-y-8 w-full ${animClass(isVisible, 'fade-up')}`}>
-        <SectionOrnament position="divider" className="mb-2" />
         <h3 className="text-xs sm:text-sm uppercase tracking-widest text-[var(--inv-text-secondary)]">
           Menghitung Hari
         </h3>

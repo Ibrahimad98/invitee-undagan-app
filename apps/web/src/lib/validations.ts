@@ -72,6 +72,10 @@ export const testimonialSchema = z.object({
   userName: z.string().min(1, 'Nama wajib diisi'),
   message: z.string().min(10, 'Pesan minimal 10 karakter'),
   rating: z.number().min(1).max(5),
+  ratingDesain: z.number().min(1).max(5),
+  ratingKemudahan: z.number().min(1).max(5),
+  ratingLayanan: z.number().min(1).max(5),
+  notes: z.string().optional(),
 });
 
 export type LoginFormData = z.infer<typeof loginSchema>;

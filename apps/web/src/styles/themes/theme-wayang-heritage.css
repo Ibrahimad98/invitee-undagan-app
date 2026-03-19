@@ -6,6 +6,9 @@
   --inv-text-secondary: #6d5c42;
   --inv-accent: #8b4513;
   --inv-accent-text: #f2e8d5;
+  --inv-cover-text: #d4a86a;
+  --inv-cover-text-secondary: rgba(212,168,106,0.65);
+  --inv-cover-border: #8b4513;
   font-family: 'Lora', 'Palatino', serif;
 }
 

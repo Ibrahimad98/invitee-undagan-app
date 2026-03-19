@@ -6,6 +6,9 @@
   --inv-text-secondary: #7a5252;
   --inv-accent: #c0392b;
   --inv-accent-text: #ffffff;
+  --inv-cover-text: #f0e6d0;
+  --inv-cover-text-secondary: rgba(240,230,208,0.65);
+  --inv-cover-border: #c0392b;
   font-family: 'Playfair Display', 'Georgia', serif;
 }
 

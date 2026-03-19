@@ -8,6 +8,7 @@ interface InvitationDraft {
   coverImageUrl: string;
   openingText: string;
   closingText: string;
+  story: string;
   musicUrl: string;
   events: Array<{
     eventName: string;
@@ -68,6 +69,7 @@ const initialDraft: InvitationDraft = {
   coverImageUrl: '',
   openingText: '',
   closingText: '',
+  story: '',
   musicUrl: '',
   events: [
     {
@@ -156,6 +158,7 @@ export const useInvitationStore = create<InvitationState>()((set) => ({
         coverImageUrl: data.coverImageUrl || '',
         openingText: data.openingText || '',
         closingText: data.closingText || '',
+        story: data.story || '',
         musicUrl: data.musicUrl || '',
         events: data.events?.length
           ? data.events.map((e: any) => ({
