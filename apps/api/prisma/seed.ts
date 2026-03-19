@@ -210,6 +210,54 @@ async function main() {
         sortOrder: 10,
       },
     }),
+    prisma.template.create({
+      data: {
+        name: 'Enchanted Garden',
+        slug: 'enchanted-garden',
+        thumbnailUrl: '/images/templates/enchanted-garden.svg',
+        category: 'garden',
+        tags: ['garden', 'bunga', 'elegan', 'romantic', 'sage', 'ivory'],
+        supportedEventTypes: ['WEDDING', 'ENGAGEMENT', 'WALIMAH', 'ANNIVERSARY', 'CUSTOM'],
+        cssClass: 'theme-enchanted-garden',
+        layoutType: LayoutType.SCROLL,
+        usageCount: 0,
+        ratingAvg: 0,
+        isPremium: true,
+        sortOrder: 11,
+      },
+    }),
+    prisma.template.create({
+      data: {
+        name: 'Royal Blossom',
+        slug: 'royal-blossom',
+        thumbnailUrl: '/images/templates/royal-blossom.svg',
+        category: 'royal',
+        tags: ['royal', 'elegan', 'gold', 'burgundy', 'dark', 'romantic'],
+        supportedEventTypes: ['WEDDING', 'ENGAGEMENT', 'WALIMAH', 'ANNIVERSARY', 'CUSTOM'],
+        cssClass: 'theme-royal-blossom',
+        layoutType: LayoutType.SCROLL,
+        usageCount: 0,
+        ratingAvg: 0,
+        isPremium: true,
+        sortOrder: 12,
+      },
+    }),
+    prisma.template.create({
+      data: {
+        name: 'Celestial Garden',
+        slug: 'celestial-garden',
+        thumbnailUrl: '/images/templates/celestial-garden.svg',
+        category: 'celestial',
+        tags: ['celestial', 'mystical', 'forest', 'firefly', 'teal', 'nature', 'bioluminescent'],
+        supportedEventTypes: ['WEDDING', 'ENGAGEMENT', 'WALIMAH', 'ANNIVERSARY', 'CUSTOM'],
+        cssClass: 'theme-celestial-garden',
+        layoutType: LayoutType.SCROLL,
+        usageCount: 0,
+        ratingAvg: 0,
+        isPremium: true,
+        sortOrder: 13,
+      },
+    }),
   ]);
 
   console.log(`🎨 ${templates.length} templates created`);
@@ -482,15 +530,37 @@ async function main() {
   console.log('📨 8 RSVPs created');
 
   // --- Testimonials ---
+  // Get some template IDs for linking
+  const allTemplates = await prisma.template.findMany({ select: { id: true, slug: true } });
+  const getTemplateId = (slug: string) => allTemplates.find((t) => t.slug === slug)?.id;
+
   const testimonials = [
-    { userName: 'Ahmad Fajar', message: 'Platform undangan digital terbaik! Mudah digunakan dan tampilannya sangat elegan. Tamu undangan saya banyak yang memuji.', rating: 5, isApproved: true },
-    { userName: 'Dewi Anggraini', message: 'Sangat membantu untuk acara pernikahan kami. Template-nya bagus-bagus dan banyak pilihan. Terima kasih Invitee!', rating: 5, isApproved: true },
-    { userName: 'Rizki Hidayat', message: 'Good app, cuma kadang loading-nya agak lama kalau banyak foto.', rating: 4, isApproved: false },
-    { userName: 'Siti Nurhaliza', message: 'Undangan digitalnya keren banget! Fitur RSVP-nya sangat berguna untuk menghitung jumlah tamu.', rating: 5, isApproved: false },
+    { userName: 'Ahmad Fajar', message: 'Platform undangan digital terbaik! Mudah digunakan dan tampilannya sangat elegan. Tamu undangan saya banyak yang memuji.', rating: 5, ratingDesain: 5, ratingKemudahan: 5, ratingLayanan: 5, templateId: getTemplateId('elegant-rose'), isApproved: true },
+    { userName: 'Dewi Anggraini', message: 'Sangat membantu untuk acara pernikahan kami. Template-nya bagus-bagus dan banyak pilihan. Terima kasih Invitee!', rating: 5, ratingDesain: 5, ratingKemudahan: 4, ratingLayanan: 5, templateId: getTemplateId('rustic-garden'), isApproved: true },
+    { userName: 'Rizki Hidayat', message: 'Good app, cuma kadang loading-nya agak lama kalau banyak foto.', rating: 4, ratingDesain: 4, ratingKemudahan: 3, ratingLayanan: 4, templateId: getTemplateId('minimalist-clean'), isApproved: false },
+    { userName: 'Siti Nurhaliza', message: 'Undangan digitalnya keren banget! Fitur RSVP-nya sangat berguna untuk menghitung jumlah tamu.', rating: 5, ratingDesain: 5, ratingKemudahan: 5, ratingLayanan: 4, templateId: getTemplateId('heritage-wayang'), isApproved: false },
   ];
 
   for (const t of testimonials) {
     await prisma.testimonial.create({ data: t });
+  }
+
+  // Recalculate ratingAvg for templates that have reviews
+  for (const t of testimonials) {
+    if (t.templateId) {
+      const agg = await prisma.testimonial.aggregate({
+        where: { templateId: t.templateId },
+        _avg: { rating: true },
+        _count: { id: true },
+      });
+      await prisma.template.update({
+        where: { id: t.templateId },
+        data: {
+          ratingAvg: agg._avg.rating || 0,
+          ratingCount: agg._count.id || 0,
+        },
+      });
+    }
   }
 
   console.log('⭐ 4 testimonials created');

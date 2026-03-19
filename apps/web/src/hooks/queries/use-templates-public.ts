@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
@@ -15,35 +15,62 @@ interface PublicTemplate {
   usageCount: number;
 }
 
-export function useTemplatesPublic() {
+interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+interface UseTemplatesPublicParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string;
+}
+
+export function useTemplatesPublic(params: UseTemplatesPublicParams = {}) {
+  const { page = 1, limit = 12, search, category } = params;
   const [data, setData] = useState<PublicTemplate[]>([]);
+  const [meta, setMeta] = useState<PaginationMeta | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    const fetchTemplates = async () => {
-      try {
-        const res = await fetch(`${API_URL}/templates/public`);
-        if (!res.ok) throw new Error('Failed to fetch templates');
-        const json = await res.json();
-        // API may return { data: [...] } or { success, data: { data: [...] } }
-        const payload = json?.data;
-        const result = Array.isArray(payload)
-          ? payload
-          : Array.isArray(payload?.data)
-            ? payload.data
-            : Array.isArray(json)
-              ? json
-              : [];
-        setData(result);
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchTemplates();
-  }, []);
+  const fetchTemplates = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const queryParams = new URLSearchParams();
+      queryParams.set('page', String(page));
+      queryParams.set('limit', String(limit));
+      if (search) queryParams.set('search', search);
+      if (category) queryParams.set('category', category);
 
-  return { data, isLoading, error };
+      const res = await fetch(`${API_URL}/templates/public?${queryParams.toString()}`);
+      if (!res.ok) throw new Error('Failed to fetch templates');
+      const json = await res.json();
+      // API returns { success, data: { data: [...], meta: {...} } }
+      const payload = json?.data;
+      const templates = Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload)
+          ? payload
+          : Array.isArray(json)
+            ? json
+            : [];
+      const paginationMeta = payload?.meta || null;
+      setData(templates);
+      setMeta(paginationMeta);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [page, limit, search, category]);
+
+  useEffect(() => {
+    fetchTemplates();
+  }, [fetchTemplates]);
+
+  return { data, meta, isLoading, error };
 }

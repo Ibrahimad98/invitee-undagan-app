@@ -25,6 +25,13 @@ export class TestimonialsController {
     return this.testimonialsService.findByUser(userId);
   }
 
+  @Get('my-templates')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get templates user has used with review status' })
+  async findMyTemplates(@CurrentUser('id') userId: string) {
+    return this.testimonialsService.findUserTemplatesForReview(userId);
+  }
+
   @Get('all')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all testimonials including unapproved (admin)' })
@@ -34,7 +41,7 @@ export class TestimonialsController {
 
   @Post()
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Submit a testimonial (authenticated)' })
+  @ApiOperation({ summary: 'Submit a template review (one per user per template)' })
   async create(@CurrentUser('id') userId: string, @Body() dto: CreateTestimonialDto) {
     return this.testimonialsService.create({ ...dto, userId });
   }

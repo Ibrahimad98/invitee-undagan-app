@@ -67,12 +67,25 @@ const COVER_ORNAMENTS: Record<string, { top: string; bottom: string }> = {
     top: `<svg width="40" height="36" viewBox="0 0 24 22"><path d="M12 20l-1.45-1.32C5.4 14.36 2 11.28 2 7.5 2 4.42 4.42 2 7.5 2c1.74 0 3.41.81 4.5 2.09C13.09 2.81 14.76 2 16.5 2 19.58 2 22 4.42 22 7.5c0 3.78-3.4 6.86-8.55 11.54L12 20z" fill="currentColor" opacity="0.25"/></svg>`,
     bottom: `<svg width="32" height="28" viewBox="0 0 24 22"><path d="M12 20l-1.45-1.32C5.4 14.36 2 11.28 2 7.5 2 4.42 4.42 2 7.5 2c1.74 0 3.41.81 4.5 2.09C13.09 2.81 14.76 2 16.5 2 19.58 2 22 4.42 22 7.5c0 3.78-3.4 6.86-8.55 11.54L12 20z" fill="currentColor" opacity="0.15"/></svg>`,
   },
+  'theme-enchanted-garden': {
+    top: `<svg width="60" height="32" viewBox="0 0 80 40"><path d="M5,38 C5,15 20,5 40,5 C60,5 75,15 75,38" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.5"/><ellipse cx="15" cy="22" rx="6" ry="3" transform="rotate(-30 15 22)" fill="currentColor" opacity="0.3"/><ellipse cx="65" cy="22" rx="6" ry="3" transform="rotate(30 65 22)" fill="currentColor" opacity="0.3"/><circle cx="40" cy="5" r="2" fill="currentColor" opacity="0.4"/></svg>`,
+    bottom: `<svg width="40" height="8" viewBox="0 0 60 8"><path d="M0,4 Q15,0 30,4 Q45,8 60,4" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.3"/></svg>`,
+  },
+  'theme-royal-blossom': {
+    top: `<svg width="36" height="36" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.3"/><circle cx="20" cy="20" r="10" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.2"/><ellipse cx="20" cy="13" rx="5" ry="3" fill="currentColor" opacity="0.25"/><ellipse cx="14" cy="20" rx="5" ry="3" transform="rotate(72 14 20)" fill="currentColor" opacity="0.2"/><ellipse cx="26" cy="20" rx="5" ry="3" transform="rotate(-72 26 20)" fill="currentColor" opacity="0.2"/><circle cx="20" cy="20" r="3" fill="currentColor" opacity="0.35"/></svg>`,
+    bottom: `<svg width="28" height="28" viewBox="0 0 32 32"><path d="M16 4c3 4 8 6 12 6-2 4-2 9 0 13-4 0-9 2-12 6-3-4-8-6-12-6 2-4 2-9 0-13 4 0 9-2 12-6z" fill="currentColor" opacity="0.12"/><circle cx="16" cy="16" r="3" fill="currentColor" opacity="0.2"/></svg>`,
+  },
+  'theme-celestial-garden': {
+    top: `<svg width="56" height="30" viewBox="0 0 70 36"><path d="M5,34 C5,14 18,5 35,5 C52,5 65,14 65,34" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.35"/><ellipse cx="14" cy="22" rx="5" ry="2" transform="rotate(-40 14 22)" fill="currentColor" opacity="0.2"/><ellipse cx="56" cy="22" rx="5" ry="2" transform="rotate(40 56 22)" fill="currentColor" opacity="0.2"/><circle cx="25" cy="12" r="2" fill="currentColor" opacity="0.3"/><circle cx="45" cy="12" r="1.5" fill="currentColor" opacity="0.25"/><circle cx="35" cy="6" r="1.8" fill="currentColor" opacity="0.35"/></svg>`,
+    bottom: `<svg width="40" height="8" viewBox="0 0 60 8"><path d="M0,4 Q10,1 20,4 Q30,7 40,4 Q50,1 60,4" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.25"/></svg>`,
+  },
 };
 
 const THEME_SLUGS = [
   'theme-super-classic', 'theme-floral-garden', 'theme-kids-party', 'theme-golden-elegance',
   'theme-royal-muslim', 'theme-wayang-heritage', 'theme-slide-romantic', 'theme-christmas-joy',
-  'theme-modern-minimal', 'theme-simple-java',
+  'theme-modern-minimal', 'theme-simple-java', 'theme-enchanted-garden', 'theme-royal-blossom',
+  'theme-celestial-garden',
 ];
 
 export default function CoverScreen({ title, guestName, eventDate, onOpen, themeConfig, eventType }: CoverScreenProps) {

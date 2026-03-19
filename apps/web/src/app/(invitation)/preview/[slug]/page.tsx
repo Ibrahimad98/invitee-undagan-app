@@ -10,6 +10,10 @@ import EventDetailsSection from '@/components/invitation/event-details';
 import GallerySection from '@/components/invitation/gallery';
 import DigitalGiftSection from '@/components/invitation/digital-gift';
 import ClosingSection from '@/components/invitation/closing-section';
+import AnimatedBackground from '@/components/invitation/animated-bg';
+
+const ANIMATED_THEMES = ['enchanted-garden', 'royal-blossom', 'celestial-garden'] as const;
+type AnimatedTheme = 'enchanted-garden' | 'royal-blossom' | 'celestial-garden';
 
 /* ─── Theme visual config — matches thumbnail SVGs ─── */
 const THEME_CONFIG: Record<string, {
@@ -122,6 +126,36 @@ const THEME_CONFIG: Record<string, {
     borderColor: '#e8758a',
     ornamentTop: `<svg width="40" height="36" viewBox="0 0 24 22"><path d="M12 20l-1.45-1.32C5.4 14.36 2 11.28 2 7.5 2 4.42 4.42 2 7.5 2c1.74 0 3.41.81 4.5 2.09C13.09 2.81 14.76 2 16.5 2 19.58 2 22 4.42 22 7.5c0 3.78-3.4 6.86-8.55 11.54L12 20z" fill="#e8758a" opacity="0.25"/></svg>`,
     ornamentBottom: `<svg width="32" height="28" viewBox="0 0 24 22"><path d="M12 20l-1.45-1.32C5.4 14.36 2 11.28 2 7.5 2 4.42 4.42 2 7.5 2c1.74 0 3.41.81 4.5 2.09C13.09 2.81 14.76 2 16.5 2 19.58 2 22 4.42 22 7.5c0 3.78-3.4 6.86-8.55 11.54L12 20z" fill="#e8758a" opacity="0.15"/></svg>`,
+  },
+  'enchanted-garden': {
+    frameBg: '#e8e0d4',
+    coverBg: 'linear-gradient(160deg, #faf6f0 0%, #ede6d8 50%, #faf6f0 100%)',
+    accent: '#7d8c6e',
+    textPrimary: '#3a3530',
+    textSecondary: 'rgba(58, 53, 48, 0.65)',
+    borderColor: '#7d8c6e',
+    ornamentTop: `<svg width="60" height="32" viewBox="0 0 80 40"><path d="M5,38 C5,15 20,5 40,5 C60,5 75,15 75,38" fill="none" stroke="#7d8c6e" stroke-width="1.2" opacity="0.5"/><ellipse cx="15" cy="22" rx="6" ry="3" transform="rotate(-30 15 22)" fill="#7d8c6e" opacity="0.3"/><ellipse cx="65" cy="22" rx="6" ry="3" transform="rotate(30 65 22)" fill="#7d8c6e" opacity="0.3"/><circle cx="40" cy="5" r="2" fill="#7d8c6e" opacity="0.4"/></svg>`,
+    ornamentBottom: `<svg width="40" height="8" viewBox="0 0 60 8"><path d="M0,4 Q15,0 30,4 Q45,8 60,4" fill="none" stroke="#7d8c6e" stroke-width="0.8" opacity="0.3"/></svg>`,
+  },
+  'royal-blossom': {
+    frameBg: '#120a0e',
+    coverBg: 'radial-gradient(ellipse at 50% 40%, #2a1822 0%, #1a0f14 70%)',
+    accent: '#d4a373',
+    textPrimary: '#f2e8e0',
+    textSecondary: 'rgba(242, 232, 224, 0.55)',
+    borderColor: '#d4a373',
+    ornamentTop: `<svg width="36" height="36" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="none" stroke="#d4a373" stroke-width="0.8" opacity="0.3"/><circle cx="20" cy="20" r="10" fill="none" stroke="#d4a373" stroke-width="0.6" opacity="0.2"/><ellipse cx="20" cy="13" rx="5" ry="3" fill="#d4a373" opacity="0.25"/><ellipse cx="14" cy="20" rx="5" ry="3" transform="rotate(72 14 20)" fill="#d4a373" opacity="0.2"/><ellipse cx="26" cy="20" rx="5" ry="3" transform="rotate(-72 26 20)" fill="#d4a373" opacity="0.2"/><circle cx="20" cy="20" r="3" fill="#d4a373" opacity="0.35"/></svg>`,
+    ornamentBottom: `<svg width="28" height="28" viewBox="0 0 32 32"><path d="M16 4c3 4 8 6 12 6-2 4-2 9 0 13-4 0-9 2-12 6-3-4-8-6-12-6 2-4 2-9 0-13 4 0 9-2 12-6z" fill="#d4a373" opacity="0.12"/><circle cx="16" cy="16" r="3" fill="#d4a373" opacity="0.2"/></svg>`,
+  },
+  'celestial-garden': {
+    frameBg: '#061210',
+    coverBg: 'radial-gradient(ellipse at 50% 35%, #0e2016 0%, #0a1a12 70%)',
+    accent: '#4ecdc4',
+    textPrimary: '#e0f0e8',
+    textSecondary: 'rgba(224, 240, 232, 0.5)',
+    borderColor: '#4ecdc4',
+    ornamentTop: `<svg width="56" height="30" viewBox="0 0 70 36"><path d="M5,34 C5,14 18,5 35,5 C52,5 65,14 65,34" fill="none" stroke="#4ecdc4" stroke-width="0.8" opacity="0.35"/><ellipse cx="14" cy="22" rx="5" ry="2" transform="rotate(-40 14 22)" fill="#4ecdc4" opacity="0.2"/><ellipse cx="56" cy="22" rx="5" ry="2" transform="rotate(40 56 22)" fill="#4ecdc4" opacity="0.2"/><circle cx="25" cy="12" r="2" fill="#4ecdc4" opacity="0.3"/><circle cx="45" cy="12" r="1.5" fill="#4ecdc4" opacity="0.25"/><circle cx="35" cy="6" r="1.8" fill="#4ecdc4" opacity="0.35"/></svg>`,
+    ornamentBottom: `<svg width="40" height="8" viewBox="0 0 60 8"><path d="M0,4 Q10,1 20,4 Q30,7 40,4 Q50,1 60,4" fill="none" stroke="#4ecdc4" stroke-width="0.6" opacity="0.25"/></svg>`,
   },
 };
 
@@ -272,19 +306,35 @@ export default function TemplatePreviewPage() {
           <div className={`phone-frame invitation-root ${themeClass} h-full`} style={{ background: themeConf.frameBg }}>
             {/* Cover Screen */}
             {!isOpen && (
-              <CoverScreen
-                title={sample.title}
-                guestName={sample.guestName}
-                eventDate={sample.eventDate}
-                onOpen={() => setIsOpen(true)}
-                themeConfig={themeConf}
-                eventType="WEDDING"
-              />
+              <>
+                {/* Animated background behind cover (premium themes) */}
+                {ANIMATED_THEMES.includes(slug as any) && (
+                  <AnimatedBackground
+                    theme={slug as AnimatedTheme}
+                    mode="cover"
+                  />
+                )}
+                <CoverScreen
+                  title={sample.title}
+                  guestName={sample.guestName}
+                  eventDate={sample.eventDate}
+                  onOpen={() => setIsOpen(true)}
+                  themeConfig={themeConf}
+                  eventType="WEDDING"
+                />
+              </>
             )}
 
             {/* Main Content */}
             {isOpen && (
               <main className="invitation-content">
+                {/* Animated particle background — sticky inside scroll container (premium themes) */}
+                {ANIMATED_THEMES.includes(slug as any) && (
+                  <AnimatedBackground
+                    theme={slug as AnimatedTheme}
+                    mode="content"
+                  />
+                )}
                 <HeroSection
                   openingText={sample.openingText}
                   title={sample.title}

@@ -18,6 +18,9 @@
 @import '../styles/themes/theme-modern-minimal.css';
 @import '../styles/themes/theme-christmas-joy.css';
 @import '../styles/themes/theme-slide-romantic.css';
+@import '../styles/themes/theme-enchanted-garden.css';
+@import '../styles/themes/theme-royal-blossom.css';
+@import '../styles/themes/theme-celestial-garden.css';
 
 @layer base {
   body {

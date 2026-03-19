@@ -2,6 +2,7 @@
 
 import { useScrollAnimation, animClass } from '@/hooks/use-scroll-animation';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import SectionOrnament from './section-ornament';
 
 interface HeroSectionProps {
@@ -44,7 +45,8 @@ function splitTitle(title: string) {
 const THEME_SLUGS = [
   'super-classic', 'floral-garden', 'kids-party', 'golden-elegance',
   'royal-muslim', 'wayang-heritage', 'slide-romantic', 'christmas-joy',
-  'modern-minimal', 'simple-java',
+  'modern-minimal', 'simple-java', 'enchanted-garden', 'royal-blossom',
+  'celestial-garden',
 ];
 
 export default function HeroSection({ openingText, title, eventType }: HeroSectionProps) {
@@ -318,6 +320,357 @@ export default function HeroSection({ openingText, title, eventType }: HeroSecti
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif leading-tight">{name2}</h2>
             </div>
           </div>
+        )}
+
+        {/* ─── ENCHANTED GARDEN: Premium — framer-motion spring animations ─── */}
+        {theme === 'enchanted-garden' && hasNames && (
+          <AnimatePresence>
+            <motion.div
+              className="space-y-4 sm:space-y-5"
+              initial={{ opacity: 0 }}
+              animate={isVisible ? { opacity: 1 } : {}}
+              transition={{ duration: 0.6 }}
+            >
+              {/* Vine arch ornament */}
+              <motion.div
+                className="flex justify-center"
+                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                animate={isVisible ? { opacity: 1, scale: 1, rotate: 0 } : {}}
+                transition={{ type: 'spring', stiffness: 120, damping: 14, delay: 0.1 }}
+              >
+                <svg width="80" height="42" viewBox="0 0 100 50" className="text-[var(--inv-accent)]">
+                  <path d="M5,48 C5,18 25,5 50,5 C75,5 95,18 95,48" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.5" />
+                  <ellipse cx="18" cy="28" rx="7" ry="3" transform="rotate(-30 18 28)" fill="currentColor" opacity="0.3" />
+                  <ellipse cx="82" cy="28" rx="7" ry="3" transform="rotate(30 82 28)" fill="currentColor" opacity="0.3" />
+                  <ellipse cx="35" cy="12" rx="6" ry="2.5" transform="rotate(-15 35 12)" fill="currentColor" opacity="0.25" />
+                  <ellipse cx="65" cy="12" rx="6" ry="2.5" transform="rotate(15 65 12)" fill="currentColor" opacity="0.25" />
+                  <ellipse cx="50" cy="6" rx="4" ry="2" fill="currentColor" opacity="0.35" />
+                  <circle cx="25" cy="20" r="1.5" fill="currentColor" opacity="0.2" />
+                  <circle cx="75" cy="20" r="1.5" fill="currentColor" opacity="0.2" />
+                </svg>
+              </motion.div>
+
+              {/* Opening text */}
+              {openingText && (
+                <motion.p
+                  className="text-xs sm:text-sm leading-relaxed text-[var(--inv-text-secondary)] whitespace-pre-line"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.8, delay: 0.3 }}
+                >
+                  {openingText}
+                </motion.p>
+              )}
+
+              {/* Prefix */}
+              <motion.p
+                className="text-xs sm:text-sm tracking-[0.25em] uppercase text-[var(--inv-text-secondary)]"
+                initial={{ opacity: 0, letterSpacing: '0.5em' }}
+                animate={isVisible ? { opacity: 1, letterSpacing: '0.25em' } : {}}
+                transition={{ duration: 1, delay: 0.5 }}
+              >
+                {prefix}
+              </motion.p>
+
+              {/* Name 1 — spring entrance from left */}
+              <motion.h2
+                className="text-4xl sm:text-5xl md:text-6xl leading-none"
+                style={{ fontFamily: "'Great Vibes', cursive" }}
+                initial={{ opacity: 0, x: -40, scale: 0.9 }}
+                animate={isVisible ? { opacity: 1, x: 0, scale: 1 } : {}}
+                transition={{ type: 'spring', stiffness: 80, damping: 12, delay: 0.6 }}
+              >
+                {name1}
+              </motion.h2>
+
+              {/* Ampersand with expanding lines */}
+              <motion.div
+                className="flex items-center justify-center gap-3 my-3"
+                initial={{ opacity: 0, scale: 0.3 }}
+                animate={isVisible ? { opacity: 1, scale: 1 } : {}}
+                transition={{ type: 'spring', stiffness: 150, damping: 10, delay: 0.75 }}
+              >
+                <motion.div
+                  className="h-px bg-[var(--inv-accent)] opacity-30"
+                  initial={{ width: 0 }}
+                  animate={isVisible ? { width: 48 } : {}}
+                  transition={{ duration: 0.8, delay: 0.85 }}
+                />
+                <span className="text-2xl sm:text-3xl" style={{ fontFamily: "'Great Vibes', cursive", color: 'var(--inv-accent)' }}>{amp}</span>
+                <motion.div
+                  className="h-px bg-[var(--inv-accent)] opacity-30"
+                  initial={{ width: 0 }}
+                  animate={isVisible ? { width: 48 } : {}}
+                  transition={{ duration: 0.8, delay: 0.85 }}
+                />
+              </motion.div>
+
+              {/* Name 2 — spring entrance from right */}
+              <motion.h2
+                className="text-4xl sm:text-5xl md:text-6xl leading-none"
+                style={{ fontFamily: "'Great Vibes', cursive" }}
+                initial={{ opacity: 0, x: 40, scale: 0.9 }}
+                animate={isVisible ? { opacity: 1, x: 0, scale: 1 } : {}}
+                transition={{ type: 'spring', stiffness: 80, damping: 12, delay: 0.9 }}
+              >
+                {name2}
+              </motion.h2>
+
+              {/* Bottom wave ornament */}
+              <motion.div
+                className="flex justify-center"
+                initial={{ opacity: 0, scaleX: 0 }}
+                animate={isVisible ? { opacity: 1, scaleX: 1 } : {}}
+                transition={{ duration: 0.6, delay: 1.1 }}
+              >
+                <svg width="50" height="10" viewBox="0 0 60 8" className="text-[var(--inv-accent)] opacity-30">
+                  <path d="M0,4 Q15,0 30,4 Q45,8 60,4" fill="none" stroke="currentColor" strokeWidth="0.8" />
+                </svg>
+              </motion.div>
+            </motion.div>
+          </AnimatePresence>
+        )}
+
+        {/* ─── ROYAL BLOSSOM: Premium — framer-motion spring + bokeh entrance ─── */}
+        {theme === 'royal-blossom' && hasNames && (
+          <AnimatePresence>
+            <motion.div
+              className="space-y-4 sm:space-y-5"
+              initial={{ opacity: 0 }}
+              animate={isVisible ? { opacity: 1 } : {}}
+              transition={{ duration: 0.8 }}
+            >
+              {/* Ornate flower ornament — spinning entrance */}
+              <motion.div
+                className="flex justify-center"
+                initial={{ opacity: 0, scale: 0, rotate: -180 }}
+                animate={isVisible ? { opacity: 1, scale: 1, rotate: 0 } : {}}
+                transition={{ type: 'spring', stiffness: 60, damping: 12, delay: 0.15 }}
+              >
+                <svg width="44" height="44" viewBox="0 0 48 48" className="text-[var(--inv-accent)]">
+                  <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="0.6" opacity="0.25" />
+                  <circle cx="24" cy="24" r="13" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.15" />
+                  <ellipse cx="24" cy="15" rx="6" ry="3.5" fill="currentColor" opacity="0.2" />
+                  <ellipse cx="16" cy="22" rx="6" ry="3.5" transform="rotate(72 16 22)" fill="currentColor" opacity="0.18" />
+                  <ellipse cx="32" cy="22" rx="6" ry="3.5" transform="rotate(-72 32 22)" fill="currentColor" opacity="0.18" />
+                  <ellipse cx="18" cy="32" rx="6" ry="3.5" transform="rotate(36 18 32)" fill="currentColor" opacity="0.15" />
+                  <ellipse cx="30" cy="32" rx="6" ry="3.5" transform="rotate(-36 30 32)" fill="currentColor" opacity="0.15" />
+                  <circle cx="24" cy="24" r="4" fill="currentColor" opacity="0.3" />
+                  <circle cx="24" cy="24" r="1.5" fill="currentColor" opacity="0.5" />
+                </svg>
+              </motion.div>
+
+              {/* Opening text — fade in */}
+              {openingText && (
+                <motion.p
+                  className="text-xs sm:text-sm leading-relaxed text-[var(--inv-text-secondary)] whitespace-pre-line"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.9, delay: 0.35 }}
+                >
+                  {openingText}
+                </motion.p>
+              )}
+
+              {/* Prefix — tracking animation */}
+              <motion.p
+                className="text-[10px] sm:text-xs uppercase text-[var(--inv-text-secondary)]"
+                initial={{ opacity: 0, letterSpacing: '0.8em' }}
+                animate={isVisible ? { opacity: 1, letterSpacing: '0.4em' } : {}}
+                transition={{ duration: 1.2, delay: 0.5 }}
+              >
+                {prefix}
+              </motion.p>
+
+              {/* Name 1 — slide from left with gold gradient */}
+              <motion.h2
+                className="text-3xl sm:text-4xl md:text-5xl font-serif italic leading-tight"
+                style={{
+                  background: 'linear-gradient(135deg, #d4a373, #e6c9a8, #d4a373)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+                initial={{ opacity: 0, x: -50, filter: 'blur(8px)' }}
+                animate={isVisible ? { opacity: 1, x: 0, filter: 'blur(0px)' } : {}}
+                transition={{ type: 'spring', stiffness: 70, damping: 14, delay: 0.65 }}
+              >
+                {name1}
+              </motion.h2>
+
+              {/* Ampersand with expanding gold lines */}
+              <motion.div
+                className="flex items-center justify-center gap-3 my-2"
+                initial={{ opacity: 0, scale: 0.2 }}
+                animate={isVisible ? { opacity: 1, scale: 1 } : {}}
+                transition={{ type: 'spring', stiffness: 120, damping: 10, delay: 0.8 }}
+              >
+                <motion.div
+                  className="h-px"
+                  style={{ background: 'linear-gradient(to right, transparent, #d4a373, transparent)', opacity: 0.4 }}
+                  initial={{ width: 0 }}
+                  animate={isVisible ? { width: 56 } : {}}
+                  transition={{ duration: 0.7, delay: 0.9 }}
+                />
+                <span className="text-lg sm:text-xl font-serif italic text-[var(--inv-accent)] opacity-80">{amp}</span>
+                <motion.div
+                  className="h-px"
+                  style={{ background: 'linear-gradient(to right, transparent, #d4a373, transparent)', opacity: 0.4 }}
+                  initial={{ width: 0 }}
+                  animate={isVisible ? { width: 56 } : {}}
+                  transition={{ duration: 0.7, delay: 0.9 }}
+                />
+              </motion.div>
+
+              {/* Name 2 — slide from right with gold gradient */}
+              <motion.h2
+                className="text-3xl sm:text-4xl md:text-5xl font-serif italic leading-tight"
+                style={{
+                  background: 'linear-gradient(135deg, #d4a373, #e6c9a8, #d4a373)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+                initial={{ opacity: 0, x: 50, filter: 'blur(8px)' }}
+                animate={isVisible ? { opacity: 1, x: 0, filter: 'blur(0px)' } : {}}
+                transition={{ type: 'spring', stiffness: 70, damping: 14, delay: 0.95 }}
+              >
+                {name2}
+              </motion.h2>
+
+              {/* Bottom diamond ornament */}
+              <motion.div
+                className="flex justify-center pt-2"
+                initial={{ opacity: 0, scale: 0, rotate: 45 }}
+                animate={isVisible ? { opacity: 0.4, scale: 1, rotate: 45 } : {}}
+                transition={{ type: 'spring', stiffness: 100, damping: 12, delay: 1.15 }}
+              >
+                <div className="w-2 h-2 bg-[var(--inv-accent)]" />
+              </motion.div>
+            </motion.div>
+          </AnimatePresence>
+        )}
+
+        {/* ─── CELESTIAL GARDEN: Premium — framer-motion mystical forest entrance ─── */}
+        {theme === 'celestial-garden' && hasNames && (
+          <AnimatePresence>
+            <motion.div
+              className="space-y-4 sm:space-y-5"
+              initial={{ opacity: 0 }}
+              animate={isVisible ? { opacity: 1 } : {}}
+              transition={{ duration: 0.8 }}
+            >
+              {/* Mystical firefly cluster ornament */}
+              <motion.div
+                className="flex justify-center"
+                initial={{ opacity: 0, scale: 0, filter: 'blur(12px)' }}
+                animate={isVisible ? { opacity: 1, scale: 1, filter: 'blur(0px)' } : {}}
+                transition={{ type: 'spring', stiffness: 60, damping: 14, delay: 0.1 }}
+              >
+                <svg width="60" height="36" viewBox="0 0 80 44" className="text-[var(--inv-accent)]">
+                  <path d="M5,40 C5,16 20,5 40,5 C60,5 75,16 75,40" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.3" />
+                  <ellipse cx="16" cy="26" rx="6" ry="2" transform="rotate(-40 16 26)" fill="currentColor" opacity="0.2" />
+                  <ellipse cx="64" cy="26" rx="6" ry="2" transform="rotate(40 64 26)" fill="currentColor" opacity="0.2" />
+                  <circle cx="28" cy="14" r="2.5" fill="currentColor" opacity="0.4" />
+                  <circle cx="52" cy="14" r="2" fill="currentColor" opacity="0.35" />
+                  <circle cx="40" cy="8" r="3" fill="currentColor" opacity="0.5" />
+                  <circle cx="20" cy="20" r="1.2" fill="currentColor" opacity="0.25" />
+                  <circle cx="60" cy="20" r="1.2" fill="currentColor" opacity="0.25" />
+                </svg>
+              </motion.div>
+
+              {/* Opening text */}
+              {openingText && (
+                <motion.p
+                  className="text-xs sm:text-sm leading-relaxed text-[var(--inv-text-secondary)] whitespace-pre-line"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 1, delay: 0.3 }}
+                >
+                  {openingText}
+                </motion.p>
+              )}
+
+              {/* Prefix */}
+              <motion.p
+                className="text-xs sm:text-sm tracking-[0.3em] uppercase text-[var(--inv-text-secondary)]"
+                initial={{ opacity: 0, letterSpacing: '0.6em' }}
+                animate={isVisible ? { opacity: 1, letterSpacing: '0.3em' } : {}}
+                transition={{ duration: 1.2, delay: 0.5 }}
+              >
+                {prefix}
+              </motion.p>
+
+              {/* Name 1 — emerge from darkness with teal glow */}
+              <motion.h2
+                className="text-4xl sm:text-5xl md:text-6xl leading-none"
+                style={{
+                  fontFamily: "'Cormorant Garamond', 'Georgia', serif",
+                  fontWeight: 600,
+                  fontStyle: 'italic',
+                }}
+                initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
+                animate={isVisible ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+                transition={{ type: 'spring', stiffness: 60, damping: 14, delay: 0.65 }}
+              >
+                {name1}
+              </motion.h2>
+
+              {/* Ampersand with expanding teal lines */}
+              <motion.div
+                className="flex items-center justify-center gap-3 my-3"
+                initial={{ opacity: 0, scale: 0.3 }}
+                animate={isVisible ? { opacity: 1, scale: 1 } : {}}
+                transition={{ type: 'spring', stiffness: 140, damping: 10, delay: 0.8 }}
+              >
+                <motion.div
+                  className="h-px"
+                  style={{ background: 'linear-gradient(to right, transparent, #4ecdc4, transparent)', opacity: 0.4 }}
+                  initial={{ width: 0 }}
+                  animate={isVisible ? { width: 52 } : {}}
+                  transition={{ duration: 0.8, delay: 0.9 }}
+                />
+                <span
+                  className="text-2xl sm:text-3xl"
+                  style={{ fontFamily: "'Cormorant Garamond', 'Georgia', serif", color: 'var(--inv-accent)', fontStyle: 'italic' }}
+                >
+                  {amp}
+                </span>
+                <motion.div
+                  className="h-px"
+                  style={{ background: 'linear-gradient(to right, transparent, #4ecdc4, transparent)', opacity: 0.4 }}
+                  initial={{ width: 0 }}
+                  animate={isVisible ? { width: 52 } : {}}
+                  transition={{ duration: 0.8, delay: 0.9 }}
+                />
+              </motion.div>
+
+              {/* Name 2 — emerge from darkness */}
+              <motion.h2
+                className="text-4xl sm:text-5xl md:text-6xl leading-none"
+                style={{
+                  fontFamily: "'Cormorant Garamond', 'Georgia', serif",
+                  fontWeight: 600,
+                  fontStyle: 'italic',
+                }}
+                initial={{ opacity: 0, y: -30, filter: 'blur(10px)' }}
+                animate={isVisible ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+                transition={{ type: 'spring', stiffness: 60, damping: 14, delay: 0.95 }}
+              >
+                {name2}
+              </motion.h2>
+
+              {/* Bottom wave ornament */}
+              <motion.div
+                className="flex justify-center"
+                initial={{ opacity: 0, scaleX: 0 }}
+                animate={isVisible ? { opacity: 1, scaleX: 1 } : {}}
+                transition={{ duration: 0.6, delay: 1.15 }}
+              >
+                <svg width="50" height="10" viewBox="0 0 60 8" className="text-[var(--inv-accent)] opacity-25">
+                  <path d="M0,4 Q10,1 20,4 Q30,7 40,4 Q50,1 60,4" fill="none" stroke="currentColor" strokeWidth="0.6" />
+                </svg>
+              </motion.div>
+            </motion.div>
+          </AnimatePresence>
         )}
 
         {/* ─── FALLBACK: Any unmatched theme or title without & ─── */}

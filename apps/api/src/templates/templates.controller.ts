@@ -22,8 +22,8 @@ export class TemplatesController {
   @Public()
   @Get('public')
   @ApiOperation({ summary: 'Get all templates for public display (filtered fields)' })
-  async findAllPublic() {
-    return this.templatesService.findAllPublic();
+  async findAllPublic(@Query() filter: FilterTemplateDto) {
+    return this.templatesService.findAllPublic(filter);
   }
 
   @Public()

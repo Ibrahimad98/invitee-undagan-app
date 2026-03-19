@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
+import { RatingPopup } from '@/components/ui/rating-popup';
 import { EVENT_TYPE_LABELS } from '@invitee/shared';
 import { cn } from '@/lib/utils';
 import {
@@ -33,6 +34,12 @@ export default function InvitationsPage() {
   const { addToast } = useUIStore();
   const [search, setSearch] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [ratingPopup, setRatingPopup] = useState<{
+    open: boolean;
+    templateId: string;
+    templateName: string;
+    templateSlug: string;
+  }>({ open: false, templateId: '', templateName: '', templateSlug: '' });
 
   const { data, isLoading } = useInvitations({ limit: 50 });
   const deleteInvitation = useDeleteInvitation();
@@ -59,14 +66,28 @@ export default function InvitationsPage() {
 
   const handleTogglePublish = async (inv: any) => {
     try {
+      const isPublishing = !inv.isPublished;
       await updateInvitation.mutateAsync({
         id: inv.id,
-        payload: { isPublished: !inv.isPublished },
+        payload: { isPublished: isPublishing },
       });
       addToast(
-        inv.isPublished ? 'Undangan di-unpublish' : 'Undangan dipublish!',
+        isPublishing ? 'Undangan dipublish!' : 'Undangan di-unpublish',
         'success',
       );
+
+      // Show rating popup when publishing (not unpublishing)
+      if (isPublishing) {
+        const primaryTemplate = inv.templates?.[0]?.template;
+        if (primaryTemplate) {
+          setRatingPopup({
+            open: true,
+            templateId: primaryTemplate.id,
+            templateName: primaryTemplate.name,
+            templateSlug: primaryTemplate.slug,
+          });
+        }
+      }
     } catch {
       addToast('Gagal mengubah status', 'error');
     }
@@ -330,6 +351,15 @@ export default function InvitationsPage() {
         confirmLabel="Hapus"
         variant="danger"
         loading={deleteInvitation.isPending}
+      />
+
+      {/* Rating Popup — shown after publishing */}
+      <RatingPopup
+        open={ratingPopup.open}
+        onClose={() => setRatingPopup((prev) => ({ ...prev, open: false }))}
+        templateId={ratingPopup.templateId}
+        templateName={ratingPopup.templateName}
+        templateSlug={ratingPopup.templateSlug}
       />
     </div>
   );

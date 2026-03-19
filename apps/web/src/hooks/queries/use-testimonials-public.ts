@@ -12,6 +12,12 @@ interface PublicTestimonial {
   ratingLayanan?: number;
   notes?: string;
   createdAt: string;
+  template?: {
+    id: string;
+    name: string;
+    slug: string;
+    category: string;
+  };
 }
 
 export function useTestimonialsPublic() {

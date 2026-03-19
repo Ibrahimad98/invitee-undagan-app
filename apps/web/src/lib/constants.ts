@@ -34,4 +34,7 @@ export const CATEGORY_COLORS: Record<string, string> = {
   slide: 'bg-blue-100 text-blue-800',
   formal: 'bg-slate-100 text-slate-800',
   colorful: 'bg-cyan-100 text-cyan-800',
+  garden: 'bg-green-100 text-green-800',
+  royal: 'bg-rose-100 text-rose-800',
+  celestial: 'bg-teal-100 text-teal-800',
 };

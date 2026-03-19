@@ -1,15 +1,41 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useTemplatesPublic } from '@/hooks/queries/use-templates-public';
-import { Star, Users, Eye } from 'lucide-react';
+import { Star, Users, Eye, Search } from 'lucide-react';
 import { Footer } from '@/components/layout/footer';
 import { PublicNavbar } from '@/components/layout/public-navbar';
 import { HeroBackground } from '@/components/layout/hero-background';
+import { Pagination } from '@/components/ui/pagination';
+import { TEMPLATE_CATEGORIES, TEMPLATE_CATEGORY_LABELS } from '@invitee/shared';
+import { CATEGORY_COLORS } from '@/lib/constants';
+import { cn } from '@/lib/utils';
+
+const PAGE_LIMIT = 12;
 
 export default function PublicTemplatesPage() {
-  const { data, isLoading, error } = useTemplatesPublic();
-  const templates = Array.isArray(data) ? data : [];
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState<string | undefined>();
+  const [page, setPage] = useState(1);
+
+  const { data: templates, meta, isLoading, error } = useTemplatesPublic({
+    page,
+    limit: PAGE_LIMIT,
+    search: search || undefined,
+    category,
+  });
+
+  const totalPages = meta?.totalPages || 1;
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+  const handleCategoryChange = (cat: string | undefined) => {
+    setCategory(cat);
+    setPage(1);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -30,6 +56,48 @@ export default function PublicTemplatesPage() {
 
       {/* Template Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Search & Filters */}
+        <div className="space-y-4 mb-8">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Cari template..."
+              value={search}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+            />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => handleCategoryChange(undefined)}
+              className={cn(
+                'px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
+                !category
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
+              )}
+            >
+              Semua
+            </button>
+            {TEMPLATE_CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => handleCategoryChange(category === cat ? undefined : cat)}
+                className={cn(
+                  'px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
+                  category === cat
+                    ? 'bg-primary-600 text-white'
+                    : CATEGORY_COLORS[cat] || 'bg-gray-100 text-gray-600',
+                  category !== cat && 'hover:opacity-80',
+                )}
+              >
+                {TEMPLATE_CATEGORY_LABELS[cat] || cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -115,6 +183,20 @@ export default function PublicTemplatesPage() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {!isLoading && meta && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-10">
+            <p className="text-sm text-gray-500">
+              Menampilkan {templates.length} dari {meta.total} template
+            </p>
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
           </div>
         )}
       </section>

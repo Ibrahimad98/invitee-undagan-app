@@ -7,6 +7,10 @@ export class CreateTestimonialDto {
   @IsString()
   userId?: string;
 
+  @ApiProperty({ description: 'Template ID being reviewed' })
+  @IsString()
+  templateId: string;
+
   @ApiProperty()
   @IsString()
   userName: string;

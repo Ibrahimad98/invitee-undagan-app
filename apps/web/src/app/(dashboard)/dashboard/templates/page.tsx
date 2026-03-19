@@ -7,18 +7,39 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Pagination } from '@/components/ui/pagination';
 import { TEMPLATE_CATEGORIES, TEMPLATE_CATEGORY_LABELS } from '@invitee/shared';
 import { CATEGORY_COLORS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { Search, Star, Eye, Users } from 'lucide-react';
 import Link from 'next/link';
 
+const PAGE_LIMIT = 10;
+
 export default function TemplatesPage() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<string | undefined>();
-  const { data, isLoading } = useTemplates({ search: search || undefined, category });
+  const [page, setPage] = useState(1);
+  const { data, isLoading } = useTemplates({
+    search: search || undefined,
+    category,
+    page,
+    limit: PAGE_LIMIT,
+  });
 
   const templates = data?.data || [];
+  const meta = data?.meta;
+  const totalPages = meta?.totalPages || 1;
+
+  // Reset to page 1 when filters change
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+  const handleCategoryChange = (cat: string | undefined) => {
+    setCategory(cat);
+    setPage(1);
+  };
 
   return (
     <div className="space-y-6">
@@ -35,7 +56,7 @@ export default function TemplatesPage() {
           type="text"
           placeholder="Cari template..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => handleSearchChange(e.target.value)}
           className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
         />
       </div>
@@ -43,7 +64,7 @@ export default function TemplatesPage() {
       {/* Category Filters */}
       <div className="flex flex-wrap gap-2">
         <button
-          onClick={() => setCategory(undefined)}
+          onClick={() => handleCategoryChange(undefined)}
           className={cn(
             'px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
             !category
@@ -56,7 +77,7 @@ export default function TemplatesPage() {
         {TEMPLATE_CATEGORIES.map((cat) => (
           <button
             key={cat}
-            onClick={() => setCategory(category === cat ? undefined : cat)}
+            onClick={() => handleCategoryChange(category === cat ? undefined : cat)}
             className={cn(
               'px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
               category === cat
@@ -156,6 +177,20 @@ export default function TemplatesPage() {
       {!isLoading && templates.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-500">Tidak ada template ditemukan</p>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {!isLoading && meta && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+          <p className="text-sm text-gray-500">
+            Menampilkan {templates.length} dari {meta.total} template
+          </p>
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         </div>
       )}
     </div>

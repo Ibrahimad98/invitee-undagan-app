@@ -15,6 +15,10 @@ import DigitalGiftSection from '@/components/invitation/digital-gift';
 import ClosingSection from '@/components/invitation/closing-section';
 import StorySection from '@/components/invitation/story-section';
 import AudioPlayer from '@/components/invitation/audio-player';
+import AnimatedBackground from '@/components/invitation/animated-bg';
+
+const ANIMATED_THEMES = ['theme-enchanted-garden', 'theme-royal-blossom', 'theme-celestial-garden'] as const;
+type AnimatedTheme = 'enchanted-garden' | 'royal-blossom' | 'celestial-garden';
 
 /* ─── Dark outer-frame background per theme (matches preview THEME_CONFIG.frameBg) ─── */
 const FRAME_BG: Record<string, string> = {
@@ -28,6 +32,9 @@ const FRAME_BG: Record<string, string> = {
   'theme-floral-garden': '#3a1a28',
   'theme-christmas-joy': '#121e16',
   'theme-slide-romantic': '#2e1620',
+  'theme-enchanted-garden': '#e8e0d4',
+  'theme-royal-blossom': '#120a0e',
+  'theme-celestial-garden': '#061210',
 };
 
 export default function InvitationPreviewPage() {
@@ -101,18 +108,34 @@ export default function InvitationPreviewPage() {
 
             {/* Cover Screen */}
             {!isOpen && (
-              <CoverScreen
-                title={invitation.title}
-                guestName={guestName}
-                eventDate={eventDate}
-                onOpen={() => setIsOpen(true)}
-                eventType={invitation.eventType}
-              />
+              <>
+                {/* Animated background behind cover (premium themes) */}
+                {ANIMATED_THEMES.includes(themeClass as any) && (
+                  <AnimatedBackground
+                    theme={themeClass.replace('theme-', '') as AnimatedTheme}
+                    mode="cover"
+                  />
+                )}
+                <CoverScreen
+                  title={invitation.title}
+                  guestName={guestName}
+                  eventDate={eventDate}
+                  onOpen={() => setIsOpen(true)}
+                  eventType={invitation.eventType}
+                />
+              </>
             )}
 
             {/* Main Content — scroll-snap container */}
             {isOpen && (
               <main className="invitation-content">
+                {/* Animated particle background — sticky inside scroll container (premium themes) */}
+                {ANIMATED_THEMES.includes(themeClass as any) && (
+                  <AnimatedBackground
+                    theme={themeClass.replace('theme-', '') as AnimatedTheme}
+                    mode="content"
+                  />
+                )}
                 {/* Hero / Opening */}
                 <HeroSection
                   openingText={invitation.openingText}

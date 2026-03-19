@@ -41,6 +41,9 @@ export const TEMPLATE_CATEGORIES = [
   'slide',
   'formal',
   'colorful',
+  'garden',
+  'royal',
+  'celestial',
 ] as const;
 
 export const TEMPLATE_CATEGORY_LABELS: Record<string, string> = {
@@ -56,6 +59,9 @@ export const TEMPLATE_CATEGORY_LABELS: Record<string, string> = {
   slide: 'Slide',
   formal: 'Formal',
   colorful: 'Colorful',
+  garden: 'Garden',
+  royal: 'Royal',
+  celestial: 'Celestial',
 };
 
 export const ATTENDANCE_STATUS = {

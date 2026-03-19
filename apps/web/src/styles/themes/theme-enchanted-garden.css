@@ -1,0 +1,111 @@
+/* Theme: Enchanted Garden — Premium animated template
+ * Ivory/sage/champagne palette with LIVE canvas particle background.
+ * Petals, leaves and soft circles drift across all sections.
+ * The CSS here provides the colour palette + semi-transparent sections
+ * so the animated canvas particles show through beautifully.
+ */
+.invitation-root.theme-enchanted-garden {
+  --inv-bg-primary: #faf6f0;
+  --inv-bg-secondary: rgba(240, 235, 226, 0.85);
+  --inv-text-primary: #3a3530;
+  --inv-text-secondary: #7a7168;
+  --inv-accent: #7d8c6e;
+  --inv-accent-text: #ffffff;
+  --inv-cover-text: #3a3530;
+  --inv-cover-text-secondary: rgba(58, 53, 48, 0.65);
+  --inv-cover-border: #7d8c6e;
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+}
+
+/* ─── Cover — semi-transparent so canvas particles show behind ─── */
+.theme-enchanted-garden .invitation-cover {
+  background: linear-gradient(160deg,
+    rgba(250, 246, 240, 0.9) 0%,
+    rgba(237, 230, 216, 0.85) 50%,
+    rgba(250, 246, 240, 0.9) 100%
+  );
+  position: relative;
+  overflow: hidden;
+}
+.theme-enchanted-garden .invitation-cover::before {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(125, 140, 110, 0.25);
+  border-radius: 4px;
+  pointer-events: none;
+}
+.theme-enchanted-garden .invitation-cover::after {
+  content: '';
+  position: absolute;
+  inset: 18px;
+  border: 1px solid rgba(125, 140, 110, 0.12);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* ─── Gradient headings ─── */
+.theme-enchanted-garden h1,
+.theme-enchanted-garden h3 {
+  background: linear-gradient(135deg, #7d8c6e, #a8b89a, #c7956d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Sections: semi-transparent so canvas particles bleed through ─── */
+.theme-enchanted-garden .invitation-section {
+  position: relative;
+  background: rgba(250, 246, 240, 0.65) !important;
+}
+
+/* Living gradient mesh — CSS animated complementary layer */
+.theme-enchanted-garden .invitation-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse at 15% 25%, rgba(125, 140, 110, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 75%, rgba(199, 149, 109, 0.07) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 50%, rgba(168, 184, 154, 0.04) 0%, transparent 55%);
+  background-size: 200% 200%;
+  animation: enchantedMeshDrift 20s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes enchantedMeshDrift {
+  0%   { background-position: 0% 0%; }
+  25%  { background-position: 50% 30%; }
+  50%  { background-position: 100% 60%; }
+  75%  { background-position: 30% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+/* Fine inner border on sections */
+.theme-enchanted-garden .invitation-section::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgba(125, 140, 110, 0.08);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Input styling ─── */
+.theme-enchanted-garden .invitation-rsvp input,
+.theme-enchanted-garden .invitation-rsvp textarea {
+  border-color: rgba(125, 140, 110, 0.25);
+  background: rgba(250, 246, 240, 0.7);
+}
+.theme-enchanted-garden .invitation-rsvp input:focus,
+.theme-enchanted-garden .invitation-rsvp textarea:focus {
+  box-shadow: 0 0 14px rgba(125, 140, 110, 0.18);
+}
+
+/* ─── Wishes scroll ─── */
+.theme-enchanted-garden .invitation-wishes-scroll::-webkit-scrollbar { width: 3px; }
+.theme-enchanted-garden .invitation-wishes-scroll::-webkit-scrollbar-thumb {
+  background: rgba(125, 140, 110, 0.3);
+  border-radius: 2px;
+}

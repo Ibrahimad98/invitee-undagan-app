@@ -76,25 +76,48 @@ export class TemplatesService {
     };
   }
 
-  async findAllPublic() {
-    const templates = await this.prisma.template.findMany({
-      where: { isActive: true },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        thumbnailUrl: true,
-        category: true,
-        tags: true,
-        cssClass: true,
-        isPremium: true,
-        ratingAvg: true,
-        usageCount: true,
-      },
-      orderBy: [{ usageCount: 'desc' }, { sortOrder: 'asc' }],
-    });
+  async findAllPublic(filter: FilterTemplateDto = {}) {
+    const { page = 1, limit = 12, search, category } = filter;
+    const skip = (page - 1) * limit;
 
-    return { data: templates };
+    const where: any = {
+      isActive: true,
+      ...(category && { category }),
+      ...(search && {
+        OR: [
+          { name: { contains: search, mode: 'insensitive' } },
+          { tags: { hasSome: [search.toLowerCase()] } },
+        ],
+      }),
+    };
+
+    const [templates, total] = await Promise.all([
+      this.prisma.template.findMany({
+        where,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          thumbnailUrl: true,
+          category: true,
+          tags: true,
+          cssClass: true,
+          isPremium: true,
+          ratingAvg: true,
+          ratingCount: true,
+          usageCount: true,
+        },
+        orderBy: [{ usageCount: 'desc' }, { sortOrder: 'asc' }],
+        skip,
+        take: limit,
+      }),
+      this.prisma.template.count({ where }),
+    ]);
+
+    return {
+      data: templates,
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    };
   }
 
   async findById(id: string) {

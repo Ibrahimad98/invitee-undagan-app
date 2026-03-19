@@ -10,6 +10,7 @@ export interface Template {
   layoutType: 'SCROLL' | 'SLIDE';
   usageCount: number;
   ratingAvg: number;
+  ratingCount: number;
   isPremium: boolean;
   isActive: boolean;
   sortOrder: number;

@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import type { Template, TemplateFilter } from '@invitee/shared';
 
-interface PaginatedResult<T> {
+export interface PaginatedResult<T> {
   data: T[];
   meta: { total: number; page: number; limit: number; totalPages: number };
 }
@@ -17,6 +17,7 @@ export function useTemplates(filters?: TemplateFilter) {
       // Unwrap TransformInterceptor: { success, data: { data: [...], meta } }
       return (data as any)?.data || data;
     },
+    placeholderData: keepPreviousData,
   });
 }
 
