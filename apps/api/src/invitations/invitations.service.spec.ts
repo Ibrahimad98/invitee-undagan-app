@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { InvitationsService } from './invitations.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { SettingsService } from '../settings/settings.service';
 import { STORAGE_SERVICE } from '../storage/storage.interface';
 import { NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 
@@ -9,6 +10,7 @@ describe('InvitationsService', () => {
   let service: InvitationsService;
   let prisma: any;
   let storageService: any;
+  let settingsService: any;
 
   const mockInvitation = {
     id: 'inv-1',
@@ -54,11 +56,16 @@ describe('InvitationsService', () => {
       getUrl: vi.fn().mockImplementation((key: string) => Promise.resolve(`https://s3.example.com/${key}`)),
     };
 
+    settingsService = {
+      getSystemValue: vi.fn().mockResolvedValue(null),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         InvitationsService,
         { provide: PrismaService, useValue: prisma },
         { provide: STORAGE_SERVICE, useValue: storageService },
+        { provide: SettingsService, useValue: settingsService },
       ],
     }).compile();
 
@@ -205,6 +212,63 @@ describe('InvitationsService', () => {
       prisma.invitation.findFirst.mockResolvedValue(null);
 
       await expect(service.exportToExcel('user-1', 'inv-999')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('enforceInvitationLimit (via create)', () => {
+    const createDto: any = {
+      title: 'Test',
+      slug: 'test',
+      eventType: 'WEDDING',
+    };
+
+    it('should allow creation when beta is off', async () => {
+      settingsService.getSystemValue.mockResolvedValue(null); // beta_mode = null
+      prisma.user.findUnique.mockResolvedValue({ id: 'user-1', subscriptionType: 'BASIC' });
+      prisma.$transaction.mockImplementation((fn: any) => fn(prisma));
+      prisma.invitation.create.mockResolvedValue({ id: 'new-inv', ...createDto, userId: 'user-1' });
+      prisma.invitation.findUnique.mockResolvedValue({ id: 'new-inv', ...createDto, userId: 'user-1', media: [], personProfiles: [], events: [], giftAccounts: [], coInvitors: [], templates: [] });
+
+      // Should not throw
+      const result = await service.create('user-1', createDto);
+      expect(result).toBeDefined();
+    });
+
+    it('should reject when BASIC user exceeds beta limit', async () => {
+      prisma.user.findUnique.mockResolvedValue({ id: 'user-1', subscriptionType: 'BASIC' });
+      settingsService.getSystemValue
+        .mockResolvedValueOnce('true')  // beta_mode
+        .mockResolvedValueOnce('1');    // beta_max_invitations_basic
+      prisma.invitation.count.mockResolvedValue(1); // already has 1
+
+      await expect(service.create('user-1', createDto)).rejects.toThrow(BadRequestException);
+    });
+
+    it('should allow when PREMIUM user is under limit', async () => {
+      prisma.user.findUnique.mockResolvedValue({ id: 'user-1', subscriptionType: 'PREMIUM' });
+      settingsService.getSystemValue
+        .mockResolvedValueOnce('true')  // beta_mode
+        .mockResolvedValueOnce('3');    // beta_max_invitations_premium
+      prisma.invitation.count.mockResolvedValue(1); // has 1, limit is 3
+      prisma.$transaction.mockImplementation((fn: any) => fn(prisma));
+      prisma.invitation.create.mockResolvedValue({ id: 'new-inv', ...createDto, userId: 'user-1' });
+      prisma.invitation.findUnique.mockResolvedValue({ id: 'new-inv', ...createDto, userId: 'user-1', media: [], personProfiles: [], events: [], giftAccounts: [], coInvitors: [], templates: [] });
+
+      const result = await service.create('user-1', createDto);
+      expect(result).toBeDefined();
+    });
+
+    it('should allow unlimited when enterprise limit is 0', async () => {
+      prisma.user.findUnique.mockResolvedValue({ id: 'user-1', subscriptionType: 'FAST_SERVE' });
+      settingsService.getSystemValue
+        .mockResolvedValueOnce('true')  // beta_mode
+        .mockResolvedValueOnce('0');    // beta_max_invitations_enterprise = unlimited
+      prisma.$transaction.mockImplementation((fn: any) => fn(prisma));
+      prisma.invitation.create.mockResolvedValue({ id: 'new-inv', ...createDto, userId: 'user-1' });
+      prisma.invitation.findUnique.mockResolvedValue({ id: 'new-inv', ...createDto, userId: 'user-1', media: [], personProfiles: [], events: [], giftAccounts: [], coInvitors: [], templates: [] });
+
+      const result = await service.create('user-1', createDto);
+      expect(result).toBeDefined();
     });
   });
 });

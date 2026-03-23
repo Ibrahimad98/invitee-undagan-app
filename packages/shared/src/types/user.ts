@@ -10,6 +10,7 @@ export interface User {
   subscriptionType: 'BASIC' | 'PREMIUM' | 'FAST_SERVE';
   subscriptionExpireDate?: string | null;
   maxGuests: number;
+  isWhatsappVerified: boolean;
   isFirstLogin: boolean;
   createdAt: string;
   updatedAt: string;

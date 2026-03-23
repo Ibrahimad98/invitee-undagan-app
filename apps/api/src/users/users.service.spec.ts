@@ -168,4 +168,140 @@ describe('UsersService', () => {
       await expect(service.adminUpdate('nonexistent', { fullName: 'Test' })).rejects.toThrow(NotFoundException);
     });
   });
+
+  describe('requestWhatsappOtp', () => {
+    it('should generate OTP and return WhatsApp URL', async () => {
+      prisma.user.findUnique.mockResolvedValue({
+        ...mockUser,
+        isWhatsappVerified: false,
+      });
+      prisma.user.update.mockResolvedValue(mockUser);
+
+      const result = await service.requestWhatsappOtp('user-1');
+
+      expect(result.waUrl).toBeDefined();
+      expect(result.waUrl).toContain('api.whatsapp.com');
+      expect(result.phone).toBe('081234567890');
+      expect(result.expiresAt).toBeDefined();
+      expect(prisma.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'user-1' },
+          data: expect.objectContaining({
+            whatsappOtp: expect.any(String),
+            whatsappOtpExpires: expect.any(Date),
+          }),
+        }),
+      );
+    });
+
+    it('should throw if phone not set', async () => {
+      prisma.user.findUnique.mockResolvedValue({ ...mockUser, phone: null });
+
+      await expect(service.requestWhatsappOtp('user-1')).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw if already verified', async () => {
+      prisma.user.findUnique.mockResolvedValue({
+        ...mockUser,
+        isWhatsappVerified: true,
+      });
+
+      await expect(service.requestWhatsappOtp('user-1')).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('confirmWhatsappOtp', () => {
+    it('should verify OTP and mark WhatsApp as verified', async () => {
+      const futureDate = new Date(Date.now() + 5 * 60 * 1000);
+      prisma.user.findUnique.mockResolvedValue({
+        ...mockUser,
+        isWhatsappVerified: false,
+        whatsappOtp: '123456',
+        whatsappOtpExpires: futureDate,
+      });
+      prisma.user.update.mockResolvedValue({
+        ...mockUser,
+        isWhatsappVerified: true,
+        whatsappOtp: null,
+        whatsappOtpExpires: null,
+      });
+
+      const result = await service.confirmWhatsappOtp('user-1', '123456');
+
+      expect(result.message).toContain('berhasil diverifikasi');
+      expect(result.user).toBeDefined();
+      expect(prisma.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            isWhatsappVerified: true,
+            whatsappOtp: null,
+            whatsappOtpExpires: null,
+          }),
+        }),
+      );
+    });
+
+    it('should throw if OTP is wrong', async () => {
+      const futureDate = new Date(Date.now() + 5 * 60 * 1000);
+      prisma.user.findUnique.mockResolvedValue({
+        ...mockUser,
+        isWhatsappVerified: false,
+        whatsappOtp: '123456',
+        whatsappOtpExpires: futureDate,
+      });
+
+      await expect(service.confirmWhatsappOtp('user-1', '999999')).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw if OTP is expired', async () => {
+      const pastDate = new Date(Date.now() - 60 * 1000);
+      prisma.user.findUnique.mockResolvedValue({
+        ...mockUser,
+        isWhatsappVerified: false,
+        whatsappOtp: '123456',
+        whatsappOtpExpires: pastDate,
+      });
+
+      await expect(service.confirmWhatsappOtp('user-1', '123456')).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw if no OTP was requested', async () => {
+      prisma.user.findUnique.mockResolvedValue({
+        ...mockUser,
+        isWhatsappVerified: false,
+        whatsappOtp: null,
+        whatsappOtpExpires: null,
+      });
+
+      await expect(service.confirmWhatsappOtp('user-1', '123456')).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('update - phone change resets WA verification', () => {
+    it('should reset isWhatsappVerified when phone changes', async () => {
+      prisma.user.findUnique.mockResolvedValue({
+        ...mockUser,
+        phone: '081234567890',
+        isWhatsappVerified: true,
+      });
+      prisma.user.update.mockResolvedValue({
+        ...mockUser,
+        phone: '089999999999',
+        isWhatsappVerified: false,
+      });
+
+      await service.update('user-1', { phone: '089999999999' });
+
+      expect(prisma.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            phone: '089999999999',
+            isWhatsappVerified: false,
+            whatsappOtp: null,
+            whatsappOtpExpires: null,
+          }),
+        }),
+      );
+    });
+  });
 });

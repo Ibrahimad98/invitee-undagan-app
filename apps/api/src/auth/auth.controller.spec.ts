@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { SettingsService } from '../settings/settings.service';
 import { Test, TestingModule } from '@nestjs/testing';
 
 describe('AuthController', () => {
   let controller: AuthController;
   let authService: any;
-  let prisma: any;
+  let settingsService: any;
 
   beforeEach(async () => {
     authService = {
@@ -21,17 +21,15 @@ describe('AuthController', () => {
       changePassword: vi.fn(),
     };
 
-    prisma = {
-      siteSetting: {
-        findFirst: vi.fn(),
-      },
+    settingsService = {
+      getSystemValue: vi.fn().mockResolvedValue(null),
     };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
         { provide: AuthService, useValue: authService },
-        { provide: PrismaService, useValue: prisma },
+        { provide: SettingsService, useValue: settingsService },
       ],
     }).compile();
 
@@ -88,23 +86,28 @@ describe('AuthController', () => {
 
   describe('getBetaConfig', () => {
     it('should return beta config from settings', async () => {
-      prisma.siteSetting.findFirst
-        .mockResolvedValueOnce({ value: 'true' }) // isBeta
-        .mockResolvedValueOnce({ value: '500' }); // maxGuests
+      settingsService.getSystemValue
+        .mockResolvedValueOnce('true')   // beta_mode
+        .mockResolvedValueOnce('500')    // default_max_guests
+        .mockResolvedValueOnce('1')      // beta_max_invitations_basic
+        .mockResolvedValueOnce('3')      // beta_max_invitations_premium
+        .mockResolvedValueOnce('1');     // beta_max_invitations_enterprise
 
       const result = await controller.getBetaConfig();
 
       expect(result.isBeta).toBe(true);
       expect(result.defaultMaxGuests).toBe(500);
+      expect(result.maxInvitations).toEqual({ BASIC: 1, PREMIUM: 3, FAST_SERVE: 1 });
     });
 
     it('should return defaults when no settings found', async () => {
-      prisma.siteSetting.findFirst.mockResolvedValue(null);
+      settingsService.getSystemValue.mockResolvedValue(null);
 
       const result = await controller.getBetaConfig();
 
       expect(result.isBeta).toBe(false);
       expect(result.defaultMaxGuests).toBe(300);
+      expect(result.maxInvitations).toEqual({ BASIC: 1, PREMIUM: 3, FAST_SERVE: 1 });
     });
   });
 

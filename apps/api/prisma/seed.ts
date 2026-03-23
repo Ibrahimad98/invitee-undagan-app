@@ -6,7 +6,11 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting seed...');
 
-  // Clean existing data
+  // Clean existing data (order matters: children before parents to avoid FK errors)
+  await prisma.notification.deleteMany();
+  await prisma.bugFeedback.deleteMany();
+  await prisma.guestLimitRequest.deleteMany();
+  await prisma.invitationComment.deleteMany();
   await prisma.testimonial.deleteMany();
   await prisma.rsvp.deleteMany();
   await prisma.guest.deleteMany();
@@ -18,11 +22,27 @@ async function main() {
   await prisma.personProfile.deleteMany();
   await prisma.invitation.deleteMany();
   await prisma.template.deleteMany();
+  await prisma.siteSetting.deleteMany();
   await prisma.user.deleteMany();
 
   console.log('🧹 Cleaned existing data');
 
-  // --- Users ---
+  // ─── Site Settings (contact info for public pages) ───
+  // System settings (email_verification, beta_mode, etc.) are
+  // auto-created by SettingsService.ensureDefaults() on app startup.
+  // Here we only seed contact/operational info shown on the public site.
+  await prisma.siteSetting.createMany({
+    data: [
+      { category: 'contact', item: 'WhatsApp',        value: '081234567890',                   description: 'Chat langsung via WhatsApp',        sortOrder: 1, isActive: true },
+      { category: 'contact', item: 'Email',            value: 'support@invitee.id',              description: 'Kirim email ke tim kami',            sortOrder: 2, isActive: true },
+      { category: 'contact', item: 'Instagram',        value: '@invitee.id',                     description: 'Follow kami di Instagram',           sortOrder: 3, isActive: true },
+      { category: 'contact', item: 'Alamat',           value: 'Jakarta, Indonesia',              description: 'Kantor pusat kami',                  sortOrder: 4, isActive: true },
+      { category: 'contact', item: 'Jam Operasional',  value: 'Senin-Jumat 09:00-17:00 WIB',    description: 'Waktu layanan customer support',     sortOrder: 5, isActive: true },
+    ],
+  });
+  console.log('⚙️ Contact settings seeded (system settings auto-created on startup)');
+
+  // ─── Users ───
   const adminPassword = await bcrypt.hash('admin123', 12);
   const demoPassword = await bcrypt.hash('demo123', 12);
 
@@ -33,6 +53,9 @@ async function main() {
       fullName: 'Admin Invitee',
       phone: '081200000001',
       role: Role.ADMIN,
+      isEmailVerified: true,
+      isFirstLogin: false,
+      maxGuests: 99999,
     },
   });
 
@@ -43,12 +66,16 @@ async function main() {
       fullName: 'Demo User',
       phone: '081200000002',
       role: Role.USER,
+      isEmailVerified: true,
+      isFirstLogin: false,
     },
   });
 
   console.log('👤 Users created');
 
-  // --- Templates ---
+  // ─── Templates ───
+  // NOTE: usageCount & ratingAvg start at 0 for fresh production deploy.
+  // They'll accumulate organically as real users use the platform.
   const templates = await Promise.all([
     prisma.template.create({
       data: {
@@ -60,8 +87,8 @@ async function main() {
         supportedEventTypes: ['WEDDING', 'ENGAGEMENT', 'WALIMAH', 'KHITANAN', 'AQIQAH', 'GRADUATION', 'SYUKURAN', 'ANNIVERSARY', 'CORPORATE', 'REUNION', 'CUSTOM'],
         cssClass: 'theme-super-classic',
         layoutType: LayoutType.SCROLL,
-        usageCount: 3340,
-        ratingAvg: 4.8,
+        usageCount: 0,
+        ratingAvg: 0,
         isPremium: false,
         sortOrder: 1,
       },
@@ -76,8 +103,8 @@ async function main() {
         supportedEventTypes: ['WEDDING', 'ENGAGEMENT', 'WALIMAH', 'KHITANAN', 'SYUKURAN', 'REUNION', 'CUSTOM'],
         cssClass: 'theme-simple-java',
         layoutType: LayoutType.SCROLL,
-        usageCount: 1414,
-        ratingAvg: 4.6,
+        usageCount: 0,
+        ratingAvg: 0,
         isPremium: false,
         sortOrder: 2,
       },
@@ -92,8 +119,8 @@ async function main() {
         supportedEventTypes: ['WEDDING', 'ENGAGEMENT', 'WALIMAH', 'ANNIVERSARY', 'BIRTHDAY', 'GRADUATION', 'CUSTOM'],
         cssClass: 'theme-floral-garden',
         layoutType: LayoutType.SCROLL,
-        usageCount: 987,
-        ratingAvg: 4.7,
+        usageCount: 0,
+        ratingAvg: 0,
         isPremium: false,
         sortOrder: 3,
       },
@@ -108,8 +135,8 @@ async function main() {
         supportedEventTypes: ['WEDDING', 'ENGAGEMENT', 'WALIMAH', 'ANNIVERSARY', 'GRADUATION', 'CORPORATE', 'CUSTOM'],
         cssClass: 'theme-golden-elegance',
         layoutType: LayoutType.SCROLL,
-        usageCount: 756,
-        ratingAvg: 4.9,
+        usageCount: 0,
+        ratingAvg: 0,
         isPremium: true,
         sortOrder: 4,
       },
@@ -124,8 +151,8 @@ async function main() {
         supportedEventTypes: ['WEDDING', 'ENGAGEMENT', 'WALIMAH', 'KHITANAN', 'AQIQAH', 'SYUKURAN', 'CUSTOM'],
         cssClass: 'theme-royal-muslim',
         layoutType: LayoutType.SCROLL,
-        usageCount: 623,
-        ratingAvg: 4.5,
+        usageCount: 0,
+        ratingAvg: 0,
         isPremium: false,
         sortOrder: 5,
       },
@@ -140,8 +167,8 @@ async function main() {
         supportedEventTypes: ['BIRTHDAY', 'AQIQAH', 'KHITANAN', 'CUSTOM'],
         cssClass: 'theme-kids-party',
         layoutType: LayoutType.SCROLL,
-        usageCount: 412,
-        ratingAvg: 4.4,
+        usageCount: 0,
+        ratingAvg: 0,
         isPremium: false,
         sortOrder: 6,
       },
@@ -156,8 +183,8 @@ async function main() {
         supportedEventTypes: ['WEDDING', 'ENGAGEMENT', 'KHITANAN', 'SYUKURAN', 'REUNION', 'CUSTOM'],
         cssClass: 'theme-wayang-heritage',
         layoutType: LayoutType.SCROLL,
-        usageCount: 298,
-        ratingAvg: 4.3,
+        usageCount: 0,
+        ratingAvg: 0,
         isPremium: false,
         sortOrder: 7,
       },
@@ -172,8 +199,8 @@ async function main() {
         supportedEventTypes: ['WEDDING', 'ENGAGEMENT', 'BIRTHDAY', 'GRADUATION', 'REUNION', 'CORPORATE', 'ANNIVERSARY', 'SYUKURAN', 'CUSTOM'],
         cssClass: 'theme-modern-minimal',
         layoutType: LayoutType.SCROLL,
-        usageCount: 534,
-        ratingAvg: 4.6,
+        usageCount: 0,
+        ratingAvg: 0,
         isPremium: false,
         sortOrder: 8,
       },
@@ -188,8 +215,8 @@ async function main() {
         supportedEventTypes: ['BIRTHDAY', 'SYUKURAN', 'REUNION', 'CUSTOM'],
         cssClass: 'theme-christmas-joy',
         layoutType: LayoutType.SCROLL,
-        usageCount: 189,
-        ratingAvg: 4.2,
+        usageCount: 0,
+        ratingAvg: 0,
         isPremium: false,
         sortOrder: 9,
       },
@@ -204,8 +231,8 @@ async function main() {
         supportedEventTypes: ['WEDDING', 'ENGAGEMENT', 'WALIMAH', 'ANNIVERSARY', 'CUSTOM'],
         cssClass: 'theme-slide-romantic',
         layoutType: LayoutType.SLIDE,
-        usageCount: 367,
-        ratingAvg: 4.5,
+        usageCount: 0,
+        ratingAvg: 0,
         isPremium: true,
         sortOrder: 10,
       },
@@ -290,7 +317,7 @@ async function main() {
       closingText:
         'Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir. Atas kehadiran dan doa restunya kami ucapkan terima kasih.',
       isPublished: true,
-      viewCount: 142,
+      viewCount: 0,
     },
   });
 
@@ -380,7 +407,7 @@ async function main() {
       closingText:
         'Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu kepada kedua mempelai. Atas kehadiran dan doa restunya kami ucapkan terima kasih.\n\nWassalamualaikum Warahmatullahi Wabarakatuh',
       isPublished: true,
-      viewCount: 256,
+      viewCount: 0,
     },
   });
 
@@ -551,10 +578,10 @@ async function main() {
   const getTemplateId = (slug: string) => allTemplates.find((t) => t.slug === slug)?.id;
 
   const testimonials = [
-    { userName: 'Ahmad Fajar', message: 'Platform undangan digital terbaik! Mudah digunakan dan tampilannya sangat elegan. Tamu undangan saya banyak yang memuji.', rating: 5, ratingDesain: 5, ratingKemudahan: 5, ratingLayanan: 5, templateId: getTemplateId('elegant-rose'), isApproved: true },
-    { userName: 'Dewi Anggraini', message: 'Sangat membantu untuk acara pernikahan kami. Template-nya bagus-bagus dan banyak pilihan. Terima kasih Invitee!', rating: 5, ratingDesain: 5, ratingKemudahan: 4, ratingLayanan: 5, templateId: getTemplateId('rustic-garden'), isApproved: true },
-    { userName: 'Rizki Hidayat', message: 'Good app, cuma kadang loading-nya agak lama kalau banyak foto.', rating: 4, ratingDesain: 4, ratingKemudahan: 3, ratingLayanan: 4, templateId: getTemplateId('minimalist-clean'), isApproved: false },
-    { userName: 'Siti Nurhaliza', message: 'Undangan digitalnya keren banget! Fitur RSVP-nya sangat berguna untuk menghitung jumlah tamu.', rating: 5, ratingDesain: 5, ratingKemudahan: 5, ratingLayanan: 4, templateId: getTemplateId('heritage-wayang'), isApproved: false },
+    { userName: 'Ahmad Fajar', message: 'Platform undangan digital terbaik! Mudah digunakan dan tampilannya sangat elegan. Tamu undangan saya banyak yang memuji.', rating: 5, ratingDesain: 5, ratingKemudahan: 5, ratingLayanan: 5, templateId: getTemplateId('super-classic'), isApproved: true },
+    { userName: 'Dewi Anggraini', message: 'Sangat membantu untuk acara pernikahan kami. Template-nya bagus-bagus dan banyak pilihan. Terima kasih Invitee!', rating: 5, ratingDesain: 5, ratingKemudahan: 4, ratingLayanan: 5, templateId: getTemplateId('floral-garden'), isApproved: true },
+    { userName: 'Rizki Hidayat', message: 'Good app, cuma kadang loading-nya agak lama kalau banyak foto.', rating: 4, ratingDesain: 4, ratingKemudahan: 3, ratingLayanan: 4, templateId: getTemplateId('modern-minimal'), isApproved: false },
+    { userName: 'Siti Nurhaliza', message: 'Undangan digitalnya keren banget! Fitur RSVP-nya sangat berguna untuk menghitung jumlah tamu.', rating: 5, ratingDesain: 5, ratingKemudahan: 5, ratingLayanan: 4, templateId: getTemplateId('wayang-heritage'), isApproved: false },
   ];
 
   for (const t of testimonials) {

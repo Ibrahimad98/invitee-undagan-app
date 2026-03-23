@@ -26,9 +26,9 @@ const PLANS = [
     color: 'blue',
     features: [
       { text: 'Template dasar gratis', included: true },
-      { text: 'Maks 300 tamu', included: true },
+      { text: 'Maks 1 undangan (beta)', included: true, beta: true },
+      { text: 'Maks 300 tamu per undangan', included: true },
       { text: 'Import tamu CSV', included: true },
-      { text: 'Undangan unlimited', included: true },
       { text: 'RSVP & ucapan', included: true },
       { text: 'Template premium', included: false },
       { text: 'Export Excel', included: false },
@@ -48,9 +48,9 @@ const PLANS = [
     popular: true,
     features: [
       { text: 'Semua template termasuk premium', included: true },
+      { text: 'Hingga 3 undangan (beta)', included: true, beta: true },
       { text: 'Kuota hingga 2000 tamu', included: true },
       { text: 'Import tamu Excel & CSV', included: true },
-      { text: 'Undangan unlimited', included: true },
       { text: 'RSVP & ucapan', included: true },
       { text: 'Template premium', included: true },
       { text: 'Export Excel', included: true },
@@ -69,6 +69,7 @@ const PLANS = [
     color: 'emerald',
     features: [
       { text: 'Semua fitur Premium', included: true },
+      { text: 'Kuota undangan custom (beta)', included: true, beta: true },
       { text: 'Undangan dibuatkan admin', included: true },
       { text: 'Setup cepat & instan', included: true },
       { text: 'Konsultasi desain', included: true },
@@ -198,6 +199,11 @@ export default function SubscriptionPage() {
                       )}
                       <span className={cn('text-sm', feature.included ? 'text-gray-700' : 'text-gray-400')}>
                         {feature.text}
+                        {(feature as any).beta && (
+                          <span className="ml-1.5 text-[10px] font-semibold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full">
+                            BETA
+                          </span>
+                        )}
                       </span>
                     </div>
                   ))}
@@ -242,9 +248,26 @@ export default function SubscriptionPage() {
         <CardContent className="p-5 text-center">
           <Shield className="w-8 h-8 text-blue-500 mx-auto mb-2" />
           <h3 className="font-semibold text-gray-900">🚀 Status Beta</h3>
-          <p className="text-sm text-gray-600 mt-1 max-w-lg mx-auto">
-            Invitee sedang dalam tahap beta. Pengguna Basic mendapatkan kuota 300 tamu, pengguna Premium 2000 tamu.
-            Butuh lebih dari 2000? Request ke admin untuk penambahan kuota khusus.
+          <p className="text-sm text-gray-600 mt-1 max-w-lg mx-auto mb-3">
+            Invitee sedang dalam tahap beta. Selama masa ini, jumlah undangan dibatasi:
+          </p>
+          <div className="flex flex-wrap justify-center gap-3 mb-3">
+            <div className="bg-white rounded-lg px-3 py-2 border border-blue-200 text-center">
+              <div className="text-lg font-bold text-blue-600">1</div>
+              <div className="text-[10px] text-gray-500">Basic</div>
+            </div>
+            <div className="bg-white rounded-lg px-3 py-2 border border-amber-200 text-center">
+              <div className="text-lg font-bold text-amber-600">3</div>
+              <div className="text-[10px] text-gray-500">Premium</div>
+            </div>
+            <div className="bg-white rounded-lg px-3 py-2 border border-emerald-200 text-center">
+              <div className="text-lg font-bold text-emerald-600">Custom</div>
+              <div className="text-[10px] text-gray-500">Enterprise</div>
+            </div>
+          </div>
+          <p className="text-xs text-gray-500 max-w-md mx-auto">
+            Kuota tamu: Basic 300, Premium 2000, Enterprise disesuaikan.
+            Batasan akan dihapus setelah launching resmi.
           </p>
         </CardContent>
       </Card>

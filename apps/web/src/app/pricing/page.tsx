@@ -16,8 +16,8 @@ const PLANS = [
     color: 'blue',
     features: [
       { text: 'Template dasar gratis', included: true },
-      { text: 'Undangan unlimited', included: true },
-      { text: 'Maks 300 tamu', included: true },
+      { text: 'Maks 1 undangan (beta)', included: true, beta: true },
+      { text: 'Maks 300 tamu per undangan', included: true },
       { text: 'Import tamu CSV', included: true },
       { text: 'RSVP & ucapan tamu', included: true },
       { text: 'Template premium', included: false },
@@ -37,7 +37,7 @@ const PLANS = [
     popular: true,
     features: [
       { text: 'Semua template termasuk premium', included: true },
-      { text: 'Undangan unlimited', included: true },
+      { text: 'Hingga 3 undangan (beta)', included: true, beta: true },
       { text: 'Kuota hingga 2000 tamu', included: true },
       { text: 'Import Excel & CSV', included: true },
       { text: 'Export data ke Excel', included: true },
@@ -57,12 +57,12 @@ const PLANS = [
     color: 'emerald',
     features: [
       { text: 'Semua fitur Premium', included: true },
+      { text: 'Kuota undangan custom (beta)', included: true, beta: true },
       { text: 'Undangan dibuatkan admin', included: true },
       { text: 'Setup cepat & instan', included: true },
       { text: 'Konsultasi desain', included: true },
       { text: 'Kuota tamu disesuaikan', included: true },
       { text: 'Prioritas dukungan VIP', included: true },
-      { text: 'Unlimited galeri foto', included: true },
       { text: 'Semua template premium', included: true },
     ],
     cta: 'Hubungi Kami',
@@ -141,6 +141,11 @@ export default function PricingPage() {
                         )}
                         <span className={cn('text-sm', f.included ? 'text-gray-700' : 'text-gray-400')}>
                           {f.text}
+                          {(f as any).beta && (
+                            <span className="ml-1.5 text-[10px] font-semibold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full">
+                              BETA
+                            </span>
+                          )}
                         </span>
                       </div>
                     ))}
@@ -162,12 +167,29 @@ export default function PricingPage() {
           </div>
 
           {/* Beta Notice */}
-          <div className="text-center bg-blue-50 rounded-2xl p-8 border border-blue-100">
+          <div className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
             <Shield className="w-10 h-10 text-blue-500 mx-auto mb-3" />
             <h3 className="text-lg font-bold text-gray-900 mb-2">🚀 Saat Ini dalam Tahap Beta</h3>
-            <p className="text-gray-600 max-w-lg mx-auto">
-              Invitee sedang dalam tahap pengembangan. Semua pengguna mendapatkan akses gratis dengan kuota 300 tamu.
-              Harga paket Premium akan diumumkan setelah masa beta berakhir.
+            <p className="text-gray-600 max-w-xl mx-auto mb-4">
+              Invitee sedang dalam tahap pengembangan. Selama masa beta, jumlah undangan dibatasi untuk menjaga kualitas:
+            </p>
+            <div className="flex flex-wrap justify-center gap-4 mb-4">
+              <div className="bg-white rounded-xl px-4 py-3 border border-blue-200 text-center min-w-[120px]">
+                <div className="text-2xl font-bold text-blue-600">1</div>
+                <div className="text-xs text-gray-500">undangan Basic</div>
+              </div>
+              <div className="bg-white rounded-xl px-4 py-3 border border-amber-200 text-center min-w-[120px]">
+                <div className="text-2xl font-bold text-amber-600">3</div>
+                <div className="text-xs text-gray-500">undangan Premium</div>
+              </div>
+              <div className="bg-white rounded-xl px-4 py-3 border border-emerald-200 text-center min-w-[120px]">
+                <div className="text-2xl font-bold text-emerald-600">Custom</div>
+                <div className="text-xs text-gray-500">Enterprise</div>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500 max-w-lg mx-auto">
+              Setelah masa beta berakhir, semua batasan akan disesuaikan sesuai paket.
+              Harga paket Premium akan diumumkan saat launching resmi.
             </p>
           </div>
         </div>

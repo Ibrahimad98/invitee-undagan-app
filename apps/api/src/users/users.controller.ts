@@ -93,6 +93,21 @@ export class UsersController {
     return this.usersService.rejectGuestLimitRequest(id, dto.adminNote);
   }
 
+  @Post('me/request-whatsapp-otp')
+  @ApiOperation({ summary: 'Request WhatsApp OTP for verification' })
+  async requestWhatsappOtp(@CurrentUser('id') userId: string) {
+    return this.usersService.requestWhatsappOtp(userId);
+  }
+
+  @Post('me/confirm-whatsapp-otp')
+  @ApiOperation({ summary: 'Confirm WhatsApp OTP to verify phone number' })
+  async confirmWhatsappOtp(
+    @CurrentUser('id') userId: string,
+    @Body() dto: { otp: string },
+  ) {
+    return this.usersService.confirmWhatsappOtp(userId, dto.otp);
+  }
+
   @Patch(':id')
   @ApiOperation({ summary: 'Update a user by ID (admin only)' })
   async updateUser(

@@ -39,6 +39,17 @@ export class UsersService {
     if (dto.dateOfBirth) {
       data.dateOfBirth = new Date(dto.dateOfBirth);
     }
+
+    // If phone number changes, reset WhatsApp verification
+    if (dto.phone !== undefined) {
+      const existing = await this.prisma.user.findUnique({ where: { id } });
+      if (existing && existing.phone !== dto.phone) {
+        data.isWhatsappVerified = false;
+        data.whatsappOtp = null;
+        data.whatsappOtpExpires = null;
+      }
+    }
+
     const user = await this.prisma.user.update({
       where: { id },
       data,
@@ -252,5 +263,68 @@ export class UsersService {
       },
     });
     return { message: 'Pengguna berhasil dihapus' };
+  }
+
+  // ─── WhatsApp Verification ───
+
+  async requestWhatsappOtp(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+    if (!user.phone) throw new BadRequestException('Nomor telepon belum diisi. Silakan lengkapi profil terlebih dahulu.');
+    if (user.isWhatsappVerified) throw new BadRequestException('Nomor WhatsApp sudah terverifikasi.');
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { whatsappOtp: otp, whatsappOtpExpires: expires },
+    });
+
+    // Format phone for WhatsApp link
+    let cleaned = user.phone.replace(/[^0-9]/g, '');
+    if (cleaned.startsWith('0')) cleaned = '62' + cleaned.substring(1);
+    if (!cleaned.startsWith('62') && cleaned.length <= 12) cleaned = '62' + cleaned;
+
+    const message = `[Invitee] Kode verifikasi WhatsApp Anda: *${otp}*\n\nKode ini berlaku selama 5 menit. Jangan berikan kode ini kepada siapapun.`;
+    const waUrl = `https://api.whatsapp.com/send?phone=${cleaned}&text=${encodeURIComponent(message)}`;
+
+    return {
+      message: 'Kode OTP berhasil dibuat. Kirim kode melalui WhatsApp untuk verifikasi.',
+      waUrl,
+      phone: user.phone,
+      expiresAt: expires.toISOString(),
+    };
+  }
+
+  async confirmWhatsappOtp(userId: string, otp: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+    if (user.isWhatsappVerified) throw new BadRequestException('Nomor WhatsApp sudah terverifikasi.');
+    if (!user.whatsappOtp || !user.whatsappOtpExpires) {
+      throw new BadRequestException('Belum ada kode OTP. Silakan minta kode terlebih dahulu.');
+    }
+    if (new Date() > user.whatsappOtpExpires) {
+      throw new BadRequestException('Kode OTP sudah kedaluwarsa. Silakan minta kode baru.');
+    }
+    if (user.whatsappOtp !== otp) {
+      throw new BadRequestException('Kode OTP tidak valid.');
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        isWhatsappVerified: true,
+        whatsappOtp: null,
+        whatsappOtpExpires: null,
+      },
+    });
+
+    const { passwordHash, ...result } = updated;
+    return {
+      message: 'Nomor WhatsApp berhasil diverifikasi! ✅',
+      user: await this.resolveAvatarUrl(result),
+    };
   }
 }

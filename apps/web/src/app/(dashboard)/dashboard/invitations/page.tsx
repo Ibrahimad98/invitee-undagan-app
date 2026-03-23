@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useInvitations, useDeleteInvitation, useUpdateInvitation } from '@/hooks/queries/use-invitations';
 import { useInvitationStore } from '@/stores/invitation-store';
@@ -14,6 +14,7 @@ import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { RatingPopup } from '@/components/ui/rating-popup';
 import { EVENT_TYPE_LABELS } from '@invitee/shared';
 import { cn } from '@/lib/utils';
+import { api } from '@/lib/api';
 import {
   Plus,
   Mail,
@@ -30,6 +31,13 @@ import {
   CheckCircle,
   FileEdit,
   AlertCircle,
+  Sparkles,
+  Crown,
+  Zap,
+  Star,
+  ArrowRight,
+  X,
+  Lock,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -47,6 +55,21 @@ export default function InvitationsPage() {
     templateName: string;
     templateSlug: string;
   }>({ open: false, templateId: '', templateName: '', templateSlug: '' });
+
+  // Beta limit modal
+  const [showBetaLimitModal, setShowBetaLimitModal] = useState(false);
+
+  // Beta config — invitation limits per tier
+  const [betaConfig, setBetaConfig] = useState<{
+    isBeta: boolean;
+    maxInvitations: Record<string, number>;
+  } | null>(null);
+
+  useEffect(() => {
+    api.get('/auth/beta-config').then(({ data }) => {
+      setBetaConfig(data);
+    }).catch(() => {});
+  }, []);
 
   const { data, isLoading } = useInvitations({ limit: 50 });
   const deleteInvitation = useDeleteInvitation();
@@ -155,6 +178,22 @@ export default function InvitationsPage() {
   const publishedCount = invitations.filter((inv: any) => inv.isPublished).length;
   const totalViews = invitations.reduce((sum: number, inv: any) => sum + (inv.viewCount || 0), 0);
 
+  // Compute beta invitation limit for current user
+  const userTier = user?.subscriptionType || 'BASIC';
+  const tierLabel = userTier === 'FAST_SERVE' ? 'Enterprise' : userTier === 'PREMIUM' ? 'Premium' : 'Basic';
+  const maxInv = betaConfig?.isBeta ? (betaConfig.maxInvitations?.[userTier] ?? 1) : 0;
+  const limitReached = betaConfig?.isBeta && maxInv > 0 && totalInvitations >= maxInv;
+
+  // Determine next upgrade tier
+  const nextTier = userTier === 'BASIC' ? 'Premium' : userTier === 'PREMIUM' ? 'Enterprise' : null;
+  const nextTierLimit = betaConfig?.isBeta
+    ? userTier === 'BASIC'
+      ? betaConfig.maxInvitations?.PREMIUM ?? 3
+      : userTier === 'PREMIUM'
+        ? betaConfig.maxInvitations?.FAST_SERVE ?? 1
+        : 0
+    : 0;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -163,11 +202,201 @@ export default function InvitationsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Undangan Saya</h1>
           <p className="text-gray-500 mt-1">Kelola semua undangan digital Anda</p>
         </div>
-        <Button onClick={() => router.push('/dashboard/invitations/new?new=1')}>
-          <Plus className="w-4 h-4 mr-2" />
+        <Button
+          onClick={() => {
+            if (limitReached) {
+              setShowBetaLimitModal(true);
+              return;
+            }
+            router.push('/dashboard/invitations/new?new=1');
+          }}
+          className={limitReached ? 'opacity-80' : ''}
+        >
+          {limitReached ? <Lock className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
           Buat Undangan
         </Button>
       </div>
+
+      {/* Beta invitation limit info */}
+      {betaConfig?.isBeta && maxInv > 0 && (
+        <div className={cn(
+          'flex items-start gap-3 rounded-xl border px-4 py-3.5 text-sm',
+          limitReached
+            ? 'bg-amber-50 border-amber-200 text-amber-800'
+            : 'bg-blue-50 border-blue-200 text-blue-700',
+        )}>
+          <Sparkles className="w-4 h-4 shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <strong>Mode Beta</strong>
+            {' — '}
+            {limitReached
+              ? <>Batas {maxInv} undangan untuk akun {tierLabel} tercapai.{' '}
+                  <button onClick={() => setShowBetaLimitModal(true)} className="underline font-semibold hover:no-underline">
+                    Lihat opsi upgrade →
+                  </button>
+                </>
+              : <>Akun {tierLabel} dapat membuat hingga {maxInv} undangan ({totalInvitations}/{maxInv} digunakan).</>
+            }
+          </div>
+        </div>
+      )}
+
+      {/* ══════ Beta Limit Modal ══════ */}
+      {showBetaLimitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden relative">
+            {/* Close */}
+            <button
+              onClick={() => setShowBetaLimitModal(false)}
+              className="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 z-10"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Header gradient */}
+            <div className="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 px-6 pt-8 pb-6 text-center border-b border-amber-100">
+              <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-4 shadow-lg shadow-amber-200/50">
+                <Sparkles className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">
+                Batas Undangan Tercapai
+              </h2>
+              <p className="text-sm text-gray-600 mt-2 max-w-sm mx-auto">
+                Invitee sedang dalam <strong>tahap beta</strong>. Selama masa beta, jumlah undangan yang bisa dibuat dibatasi untuk menjaga kualitas layanan.
+              </p>
+            </div>
+
+            {/* Tier comparison */}
+            <div className="px-6 py-5 space-y-4">
+              {/* Current tier */}
+              <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3.5 border border-gray-200">
+                <div className={cn(
+                  'w-10 h-10 rounded-xl flex items-center justify-center shrink-0',
+                  userTier === 'BASIC' ? 'bg-blue-100' : userTier === 'PREMIUM' ? 'bg-amber-100' : 'bg-emerald-100',
+                )}>
+                  {userTier === 'BASIC' ? <Star className="w-5 h-5 text-blue-600" /> :
+                   userTier === 'PREMIUM' ? <Crown className="w-5 h-5 text-amber-600" /> :
+                   <Zap className="w-5 h-5 text-emerald-600" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-gray-900">
+                    Paket {tierLabel} <span className="text-xs font-normal text-gray-500">(Saat ini)</span>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Maks {maxInv} undangan • {totalInvitations}/{maxInv} digunakan
+                  </div>
+                </div>
+                <div className="text-xs font-bold text-red-500 bg-red-50 px-2 py-1 rounded-full">Penuh</div>
+              </div>
+
+              {/* Upgrade options */}
+              {userTier === 'BASIC' && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Opsi Upgrade</p>
+                  {/* Premium */}
+                  <div className="flex items-center gap-3 bg-amber-50 rounded-xl p-3.5 border border-amber-200 hover:shadow-md transition-shadow">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shrink-0 shadow-sm">
+                      <Crown className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-gray-900">Premium</div>
+                      <div className="text-xs text-gray-500">
+                        Hingga {betaConfig?.maxInvitations?.PREMIUM ?? 3} undangan • Semua template • Export Excel
+                      </div>
+                    </div>
+                    <Link
+                      href="/dashboard/subscription"
+                      onClick={() => setShowBetaLimitModal(false)}
+                      className="text-xs font-semibold text-amber-700 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                    >
+                      Upgrade <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </div>
+                  {/* Enterprise */}
+                  <div className="flex items-center gap-3 bg-emerald-50 rounded-xl p-3.5 border border-emerald-200 hover:shadow-md transition-shadow">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shrink-0 shadow-sm">
+                      <Zap className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-gray-900">Enterprise</div>
+                      <div className="text-xs text-gray-500">
+                        Undangan dibuatkan admin • Custom kuota • Konsultasi desain
+                      </div>
+                    </div>
+                    <Link
+                      href="/dashboard/subscription"
+                      onClick={() => setShowBetaLimitModal(false)}
+                      className="text-xs font-semibold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                    >
+                      Request <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {userTier === 'PREMIUM' && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Butuh lebih banyak?</p>
+                  <div className="flex items-center gap-3 bg-emerald-50 rounded-xl p-3.5 border border-emerald-200 hover:shadow-md transition-shadow">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shrink-0 shadow-sm">
+                      <Zap className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-gray-900">Enterprise</div>
+                      <div className="text-xs text-gray-500">
+                        Custom kuota undangan • Dibuatkan admin • Prioritas VIP
+                      </div>
+                    </div>
+                    <Link
+                      href="/dashboard/subscription"
+                      onClick={() => setShowBetaLimitModal(false)}
+                      className="text-xs font-semibold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                    >
+                      Request <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {userTier === 'FAST_SERVE' && (
+                <div className="bg-blue-50 rounded-xl p-3.5 border border-blue-200 text-center">
+                  <p className="text-sm text-blue-700">
+                    Hubungi admin untuk penyesuaian kuota undangan Enterprise Anda.
+                  </p>
+                </div>
+              )}
+
+              {/* Why limited */}
+              <div className="bg-gray-50 rounded-xl p-3.5 border border-gray-200">
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  <strong className="text-gray-700">Mengapa dibatasi?</strong> — Saat ini Invitee masih dalam <strong>fase beta</strong>.
+                  Pembatasan ini dilakukan untuk menjaga stabilitas server dan kualitas layanan.
+                  Setelah launching resmi, kuota akan disesuaikan sesuai paket Anda.
+                  Terima kasih atas pengertiannya! 🙏
+                </p>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+              <Link
+                href="/dashboard/subscription"
+                onClick={() => setShowBetaLimitModal(false)}
+                className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
+              >
+                Lihat Semua Paket <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowBetaLimitModal(false)}
+              >
+                Tutup
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Draft Resume Banner */}
       {/* Draft card is now shown inline within the invitation list below */}

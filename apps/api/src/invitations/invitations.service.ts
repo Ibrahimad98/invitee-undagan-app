@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException, Inject, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { STORAGE_SERVICE, IStorageService } from '../storage/storage.interface';
+import { SettingsService } from '../settings/settings.service';
 import { CreateInvitationDto } from './dto/create-invitation.dto';
 import { UpdateInvitationDto } from './dto/update-invitation.dto';
 
@@ -9,6 +10,7 @@ export class InvitationsService {
   constructor(
     private prisma: PrismaService,
     @Inject(STORAGE_SERVICE) private storageService: IStorageService,
+    private settingsService: SettingsService,
   ) {}
 
   /**
@@ -115,22 +117,60 @@ export class InvitationsService {
     return await this.resolveUrls(invitation);
   }
 
+  /**
+   * Enforce invitation creation limit based on beta mode + subscription tier.
+   * When beta_mode is active the limits come from system settings:
+   *   - BASIC:      beta_max_invitations_basic       (default 1)
+   *   - PREMIUM:    beta_max_invitations_premium      (default 3)
+   *   - FAST_SERVE: beta_max_invitations_enterprise   (default 1, 0 = unlimited)
+   * When beta_mode is OFF there is no global limit enforced here.
+   */
+  private async enforceInvitationLimit(userId: string, subscriptionType: string) {
+    const isBeta = (await this.settingsService.getSystemValue('beta_mode')) === 'true';
+    if (!isBeta) return;
+
+    const TIER_SETTING_MAP: Record<string, { key: string; fallback: number }> = {
+      BASIC:      { key: 'beta_max_invitations_basic',      fallback: 1 },
+      PREMIUM:    { key: 'beta_max_invitations_premium',    fallback: 3 },
+      FAST_SERVE: { key: 'beta_max_invitations_enterprise', fallback: 1 },
+    };
+
+    const tier = TIER_SETTING_MAP[subscriptionType] ?? TIER_SETTING_MAP.BASIC;
+    const raw = await this.settingsService.getSystemValue(tier.key);
+    const maxInvitations = parseInt(raw || String(tier.fallback), 10);
+
+    // 0 means unlimited
+    if (maxInvitations <= 0) return;
+
+    const existingCount = await this.prisma.invitation.count({ where: { userId } });
+    if (existingCount >= maxInvitations) {
+      const TIER_LABELS: Record<string, string> = {
+        BASIC: 'Basic',
+        PREMIUM: 'Premium',
+        FAST_SERVE: 'Enterprise',
+      };
+      const tierLabel = TIER_LABELS[subscriptionType] ?? subscriptionType;
+      throw new BadRequestException(
+        `Batas undangan tercapai. Akun ${tierLabel} (beta) maksimal ${maxInvitations} undangan. Hubungi admin untuk upgrade.`,
+      );
+    }
+  }
+
   async create(userId: string, dto: CreateInvitationDto) {
     const { events, personProfiles, giftAccounts, coInvitors, templateId, ...invitationData } = dto;
 
-    // FAST_SERVE users can only create 1 invitation
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (user?.subscriptionType === 'FAST_SERVE') {
-      const existingCount = await this.prisma.invitation.count({ where: { userId } });
-      if (existingCount >= 1) {
-        throw new BadRequestException('Akun Enterprise hanya dapat membuat 1 undangan. Upgrade ke Premium untuk membuat lebih banyak.');
-      }
+    if (!user) throw new NotFoundException('User tidak ditemukan');
 
-      // Check if subscription has expired (90 days)
+    // Check subscription expiry for FAST_SERVE
+    if (user.subscriptionType === 'FAST_SERVE') {
       if (user.subscriptionExpireDate && new Date() > new Date(user.subscriptionExpireDate)) {
         throw new BadRequestException('Masa aktif akun Enterprise Anda telah habis (90 hari). Silakan hubungi admin.');
       }
     }
+
+    // Enforce invitation limit based on beta mode + subscription tier
+    await this.enforceInvitationLimit(userId, user.subscriptionType);
 
     const txResult = await this.prisma.$transaction(async (tx) => {
       const invitation = await tx.invitation.create({

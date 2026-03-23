@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useGuests, useCreateGuest, useUpdateGuest, useDeleteGuest, useImportGuests, useImportGuestsExcel, useMarkGuestSent } from '@/hooks/queries/use-guests';
 import { useInvitations } from '@/hooks/queries/use-invitations';
@@ -44,6 +44,7 @@ import {
   Eye,
   AlertTriangle,
   Phone,
+  ShieldAlert,
 } from 'lucide-react';
 
 interface GuestForm {
@@ -64,6 +65,7 @@ const initialGuestForm: GuestForm = {
 
 export default function ContactsPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { addToast } = useUIStore();
   const { user } = useAuthStore();
   const [selectedInvitationId, setSelectedInvitationId] = useState<string>('');
@@ -77,6 +79,7 @@ export default function ContactsPage() {
   const [deleteGuestId, setDeleteGuestId] = useState<string | null>(null);
   const [exportLoading, setExportLoading] = useState(false);
   const [premiumModal, setPremiumModal] = useState<{ open: boolean; feature: string }>({ open: false, feature: '' });
+  const [showWaVerifyModal, setShowWaVerifyModal] = useState(false);
 
   // ─── WA Blast state ───
   const [isBlastModalOpen, setIsBlastModalOpen] = useState(false);
@@ -707,6 +710,11 @@ export default function ContactsPage() {
                     setPremiumModal({ open: true, feature: 'Blast WhatsApp' });
                     return;
                   }
+                  // Check WhatsApp verification (admin bypasses this check)
+                  if (!isAdmin && !user?.isWhatsappVerified) {
+                    setShowWaVerifyModal(true);
+                    return;
+                  }
                   handleOpenBlastModal();
                 }}
                 disabled={guests.length === 0}
@@ -995,6 +1003,70 @@ export default function ContactsPage() {
         onClose={() => setPremiumModal({ open: false, feature: '' })}
         featureName={premiumModal.feature}
       />
+
+      {/* ═══ WhatsApp Verification Required Modal ═══ */}
+      {showWaVerifyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative animate-in fade-in zoom-in-95 duration-200">
+            <button
+              onClick={() => setShowWaVerifyModal(false)}
+              className="absolute top-4 right-4 p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="text-center mb-5">
+              <div className="mx-auto w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mb-4">
+                <ShieldAlert className="w-8 h-8 text-amber-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">
+                Verifikasi WhatsApp Diperlukan
+              </h3>
+              <p className="text-sm text-gray-500 mt-2">
+                Untuk menggunakan fitur <strong>Blast WhatsApp</strong>, nomor WhatsApp Anda perlu diverifikasi terlebih dahulu melalui halaman Profil.
+              </p>
+            </div>
+
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-5">
+              <h4 className="text-sm font-semibold text-amber-800 mb-2">Mengapa perlu verifikasi?</h4>
+              <ul className="text-xs text-amber-700 space-y-1.5">
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-3.5 h-3.5 mt-0.5 shrink-0 text-amber-500" />
+                  <span>Memastikan nomor telepon Anda aktif dan benar</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-3.5 h-3.5 mt-0.5 shrink-0 text-amber-500" />
+                  <span>Mencegah penyalahgunaan fitur blast ke nomor yang salah</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-3.5 h-3.5 mt-0.5 shrink-0 text-amber-500" />
+                  <span>Proses cepat — hanya butuh 1 menit</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowWaVerifyModal(false)}
+                className="flex-1"
+              >
+                Nanti Saja
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowWaVerifyModal(false);
+                  router.push('/dashboard/profile');
+                }}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+              >
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Verifikasi Sekarang
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ═══ WA Blast Modal ═══ */}
       <Modal

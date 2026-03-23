@@ -6,14 +6,14 @@ import { LoginDto } from './dto/login.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { Public } from '../common/decorators/public.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { PrismaService } from '../prisma/prisma.service';
+import { SettingsService } from '../settings/settings.service';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
-    private prisma: PrismaService,
+    private settingsService: SettingsService,
   ) {}
 
   @Public()
@@ -56,17 +56,23 @@ export class AuthController {
   /** Public endpoint: returns beta configuration */
   @Public()
   @Get('beta-config')
-  @ApiOperation({ summary: 'Get beta configuration (guest limit, status)' })
+  @ApiOperation({ summary: 'Get beta configuration (guest limit, status, invitation limits)' })
   async getBetaConfig() {
-    const betaSetting = await this.prisma.siteSetting.findFirst({
-      where: { category: 'beta', item: 'is_beta_active', isActive: true },
-    });
-    const guestLimitSetting = await this.prisma.siteSetting.findFirst({
-      where: { category: 'beta', item: 'default_max_guests', isActive: true },
-    });
+    const [betaVal, maxGuestsVal, basicVal, premiumVal, enterpriseVal] = await Promise.all([
+      this.settingsService.getSystemValue('beta_mode'),
+      this.settingsService.getSystemValue('default_max_guests'),
+      this.settingsService.getSystemValue('beta_max_invitations_basic'),
+      this.settingsService.getSystemValue('beta_max_invitations_premium'),
+      this.settingsService.getSystemValue('beta_max_invitations_enterprise'),
+    ]);
     return {
-      isBeta: betaSetting?.value === 'true',
-      defaultMaxGuests: parseInt(guestLimitSetting?.value || '300', 10),
+      isBeta: betaVal === 'true',
+      defaultMaxGuests: parseInt(maxGuestsVal || '300', 10),
+      maxInvitations: {
+        BASIC: parseInt(basicVal || '1', 10),
+        PREMIUM: parseInt(premiumVal || '3', 10),
+        FAST_SERVE: parseInt(enterpriseVal || '1', 10),
+      },
     };
   }
 

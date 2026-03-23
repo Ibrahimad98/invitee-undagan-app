@@ -33,13 +33,8 @@ export class AuthService {
 
   /** Check if email verification is enabled in settings */
   private async isEmailVerificationEnabled(): Promise<boolean> {
-    const settings = await this.settingsService.findPublic('registration');
-    return settings.some(
-      (s: any) =>
-        s.item.toLowerCase().includes('email') &&
-        s.item.toLowerCase().includes('verif') &&
-        s.value.toLowerCase() === 'true',
-    );
+    const val = await this.settingsService.getSystemValue('email_verification');
+    return val === 'true';
   }
 
   /** Generate a secure random token */

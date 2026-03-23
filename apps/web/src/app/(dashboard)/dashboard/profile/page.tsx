@@ -14,6 +14,7 @@ import {
   User, Lock, Save, Mail, Phone, ShieldCheck, KeyRound, CheckCircle2,
   ArrowLeft, ArrowRight, Pencil, X, MapPin, Calendar, Crown, Star,
   CreditCard, Sparkles, Clock, BadgeCheck, ExternalLink, Camera, Loader2,
+  MessageCircle, AlertTriangle,
 } from 'lucide-react';
 import { SubscriptionBadge } from '@/components/ui/subscription-badge';
 
@@ -65,6 +66,12 @@ export default function ProfilePage() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [verifyLoading, setVerifyLoading] = useState(false);
   const [verifyError, setVerifyError] = useState('');
+
+  // WhatsApp verification state
+  const [waOtpStep, setWaOtpStep] = useState<'idle' | 'sent' | 'confirming'>('idle');
+  const [waOtpCode, setWaOtpCode] = useState('');
+  const [waOtpLoading, setWaOtpLoading] = useState(false);
+  const [waOtpError, setWaOtpError] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -182,6 +189,53 @@ export default function ProfilePage() {
       }
     } finally {
       setPasswordLoading(false);
+    }
+  };
+
+  // ─── WhatsApp Verification Handlers ───
+  const handleRequestWaOtp = async () => {
+    setWaOtpLoading(true);
+    setWaOtpError('');
+    try {
+      const { data } = await api.post('/users/me/request-whatsapp-otp');
+      const result = data?.data || data;
+      // Open WhatsApp with the OTP message pre-filled
+      if (result.waUrl) {
+        window.open(result.waUrl, '_blank');
+      }
+      setWaOtpStep('sent');
+      addToast('Kode OTP telah dibuat. Kirim pesan WhatsApp yang terbuka, lalu masukkan kode di sini.', 'info');
+    } catch (error: any) {
+      const msg = error.response?.data?.message || 'Gagal membuat kode OTP';
+      setWaOtpError(msg);
+      addToast(msg, 'error');
+    } finally {
+      setWaOtpLoading(false);
+    }
+  };
+
+  const handleConfirmWaOtp = async () => {
+    if (!waOtpCode || waOtpCode.length !== 6) {
+      setWaOtpError('Masukkan 6 digit kode OTP');
+      return;
+    }
+    setWaOtpLoading(true);
+    setWaOtpError('');
+    try {
+      const { data } = await api.post('/users/me/confirm-whatsapp-otp', { otp: waOtpCode });
+      const result = data?.data || data;
+      if (result.user) {
+        setUser(result.user);
+      }
+      setWaOtpStep('idle');
+      setWaOtpCode('');
+      addToast('Nomor WhatsApp berhasil diverifikasi! ✅', 'success');
+    } catch (error: any) {
+      const msg = error.response?.data?.message || 'Gagal memverifikasi kode OTP';
+      setWaOtpError(msg);
+      addToast(msg, 'error');
+    } finally {
+      setWaOtpLoading(false);
     }
   };
 
@@ -364,9 +418,24 @@ export default function ProfilePage() {
               {/* Phone */}
               <div className="flex items-start gap-3 py-3">
                 <Phone className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="text-xs text-gray-500">Nomor Telepon</p>
-                  <p className="text-sm font-medium text-gray-800">{user?.phone || '-'}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium text-gray-800">{user?.phone || '-'}</p>
+                    {user?.phone && (
+                      user?.isWhatsappVerified ? (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-green-50 text-green-700 border border-green-200">
+                          <CheckCircle2 className="w-3 h-3" />
+                          WA Terverifikasi
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                          <AlertTriangle className="w-3 h-3" />
+                          WA Belum Diverifikasi
+                        </span>
+                      )
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -442,6 +511,97 @@ export default function ProfilePage() {
               value={profileForm.phone}
               onChange={(e) => setProfileForm((f) => ({ ...f, phone: e.target.value }))}
             />
+
+            {/* WhatsApp Verification Section */}
+            {user?.phone && !user?.isWhatsappVerified && (
+              <div className="rounded-xl border-2 border-amber-200 bg-amber-50/50 p-4 space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                    <MessageCircle className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900">Verifikasi WhatsApp</h4>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      Verifikasi nomor WhatsApp Anda untuk menggunakan fitur Blast WA di halaman Tamu/Kontak.
+                    </p>
+                  </div>
+                </div>
+
+                {waOtpStep === 'idle' && (
+                  <Button
+                    onClick={handleRequestWaOtp}
+                    loading={waOtpLoading}
+                    size="sm"
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Kirim Kode Verifikasi via WhatsApp
+                  </Button>
+                )}
+
+                {waOtpStep === 'sent' && (
+                  <div className="space-y-3">
+                    <div className="bg-white border border-green-200 rounded-lg p-3">
+                      <p className="text-xs text-green-700 font-medium mb-1">📱 Langkah-langkah:</p>
+                      <ol className="text-xs text-gray-600 space-y-1 list-decimal list-inside">
+                        <li>Tab WhatsApp sudah terbuka — kirim pesan yang berisi kode OTP ke nomor Anda sendiri</li>
+                        <li>Buka pesan tersebut dan salin kode 6 digit</li>
+                        <li>Masukkan kode di bawah ini</li>
+                      </ol>
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Masukkan 6 digit kode OTP"
+                        value={waOtpCode}
+                        onChange={(e) => { setWaOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6)); setWaOtpError(''); }}
+                        className="flex-1 text-center font-mono text-lg tracking-widest"
+                        maxLength={6}
+                      />
+                    </div>
+                    {waOtpError && (
+                      <div className="flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg bg-red-50 text-red-600">
+                        <AlertTriangle className="w-3.5 h-3.5" />
+                        {waOtpError}
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleRequestWaOtp}
+                        loading={waOtpLoading}
+                        className="flex-1"
+                      >
+                        Kirim Ulang
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={handleConfirmWaOtp}
+                        loading={waOtpLoading}
+                        disabled={waOtpCode.length !== 6}
+                        className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        <CheckCircle2 className="w-4 h-4 mr-1" />
+                        Verifikasi
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {user?.phone && user?.isWhatsappVerified && (
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-green-50 border border-green-200">
+                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                <span className="text-sm font-medium text-green-700">WhatsApp terverifikasi</span>
+                {profileForm.phone !== user.phone && (
+                  <span className="text-xs text-amber-600 ml-auto">
+                    ⚠️ Mengubah nomor akan mereset verifikasi
+                  </span>
+                )}
+              </div>
+            )}
+
             <Input
               label="Tanggal Lahir"
               type="date"

@@ -60,7 +60,7 @@ describe('AuthService', () => {
     };
 
     settingsService = {
-      findPublic: vi.fn().mockResolvedValue([]),
+      getSystemValue: vi.fn().mockResolvedValue(null),
     };
 
     mailerService = {
@@ -120,9 +120,10 @@ describe('AuthService', () => {
       prisma.user.findUnique.mockResolvedValue(null);
       prisma.user.create.mockResolvedValue({ ...mockUser, isEmailVerified: false, emailVerifyToken: 'token123' });
       vi.mocked(bcrypt.hash).mockResolvedValue('hashed-password' as never);
-      settingsService.findPublic.mockResolvedValue([
-        { item: 'Email Verification', value: 'true' },
-      ]);
+      settingsService.getSystemValue.mockImplementation((key: string) => {
+        if (key === 'email_verification') return Promise.resolve('true');
+        return Promise.resolve(null);
+      });
 
       const result = await service.register({
         email: 'test@example.com',
@@ -171,9 +172,10 @@ describe('AuthService', () => {
     it('should throw ForbiddenException if email not verified and verification enabled', async () => {
       prisma.user.findUnique.mockResolvedValue({ ...mockUser, isEmailVerified: false });
       vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
-      settingsService.findPublic.mockResolvedValue([
-        { item: 'Email Verification', value: 'true' },
-      ]);
+      settingsService.getSystemValue.mockImplementation((key: string) => {
+        if (key === 'email_verification') return Promise.resolve('true');
+        return Promise.resolve(null);
+      });
 
       await expect(
         service.login({ email: 'test@example.com', password: 'password123' }),
