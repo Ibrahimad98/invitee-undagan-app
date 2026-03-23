@@ -258,6 +258,22 @@ async function main() {
         sortOrder: 13,
       },
     }),
+    prisma.template.create({
+      data: {
+        name: 'Ethereal Bloom',
+        slug: 'ethereal-bloom',
+        thumbnailUrl: '/images/templates/ethereal-bloom.svg',
+        category: 'ethereal',
+        tags: ['ethereal', 'dreamy', 'particles', 'threejs', 'lavender', 'rose-gold', 'luminous', 'gpu'],
+        supportedEventTypes: ['WEDDING', 'ENGAGEMENT', 'WALIMAH', 'ANNIVERSARY', 'CUSTOM'],
+        cssClass: 'theme-ethereal-bloom',
+        layoutType: LayoutType.SCROLL,
+        usageCount: 0,
+        ratingAvg: 0,
+        isPremium: true,
+        sortOrder: 14,
+      },
+    }),
   ]);
 
   console.log(`🎨 ${templates.length} templates created`);

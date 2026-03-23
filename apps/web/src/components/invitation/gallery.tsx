@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useScrollAnimation, animClass } from '@/hooks/use-scroll-animation';
 import SectionOrnament from './section-ornament';
+import { GALLERY_SAMPLES } from '@/lib/gallery-samples';
 
 interface MediaItem {
   id: string;
@@ -16,14 +17,7 @@ interface GallerySectionProps {
   media: MediaItem[];
 }
 
-const GALLERY_FALLBACKS = [
-  '/images/gallery/sample-1.jpg',
-  '/images/gallery/sample-2.jpg',
-  '/images/gallery/sample-3.jpg',
-  '/images/gallery/sample-4.jpg',
-  '/images/gallery/sample-5.jpg',
-  '/images/gallery/sample-6.jpg',
-];
+const GALLERY_FALLBACKS = GALLERY_SAMPLES;
 
 /* ── Lightbox rendered via React Portal so it escapes the phone-frame ── */
 function Lightbox({

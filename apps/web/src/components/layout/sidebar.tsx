@@ -8,14 +8,30 @@ import { ChevronLeft } from 'lucide-react';
 import { useUIStore } from '@/stores/ui-store';
 import { useAuthStore } from '@/stores/auth-store';
 
+// Enterprise (Fast Serve) users only see these menu paths
+const FAST_SERVE_ALLOWED_PATHS = [
+  '/dashboard',
+  '/dashboard/invitations',
+  '/dashboard/contacts',
+  '/dashboard/profile',
+  '/dashboard/subscription',
+  '/dashboard/testimonials',
+];
+
 export function Sidebar() {
   const pathname = usePathname();
   const { sidebarOpen, toggleSidebar } = useUIStore();
   const { user } = useAuthStore();
 
-  const filteredItems = NAV_ITEMS.filter(
-    (item) => !(item as any).adminOnly || user?.role === 'ADMIN',
-  );
+  const isFastServe = (user as any)?.subscriptionType === 'FAST_SERVE';
+
+  const filteredItems = NAV_ITEMS.filter((item) => {
+    // Admin-only filter
+    if ((item as any).adminOnly && user?.role !== 'ADMIN') return false;
+    // Enterprise menu restriction
+    if (isFastServe && !FAST_SERVE_ALLOWED_PATHS.includes(item.href)) return false;
+    return true;
+  });
 
   return (
     <aside

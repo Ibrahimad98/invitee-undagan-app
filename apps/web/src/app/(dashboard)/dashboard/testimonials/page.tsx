@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useTestimonials, useMyTestimonials, useMyTemplatesForReview, useCreateTestimonial, useApproveTestimonial, useDeleteTestimonial } from '@/hooks/queries/use-testimonials';
+import { useBugFeedbacks, useCreateBugFeedback, useHandleBugFeedback, useUnhandleBugFeedback, useDeleteBugFeedback } from '@/hooks/queries/use-bug-feedback';
 import { useAuthStore } from '@/stores/auth-store';
 import { useUIStore } from '@/stores/ui-store';
 import { Button } from '@/components/ui/button';
@@ -9,7 +11,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
+import { Modal } from '@/components/ui/modal';
 import { Avatar } from '@/components/ui/avatar';
 import {
   Star,
@@ -30,6 +35,9 @@ import {
   ChevronLeft,
   Sparkles,
   FileText,
+  Bug,
+  AlertTriangle,
+  CheckCircle2,
 } from 'lucide-react';
 
 type FilterTab = 'all' | 'approved' | 'pending';
@@ -1002,11 +1010,402 @@ function AdminTestimonialView() {
 }
 
 /* ═══════════════════════════════════════════════════
-   MAIN PAGE — Route based on user role
+   USER BUG FEEDBACK VIEW
+   ═══════════════════════════════════════════════════ */
+function UserBugFeedbackView() {
+  const { user } = useAuthStore();
+  const { addToast } = useUIStore();
+  const { data: feedbackData, isLoading } = useBugFeedbacks(false);
+  const createBug = useCreateBugFeedback();
+  const [showForm, setShowForm] = useState(false);
+  const [bugForm, setBugForm] = useState({ subject: '', message: '', category: 'bug' });
+
+  const feedbacks = feedbackData?.data || [];
+
+  const handleSubmit = async () => {
+    if (!bugForm.subject.trim() || !bugForm.message.trim()) {
+      addToast('Judul dan deskripsi wajib diisi', 'error');
+      return;
+    }
+    try {
+      await createBug.mutateAsync(bugForm);
+      addToast('Laporan berhasil dikirim! Admin akan segera menangani.', 'success');
+      setShowForm(false);
+      setBugForm({ subject: '', message: '', category: 'bug' });
+    } catch {
+      addToast('Gagal mengirim laporan', 'error');
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">Laporan Bug & Saran</h2>
+          <p className="text-sm text-gray-500 mt-0.5">Laporkan masalah atau berikan saran untuk perbaikan</p>
+        </div>
+        <Button onClick={() => setShowForm(true)} size="sm">
+          <Bug className="w-4 h-4 mr-2" />
+          Buat Laporan
+        </Button>
+      </div>
+
+      {/* Bug Report Form Modal */}
+      <Modal open={showForm} onClose={() => setShowForm(false)} title="Laporkan Bug / Saran">
+        <div className="space-y-4">
+          <Select
+            label="Kategori"
+            value={bugForm.category}
+            onChange={(e) => setBugForm((f) => ({ ...f, category: e.target.value }))}
+            options={[
+              { value: 'bug', label: '🐛 Bug / Error' },
+              { value: 'saran', label: '💡 Saran / Masukan' },
+              { value: 'fitur', label: '✨ Request Fitur' },
+            ]}
+          />
+          <Input
+            label="Judul"
+            placeholder="Ringkasan masalah..."
+            value={bugForm.subject}
+            onChange={(e) => setBugForm((f) => ({ ...f, subject: e.target.value }))}
+          />
+          <Textarea
+            label="Deskripsi"
+            placeholder="Jelaskan masalah atau saran Anda secara detail..."
+            value={bugForm.message}
+            onChange={(e) => setBugForm((f) => ({ ...f, message: e.target.value }))}
+            rows={5}
+          />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setShowForm(false)}>Batal</Button>
+            <Button onClick={handleSubmit} loading={createBug.isPending}>
+              <Send className="w-4 h-4 mr-2" />
+              Kirim Laporan
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* My Bug Reports */}
+      {isLoading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-24 w-full" />
+          ))}
+        </div>
+      ) : feedbacks.length === 0 ? (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <Bug className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+            <p className="font-medium text-gray-500">Belum ada laporan</p>
+            <p className="text-sm text-gray-400 mt-1">Klik tombol di atas untuk membuat laporan bug atau saran.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {feedbacks.map((fb: any) => (
+            <Card key={fb.id} className={fb.status === 'HANDLED' ? 'border-green-200' : 'border-yellow-200'}>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-semibold text-sm text-gray-900">{fb.subject}</h3>
+                      <Badge variant="secondary" className="text-[10px] capitalize">
+                        {fb.category === 'bug' ? '🐛 Bug' : fb.category === 'saran' ? '💡 Saran' : '✨ Fitur'}
+                      </Badge>
+                      {fb.status === 'HANDLED' ? (
+                        <Badge variant="success">
+                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          Tertangani
+                        </Badge>
+                      ) : (
+                        <Badge variant="warning">
+                          <Clock className="w-3 h-3 mr-1" />
+                          Belum Tertangani
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-600 leading-relaxed">{fb.message}</p>
+                    {fb.adminNote && (
+                      <div className="mt-2 p-2.5 bg-green-50 rounded-lg border border-green-100">
+                        <p className="text-xs font-medium text-green-700 mb-0.5">Catatan Admin:</p>
+                        <p className="text-xs text-green-600">{fb.adminNote}</p>
+                      </div>
+                    )}
+                    <p className="text-[10px] text-gray-400 mt-1">
+                      {new Date(fb.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   ADMIN BUG FEEDBACK VIEW
+   ═══════════════════════════════════════════════════ */
+function AdminBugFeedbackView() {
+  const { addToast } = useUIStore();
+  const { data: feedbackData, isLoading } = useBugFeedbacks(true);
+  const handleBug = useHandleBugFeedback();
+  const unhandleBug = useUnhandleBugFeedback();
+  const deleteBug = useDeleteBugFeedback();
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [handleNote, setHandleNote] = useState('');
+  const [handleId, setHandleId] = useState<string | null>(null);
+  const [filterStatus, setFilterStatus] = useState<'all' | 'UNHANDLED' | 'HANDLED'>('all');
+
+  const feedbacks = feedbackData?.data || [];
+  const unhandledCount = feedbackData?.unhandledCount || 0;
+
+  const filtered = feedbacks.filter((fb: any) => {
+    if (filterStatus === 'all') return true;
+    return fb.status === filterStatus;
+  });
+
+  const handleMarkHandled = async () => {
+    if (!handleId) return;
+    try {
+      await handleBug.mutateAsync({ id: handleId, adminNote: handleNote.trim() || undefined });
+      addToast('Laporan ditandai sebagai tertangani', 'success');
+      setHandleId(null);
+      setHandleNote('');
+    } catch {
+      addToast('Gagal memperbarui status', 'error');
+    }
+  };
+
+  const handleMarkUnhandled = async (id: string) => {
+    try {
+      await unhandleBug.mutateAsync(id);
+      addToast('Status diubah menjadi belum tertangani', 'success');
+    } catch {
+      addToast('Gagal memperbarui status', 'error');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await deleteBug.mutateAsync(deleteId);
+      addToast('Laporan dihapus', 'success');
+    } catch {
+      addToast('Gagal menghapus laporan', 'error');
+    } finally {
+      setDeleteId(null);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">Laporan Bug & Saran</h2>
+          <p className="text-sm text-gray-500 mt-0.5">Kelola laporan dari pengguna</p>
+        </div>
+        {unhandledCount > 0 && (
+          <Badge variant="warning" className="text-xs">
+            <AlertTriangle className="w-3 h-3 mr-1" />
+            {unhandledCount} belum ditangani
+          </Badge>
+        )}
+      </div>
+
+      {/* Filter */}
+      <div className="flex gap-2">
+        {[
+          { id: 'all', label: `Semua (${feedbacks.length})` },
+          { id: 'UNHANDLED', label: `Belum Tertangani (${feedbacks.filter((f: any) => f.status === 'UNHANDLED').length})` },
+          { id: 'HANDLED', label: `Tertangani (${feedbacks.filter((f: any) => f.status === 'HANDLED').length})` },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setFilterStatus(tab.id as any)}
+            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+              filterStatus === tab.id
+                ? 'bg-primary-50 text-primary-700 border border-primary-200'
+                : 'text-gray-500 hover:bg-gray-50 border border-transparent'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {isLoading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-28 w-full" />
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <Bug className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+            <p className="font-medium text-gray-500">Tidak ada laporan</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map((fb: any) => (
+            <Card key={fb.id} className={fb.status === 'HANDLED' ? '' : 'border-yellow-200 bg-yellow-50/30'}>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-3 flex-1">
+                    <Avatar name={fb.userName || '?'} />
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-semibold text-sm text-gray-900">{fb.subject}</h3>
+                        <Badge variant="secondary" className="text-[10px] capitalize">
+                          {fb.category === 'bug' ? '🐛 Bug' : fb.category === 'saran' ? '💡 Saran' : '✨ Fitur'}
+                        </Badge>
+                        {fb.status === 'HANDLED' ? (
+                          <Badge variant="success">
+                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                            Tertangani
+                          </Badge>
+                        ) : (
+                          <Badge variant="warning">
+                            <Clock className="w-3 h-3 mr-1" />
+                            Belum Tertangani
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500">oleh {fb.userName} • {fb.user?.email}</p>
+                      <p className="text-sm text-gray-600 leading-relaxed mt-1">{fb.message}</p>
+                      {fb.adminNote && (
+                        <div className="mt-2 p-2.5 bg-green-50 rounded-lg border border-green-100">
+                          <p className="text-xs font-medium text-green-700 mb-0.5">Catatan:</p>
+                          <p className="text-xs text-green-600">{fb.adminNote}</p>
+                        </div>
+                      )}
+                      <p className="text-[10px] text-gray-400">
+                        {new Date(fb.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 ml-3 shrink-0">
+                    {fb.status === 'UNHANDLED' ? (
+                      <button
+                        onClick={() => { setHandleId(fb.id); setHandleNote(''); }}
+                        className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                        title="Tandai Tertangani"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleMarkUnhandled(fb.id)}
+                        className="p-2 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
+                        title="Tandai Belum Tertangani"
+                      >
+                        <Clock className="w-4 h-4" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setDeleteId(fb.id)}
+                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Hapus"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Handle Modal */}
+      <Modal open={!!handleId} onClose={() => setHandleId(null)} title="Tandai Tertangani">
+        <div className="space-y-4">
+          <p className="text-sm text-gray-500">Tambahkan catatan opsional untuk pengguna.</p>
+          <Textarea
+            label="Catatan Admin (opsional)"
+            placeholder="Masalah sudah diperbaiki di versi terbaru..."
+            value={handleNote}
+            onChange={(e) => setHandleNote(e.target.value)}
+            rows={3}
+          />
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setHandleId(null)}>Batal</Button>
+            <Button onClick={handleMarkHandled} loading={handleBug.isPending}>
+              <CheckCircle2 className="w-4 h-4 mr-2" />
+              Tandai Tertangani
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete confirmation */}
+      <ConfirmModal
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDelete}
+        title="Hapus Laporan"
+        description="Apakah Anda yakin ingin menghapus laporan ini?"
+        variant="danger"
+        confirmLabel="Hapus"
+        loading={deleteBug.isPending}
+      />
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   MAIN PAGE — Route based on user role with tabs
    ═══════════════════════════════════════════════════ */
 export default function TestimonialsPage() {
   const { user } = useAuthStore();
+  const searchParams = useSearchParams();
   const isAdmin = user?.role === 'ADMIN';
+  const [activeMainTab, setActiveMainTab] = useState<'testimonials' | 'bugs'>(
+    searchParams.get('tab') === 'bugs' ? 'bugs' : 'testimonials'
+  );
 
-  return isAdmin ? <AdminTestimonialView /> : <UserTestimonialView />;
+  return (
+    <div className="space-y-6">
+      {/* Main Tab Navigation */}
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+        <button
+          onClick={() => setActiveMainTab('testimonials')}
+          className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+            activeMainTab === 'testimonials'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <MessageCircle className="w-4 h-4" />
+            Testimoni
+          </div>
+        </button>
+        <button
+          onClick={() => setActiveMainTab('bugs')}
+          className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+            activeMainTab === 'bugs'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <Bug className="w-4 h-4" />
+            Laporan Bug & Saran
+          </div>
+        </button>
+      </div>
+
+      {activeMainTab === 'testimonials' ? (
+        isAdmin ? <AdminTestimonialView /> : <UserTestimonialView />
+      ) : (
+        isAdmin ? <AdminBugFeedbackView /> : <UserBugFeedbackView />
+      )}
+    </div>
+  );
 }

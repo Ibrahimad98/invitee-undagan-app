@@ -24,6 +24,14 @@ import {
   Shield,
   HelpCircle,
   ChevronDown,
+  X,
+  Crown,
+  FlaskConical,
+  Rocket,
+  Download,
+  Send,
+  Image,
+  Headphones,
 } from 'lucide-react';
 import { Footer } from '@/components/layout/footer';
 
@@ -130,6 +138,25 @@ export default function Home() {
 
   /* ─── FAQ accordion ─── */
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  /* ─── Beta promo popup (once per 7 days) ─── */
+  const [showPromo, setShowPromo] = useState(false);
+
+  useEffect(() => {
+    const PROMO_KEY = 'invitee_landing_promo_seen';
+    const lastSeen = localStorage.getItem(PROMO_KEY);
+    if (lastSeen) {
+      const diff = Date.now() - parseInt(lastSeen, 10);
+      if (diff < 7 * 24 * 60 * 60 * 1000) return;
+    }
+    const timer = setTimeout(() => {
+      setShowPromo(true);
+      localStorage.setItem(PROMO_KEY, Date.now().toString());
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const dismissPromo = useCallback(() => setShowPromo(false), []);
 
   return (
     <div className="min-h-screen bg-white">
@@ -540,6 +567,114 @@ export default function Home() {
       </section>
 
       <Footer />
+
+      {/* ═══════════ BETA PROMO POPUP ═══════════ */}
+      {showPromo && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div
+            className="bg-white rounded-3xl shadow-2xl max-w-lg w-full relative overflow-hidden"
+            style={{ animation: 'popIn 0.4s cubic-bezier(0.16,1,0.3,1)' }}
+          >
+            {/* Decorative top gradient bar */}
+            <div className="h-2 bg-gradient-to-r from-primary-500 via-amber-400 to-primary-600" />
+
+            {/* Close button */}
+            <button
+              onClick={dismissPromo}
+              className="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors z-10"
+              aria-label="Tutup"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="px-6 sm:px-8 pt-6 pb-8">
+              {/* Header */}
+              <div className="text-center mb-5">
+                <div className="w-20 h-20 bg-gradient-to-br from-amber-100 via-primary-100 to-amber-50 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary-100">
+                  <FlaskConical className="w-10 h-10 text-amber-600" />
+                </div>
+                <div className="inline-flex items-center gap-1.5 bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1 rounded-full mb-3">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  FASE BETA — SEMUA GRATIS!
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                  Buat Undangan Digital
+                  <br />
+                  <span className="text-primary-600">Premium, 100% Gratis!</span>
+                </h2>
+                <p className="text-gray-500 text-sm sm:text-base max-w-md mx-auto">
+                  Selama fase beta, semua fitur premium bisa Anda nikmati tanpa biaya. Daftar sekarang dan buat undangan impian Anda!
+                </p>
+              </div>
+
+              {/* Benefits grid */}
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                {[
+                  { icon: Crown, label: 'Template Premium Gratis', color: 'text-amber-500 bg-amber-50' },
+                  { icon: Users, label: 'Hingga 2000 Tamu', color: 'text-blue-500 bg-blue-50' },
+                  { icon: Send, label: 'Blast WhatsApp', color: 'text-green-500 bg-green-50' },
+                  { icon: Download, label: 'Export Excel & PDF', color: 'text-purple-500 bg-purple-50' },
+                  { icon: Image, label: 'Galeri Foto Unlimited', color: 'text-pink-500 bg-pink-50' },
+                  { icon: Headphones, label: 'Prioritas Support', color: 'text-indigo-500 bg-indigo-50' },
+                ].map((b) => (
+                  <div key={b.label} className="flex items-center gap-2.5 p-2.5 rounded-xl border border-gray-100 hover:border-primary-200 transition-colors">
+                    <div className={`w-9 h-9 rounded-lg ${b.color} flex items-center justify-center flex-shrink-0`}>
+                      <b.icon className="w-4.5 h-4.5" />
+                    </div>
+                    <span className="text-xs sm:text-sm font-medium text-gray-700 leading-tight">{b.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* How to get premium */}
+              <div className="bg-gradient-to-r from-primary-50 to-amber-50 border border-primary-100 rounded-xl p-4 mb-6">
+                <p className="text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                  <Rocket className="w-4 h-4 text-primary-600" />
+                  Cara Mendapatkan Akses Premium Gratis:
+                </p>
+                <ol className="text-sm text-gray-600 space-y-1.5 ml-6 list-decimal">
+                  <li><strong>Daftar</strong> akun gratis (tanpa kartu kredit)</li>
+                  <li><strong>Request akses Premium</strong> dari dashboard</li>
+                  <li><strong>Langsung disetujui</strong> — nikmati semua fitur! 🎉</li>
+                </ol>
+              </div>
+
+              {/* CTA */}
+              <div className="space-y-3">
+                <Link
+                  href="/register"
+                  onClick={dismissPromo}
+                  className="flex items-center justify-center gap-2 w-full py-3.5 bg-primary-600 text-white text-base font-semibold rounded-xl hover:bg-primary-700 transition-all hover:shadow-lg hover:shadow-primary-600/25"
+                >
+                  Daftar Gratis Sekarang
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+                <button
+                  onClick={dismissPromo}
+                  className="w-full py-2 text-gray-400 text-sm hover:text-gray-600 transition-colors"
+                >
+                  Nanti saja, saya mau lihat-lihat dulu
+                </button>
+              </div>
+
+              {/* Trust */}
+              <div className="flex items-center justify-center gap-4 pt-4 text-[11px] text-gray-400">
+                <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> Gratis Selamanya</span>
+                <span className="flex items-center gap-1"><Zap className="w-3 h-3" /> Tanpa Kartu Kredit</span>
+                <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3" /> 5 Menit Selesai</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Popup animation keyframe */}
+      <style jsx>{`
+        @keyframes popIn {
+          0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { useInvitationPublic } from '@/hooks/queries/use-invitations';
 import CoverScreen from '@/components/invitation/cover-screen';
 import HeroSection from '@/components/invitation/hero-section';
@@ -16,9 +17,11 @@ import ClosingSection from '@/components/invitation/closing-section';
 import StorySection from '@/components/invitation/story-section';
 import AudioPlayer from '@/components/invitation/audio-player';
 import AnimatedBackground from '@/components/invitation/animated-bg';
+import ThreeJSBackground from '@/components/invitation/threejs-bg';
 
 const ANIMATED_THEMES = ['theme-enchanted-garden', 'theme-royal-blossom', 'theme-celestial-garden'] as const;
 type AnimatedTheme = 'enchanted-garden' | 'royal-blossom' | 'celestial-garden';
+const THREEJS_THEMES = ['theme-ethereal-bloom'] as const;
 
 /* ─── Dark outer-frame background per theme (matches preview THEME_CONFIG.frameBg) ─── */
 const FRAME_BG: Record<string, string> = {
@@ -35,6 +38,7 @@ const FRAME_BG: Record<string, string> = {
   'theme-enchanted-garden': '#e8e0d4',
   'theme-royal-blossom': '#120a0e',
   'theme-celestial-garden': '#061210',
+  'theme-ethereal-bloom': '#0a0e1a',
 };
 
 export default function InvitationPreviewPage() {
@@ -45,7 +49,38 @@ export default function InvitationPreviewPage() {
   const guestName = searchParams.get('kpd') || 'Tamu Undangan';
 
   const { data: invitation, isLoading, error } = useInvitationPublic(slug);
-  const [isOpen, setIsOpen] = useState(false);
+  const autoOpen = searchParams.get('autoOpen') === '1';
+  const autoPrint = searchParams.get('print') === '1';
+  const [isOpen, setIsOpen] = useState(autoOpen);
+  const [showPromo, setShowPromo] = useState(false);
+
+  // Show beta promo popup after guest has been viewing for 8 seconds (once per day)
+  useEffect(() => {
+    if (autoPrint) return; // Don't show on PDF prints
+    const PROMO_KEY = 'invitee_promo_seen';
+    const lastSeen = localStorage.getItem(PROMO_KEY);
+    if (lastSeen) {
+      const diff = Date.now() - parseInt(lastSeen, 10);
+      if (diff < 24 * 60 * 60 * 1000) return; // Already shown within 24h
+    }
+    const timer = setTimeout(() => {
+      setShowPromo(true);
+      localStorage.setItem(PROMO_KEY, Date.now().toString());
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, [autoPrint]);
+
+  const dismissPromo = useCallback(() => setShowPromo(false), []);
+
+  // Auto-print after content loads (for PDF download)
+  useEffect(() => {
+    if (autoPrint && autoOpen && invitation && !isLoading) {
+      const timer = setTimeout(() => {
+        window.print();
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [autoPrint, autoOpen, invitation, isLoading]);
 
   if (isLoading) {
     return (
@@ -116,6 +151,10 @@ export default function InvitationPreviewPage() {
                     mode="cover"
                   />
                 )}
+                {/* Three.js GPU particle background (ethereal-bloom) */}
+                {THREEJS_THEMES.includes(themeClass as any) && (
+                  <ThreeJSBackground mode="cover" />
+                )}
                 <CoverScreen
                   title={invitation.title}
                   guestName={guestName}
@@ -135,6 +174,10 @@ export default function InvitationPreviewPage() {
                     theme={themeClass.replace('theme-', '') as AnimatedTheme}
                     mode="content"
                   />
+                )}
+                {/* Three.js GPU particle background — sticky inside scroll container */}
+                {THREEJS_THEMES.includes(themeClass as any) && (
+                  <ThreeJSBackground mode="content" />
                 )}
                 {/* Hero / Opening */}
                 <HeroSection
@@ -187,6 +230,65 @@ export default function InvitationPreviewPage() {
           </div>
         </div>
       </div>
+
+      {/* ═══ Beta Promo Popup ═══ */}
+      {showPromo && (
+        <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-5 relative animate-in slide-in-from-bottom-4 duration-500">
+            {/* Close button */}
+            <button
+              onClick={dismissPromo}
+              className="absolute top-3 right-3 p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label="Tutup"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            </button>
+
+            <div className="text-center">
+              {/* Icon */}
+              <div className="w-14 h-14 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-3">
+                <span className="text-2xl">💌</span>
+              </div>
+
+              <h3 className="text-lg font-bold text-gray-900 mb-1">
+                Buat Undangan Digital Anda!
+              </h3>
+              <p className="text-sm text-gray-600 leading-relaxed mb-3">
+                Suka dengan undangan ini? Anda juga bisa buat undangan digital <strong className="text-primary-600">gratis</strong> untuk acara Anda.
+              </p>
+
+              {/* Beta highlight */}
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-left text-sm mb-4">
+                <p className="font-semibold text-amber-800 mb-1.5 flex items-center gap-1.5">
+                  <span>🧪</span> Fase Beta — Semua GRATIS!
+                </p>
+                <ul className="text-amber-700 space-y-1 text-xs">
+                  <li className="flex items-start gap-1.5"><span className="text-green-500 mt-0.5">✓</span> Daftar gratis tanpa kartu kredit</li>
+                  <li className="flex items-start gap-1.5"><span className="text-green-500 mt-0.5">✓</span> Buat undangan digital dengan template premium</li>
+                  <li className="flex items-start gap-1.5"><span className="text-green-500 mt-0.5">✓</span> Request akses Premium gratis selama beta</li>
+                  <li className="flex items-start gap-1.5"><span className="text-green-500 mt-0.5">✓</span> Hingga 2000 tamu dengan fitur lengkap</li>
+                </ul>
+              </div>
+
+              {/* CTA buttons */}
+              <div className="space-y-2">
+                <Link
+                  href="/register"
+                  className="block w-full py-2.5 bg-primary-600 text-white text-sm font-semibold rounded-xl hover:bg-primary-700 transition-colors text-center"
+                >
+                  Daftar Gratis Sekarang
+                </Link>
+                <button
+                  onClick={dismissPromo}
+                  className="block w-full py-2 text-gray-400 text-xs hover:text-gray-600 transition-colors"
+                >
+                  Nanti saja
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

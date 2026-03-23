@@ -7,8 +7,9 @@ import { Menu, X } from 'lucide-react';
 
 const NAV_LINKS = [
   { label: 'Tentang Kami', href: '/about' },
-  { label: 'Kontak', href: '/contact' },
+  { label: 'Harga', href: '/pricing' },
   { label: 'Template', href: '/templates' },
+  { label: 'Kontak', href: '/contact' },
 ];
 
 export function PublicNavbar() {

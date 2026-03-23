@@ -13,9 +13,23 @@ export function MobileNav() {
   const { sidebarOpen, setSidebarOpen } = useUIStore();
   const { user } = useAuthStore();
 
-  const filteredItems = NAV_ITEMS.filter(
-    (item) => !(item as any).adminOnly || user?.role === 'ADMIN',
-  );
+  const isFastServe = (user as any)?.subscriptionType === 'FAST_SERVE';
+
+  // Enterprise (Fast Serve) users only see these menu paths
+  const FAST_SERVE_ALLOWED_PATHS = [
+    '/dashboard',
+    '/dashboard/invitations',
+    '/dashboard/contacts',
+    '/dashboard/profile',
+    '/dashboard/subscription',
+    '/dashboard/testimonials',
+  ];
+
+  const filteredItems = NAV_ITEMS.filter((item) => {
+    if ((item as any).adminOnly && user?.role !== 'ADMIN') return false;
+    if (isFastServe && !FAST_SERVE_ALLOWED_PATHS.includes(item.href)) return false;
+    return true;
+  });
 
   if (!sidebarOpen) return null;
 

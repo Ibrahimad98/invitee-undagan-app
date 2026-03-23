@@ -25,6 +25,8 @@ export function Modal({
   const overlayRef = React.useRef<HTMLDivElement>(null);
   const contentRef = React.useRef<HTMLDivElement>(null);
   const previousActiveElement = React.useRef<Element | null>(null);
+  const onCloseRef = React.useRef(onClose);
+  React.useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
 
   // Focus trap
   React.useEffect(() => {
@@ -37,7 +39,7 @@ export function Modal({
 
     const trapFocus = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -66,12 +68,17 @@ export function Modal({
     document.addEventListener("keydown", trapFocus);
     document.body.style.overflow = "hidden";
 
-    // Focus first focusable element
+    // Focus first focusable form element (input/textarea/select), falling back to any focusable
     requestAnimationFrame(() => {
       if (contentRef.current) {
-        const focusable =
-          contentRef.current.querySelector<HTMLElement>(focusableSelectors);
-        focusable?.focus();
+        const formInputSelectors = 'input:not([disabled]):not([type="hidden"]), textarea:not([disabled]), select:not([disabled])';
+        const formInput = contentRef.current.querySelector<HTMLElement>(formInputSelectors);
+        if (formInput) {
+          formInput.focus();
+        } else {
+          const focusable = contentRef.current.querySelector<HTMLElement>(focusableSelectors);
+          focusable?.focus();
+        }
       }
     });
 
@@ -82,7 +89,8 @@ export function Modal({
         previousActiveElement.current.focus();
       }
     };
-  }, [open, onClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === overlayRef.current) {

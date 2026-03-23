@@ -43,7 +43,8 @@ export class MediaService {
 
     return {
       ...media,
-      fileUrl: this.storageService.getUrl(media.fileUrl),
+      fileKey: media.fileUrl,
+      fileUrl: await this.storageService.getUrl(media.fileUrl),
     };
   }
 
@@ -52,7 +53,7 @@ export class MediaService {
     if (!media) throw new NotFoundException('Media not found');
     return {
       ...media,
-      fileUrl: this.storageService.getUrl(media.fileUrl),
+      fileUrl: await this.storageService.getUrl(media.fileUrl),
     };
   }
 
@@ -72,9 +73,11 @@ export class MediaService {
       orderBy: { sortOrder: 'asc' },
     });
 
-    return mediaList.map((m) => ({
-      ...m,
-      fileUrl: this.storageService.getUrl(m.fileUrl),
-    }));
+    return Promise.all(
+      mediaList.map(async (m) => ({
+        ...m,
+        fileUrl: await this.storageService.getUrl(m.fileUrl),
+      })),
+    );
   }
 }

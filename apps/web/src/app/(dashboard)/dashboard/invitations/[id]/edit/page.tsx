@@ -1,9 +1,12 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useInvitation, useUpdateInvitation } from '@/hooks/queries/use-invitations';
+import { useUploadMedia, useDeleteMedia } from '@/hooks/queries/use-media';
 import { useInvitationStore } from '@/stores/invitation-store';
+import { useAuthStore } from '@/stores/auth-store';
+import { GALLERY_SAMPLES } from '@/lib/gallery-samples';
 import { useUIStore } from '@/stores/ui-store';
 import { useTemplates } from '@/hooks/queries/use-templates';
 import { Button } from '@/components/ui/button';
@@ -26,6 +29,11 @@ import {
   Star,
   Save,
   Eye,
+  Upload,
+  ImageIcon,
+  X,
+  Loader2,
+  Crown,
 } from 'lucide-react';
 
 /* ── Invitation preview components ── */
@@ -37,6 +45,7 @@ import EventDetailsSection from '@/components/invitation/event-details';
 import GallerySection from '@/components/invitation/gallery';
 import DigitalGiftSection from '@/components/invitation/digital-gift';
 import ClosingSection from '@/components/invitation/closing-section';
+import { PremiumUpgradeModal } from '@/components/ui/premium-upgrade-modal';
 
 /* ── Theme config (same as new page) ── */
 const THEME_CONFIG: Record<string, {
@@ -63,6 +72,11 @@ export default function EditInvitationPage() {
   const { data: invitation, isLoading } = useInvitation(id);
   const updateInvitation = useUpdateInvitation();
   const { addToast } = useUIStore();
+  const { user } = useAuthStore();
+
+  // Premium check
+  const isPremiumUser = user?.subscriptionType === 'PREMIUM' || user?.subscriptionType === 'FAST_SERVE' || user?.role === 'ADMIN';
+  const [showPremiumBlockModal, setShowPremiumBlockModal] = useState(false);
 
   const {
     draft,
@@ -88,6 +102,61 @@ export default function EditInvitationPage() {
   // Get event type config
   const eventConfig = getEventTypeConfig(draft.eventType);
 
+  // ── Gallery media upload ──
+  const uploadMedia = useUploadMedia();
+  const deleteMedia = useDeleteMedia();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [galleryMedia, setGalleryMedia] = useState<Array<{ id: string; fileUrl: string; purpose: string }>>([]);
+  const [uploadingFiles, setUploadingFiles] = useState<Set<string>>(new Set());
+
+  // Sync gallery media from invitation data
+  useEffect(() => {
+    if (invitation?.media) {
+      setGalleryMedia(
+        invitation.media
+          .filter((m: any) => m.purpose === 'GALLERY')
+          .map((m: any) => ({ id: m.id, fileUrl: m.fileUrl, purpose: m.purpose }))
+      );
+    }
+  }, [invitation]);
+
+  const handleGalleryUpload = useCallback(async (files: FileList) => {
+    const fileArray = Array.from(files).filter((f) => f.type.startsWith('image/'));
+    if (fileArray.length === 0) return;
+
+    for (const file of fileArray) {
+      const tempId = `uploading-${Date.now()}-${file.name}`;
+      setUploadingFiles((prev) => new Set(prev).add(tempId));
+      try {
+        const result = await uploadMedia.mutateAsync({
+          file,
+          invitationId: id,
+          purpose: 'GALLERY',
+          sortOrder: galleryMedia.length,
+        });
+        setGalleryMedia((prev) => [...prev, { id: result.id, fileUrl: result.fileUrl, purpose: 'GALLERY' }]);
+      } catch (err) {
+        addToast('Gagal mengupload foto', 'error');
+      } finally {
+        setUploadingFiles((prev) => {
+          const next = new Set(prev);
+          next.delete(tempId);
+          return next;
+        });
+      }
+    }
+  }, [id, galleryMedia.length, uploadMedia, addToast]);
+
+  const handleDeleteGalleryMedia = useCallback(async (mediaId: string) => {
+    try {
+      await deleteMedia.mutateAsync(mediaId);
+      setGalleryMedia((prev) => prev.filter((m) => m.id !== mediaId));
+      addToast('Foto berhasil dihapus', 'success');
+    } catch {
+      addToast('Gagal menghapus foto', 'error');
+    }
+  }, [deleteMedia, addToast]);
+
   useEffect(() => {
     if (invitation) {
       loadFromExisting(invitation);
@@ -95,6 +164,13 @@ export default function EditInvitationPage() {
   }, [invitation]);
 
   const handleSubmit = async () => {
+    // Check if selected template is premium and user is not premium
+    const selectedTemplate = templates.find((t: any) => t.id === draft.templateId);
+    if (selectedTemplate?.isPremium && !isPremiumUser) {
+      setShowPremiumBlockModal(true);
+      return;
+    }
+
     try {
       const payload = {
         title: draft.title,
@@ -393,7 +469,60 @@ export default function EditInvitationPage() {
           {currentStep === 3 && (
             <div className="space-y-4">
               <CardHeader className="p-0 pb-4"><CardTitle>Galeri Foto</CardTitle></CardHeader>
-              <p className="text-sm text-gray-500">Upload media tersedia di versi berikutnya. Foto galeri sudah tersimpan dari data sebelumnya.</p>
+              <p className="text-sm text-gray-500 mb-3">Upload foto untuk galeri undangan Anda. Maksimal 2MB per foto.</p>
+
+              {/* Upload area */}
+              <div
+                className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50/50 transition-colors"
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                onDrop={(e) => { e.preventDefault(); e.stopPropagation(); if (e.dataTransfer.files.length) handleGalleryUpload(e.dataTransfer.files); }}
+              >
+                <Upload className="w-10 h-10 text-gray-400 mx-auto" />
+                <p className="mt-3 text-sm font-medium text-gray-600">Klik atau drag & drop foto di sini</p>
+                <p className="text-xs text-gray-400 mt-1">JPG, PNG, WebP — maks 2MB</p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => { if (e.target.files) handleGalleryUpload(e.target.files); e.target.value = ''; }}
+                />
+              </div>
+
+              {/* Uploading indicators */}
+              {uploadingFiles.size > 0 && (
+                <div className="flex items-center gap-2 text-sm text-primary-600">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Mengupload {uploadingFiles.size} foto...</span>
+                </div>
+              )}
+
+              {/* Gallery grid */}
+              {galleryMedia.length > 0 && (
+                <div className="grid grid-cols-3 gap-3">
+                  {galleryMedia.map((media) => (
+                    <div key={media.id} className="relative group aspect-square rounded-lg overflow-hidden border border-gray-200">
+                      <img src={media.fileUrl} alt="Gallery" className="w-full h-full object-cover" />
+                      <button
+                        onClick={() => handleDeleteGalleryMedia(media.id)}
+                        className="absolute top-1.5 right-1.5 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Empty state */}
+              {galleryMedia.length === 0 && uploadingFiles.size === 0 && (
+                <div className="text-center py-4">
+                  <ImageIcon className="w-8 h-8 text-gray-300 mx-auto" />
+                  <p className="text-sm text-gray-400 mt-2">Belum ada foto di galeri</p>
+                </div>
+              )}
             </div>
           )}
           {currentStep === 4 && (
@@ -435,11 +564,17 @@ export default function EditInvitationPage() {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {templates.map((template: any) => {
                   const isRecommended = eventConfig.recommendedTemplates.includes(template.slug);
+                  const isTemplatePremium = template.isPremium;
                   return (
                     <button key={template.id} onClick={() => setField('templateId', template.id)} className={cn('p-4 border-2 rounded-lg text-left transition-all relative', draft.templateId === template.id ? 'border-primary-600 bg-primary-50 ring-2 ring-primary-200' : 'border-gray-200 hover:border-gray-300')}>
                       {isRecommended && (
                         <span className="absolute -top-2.5 -right-2 text-[11px] bg-yellow-100 text-yellow-800 border border-yellow-400 px-2 py-0.5 rounded-full font-semibold shadow">
                           ⭐ Direkomendasikan
+                        </span>
+                      )}
+                      {isTemplatePremium && (
+                        <span className="absolute top-2 left-2 z-10 flex items-center gap-1 px-1.5 py-0.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-[10px] font-bold rounded-full shadow">
+                          <Crown className="w-3 h-3" /> Premium
                         </span>
                       )}
                       <div className="h-32 bg-gradient-to-br from-primary-50 to-secondary-50 rounded-lg mb-3 relative overflow-hidden flex items-center justify-center">
@@ -460,6 +595,25 @@ export default function EditInvitationPage() {
                   );
                 })}
               </div>
+
+              {/* Premium template warning for basic users */}
+              {(() => {
+                const selectedTpl = templates.find((t: any) => t.id === draft.templateId);
+                if (selectedTpl?.isPremium && !isPremiumUser) {
+                  return (
+                    <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                      <Crown className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-amber-800">Template Premium Dipilih</p>
+                        <p className="text-xs text-amber-700 mt-1">
+                          Anda memilih template premium. Akses Premium diperlukan untuk menyimpan undangan dengan template ini.
+                        </p>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
             </div>
           )}
         </CardContent>
@@ -467,7 +621,7 @@ export default function EditInvitationPage() {
 
       {/* Step 6: Preview */}
       {currentStep === 6 && (
-        <EditPreviewStep draft={draft} templates={templates} />
+        <EditPreviewStep draft={draft} templates={templates} galleryMedia={galleryMedia} />
       )}
 
       <div className="flex justify-between">
@@ -488,6 +642,13 @@ export default function EditInvitationPage() {
           </Button>
         )}
       </div>
+
+      {/* Premium Template Block Modal */}
+      <PremiumUpgradeModal
+        open={showPremiumBlockModal}
+        onClose={() => setShowPremiumBlockModal(false)}
+        featureName="Template Premium"
+      />
     </div>
   );
 }
@@ -495,7 +656,7 @@ export default function EditInvitationPage() {
 /* ═══════════════════════════════════════════════════
    EDIT PREVIEW STEP
    ═══════════════════════════════════════════════════ */
-function EditPreviewStep({ draft, templates }: { draft: any; templates: any[] }) {
+function EditPreviewStep({ draft, templates, galleryMedia }: { draft: any; templates: any[]; galleryMedia: Array<{ id: string; fileUrl: string; purpose: string }> }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const selectedTemplate = templates.find((t: any) => t.id === draft.templateId);
@@ -551,7 +712,9 @@ function EditPreviewStep({ draft, templates }: { draft: any; templates: any[] })
 
     const eventDate = validEvents.length > 0 && validEvents[0].eventDate ? new Date(validEvents[0].eventDate) : futureDate;
 
-    const media = ['/images/gallery/sample-1.jpg', '/images/gallery/sample-2.jpg', '/images/gallery/sample-3.jpg', '/images/gallery/sample-4.jpg', '/images/gallery/sample-5.jpg', '/images/gallery/sample-6.jpg'].map((url, i) => ({ id: `preview-${i}`, url, fileUrl: url, purpose: 'GALLERY' }));
+    const media = galleryMedia.length > 0
+      ? galleryMedia.map((m, i) => ({ id: m.id, url: m.fileUrl, fileUrl: m.fileUrl, purpose: 'GALLERY' }))
+      : GALLERY_SAMPLES.map((url, i) => ({ id: `preview-${i}`, url, fileUrl: url, purpose: 'GALLERY' }));
 
     const validGifts = draft.giftAccounts?.filter((g: any) => g.bankName?.trim() && g.accountNumber?.trim()) || [];
     const giftAccounts = validGifts.length > 0 ? validGifts : [{ bankName: 'Nama Bank', accountNumber: '1234567890', accountHolder: 'Nama Pemilik' }];
@@ -560,7 +723,7 @@ function EditPreviewStep({ draft, templates }: { draft: any; templates: any[] })
     const coInvitors = validCoInvitors.length > 0 ? validCoInvitors.map((c: any) => ({ name: c.name, role: c.title || '' })) : [{ name: 'Keluarga Besar', role: 'Orang Tua Mempelai' }];
 
     return { title, openingText, closingText, personProfiles, events, eventDate, media, giftAccounts, coInvitors };
-  }, [draft]);
+  }, [draft, galleryMedia]);
 
   return (
     <div className="space-y-4">

@@ -2,6 +2,10 @@
 
 import { useState } from 'react';
 import { useTemplates } from '@/hooks/queries/use-templates';
+import { useAuthStore } from '@/stores/auth-store';
+import { useUIStore } from '@/stores/ui-store';
+import { api } from '@/lib/api';
+import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,21 +15,31 @@ import { Pagination } from '@/components/ui/pagination';
 import { TEMPLATE_CATEGORIES, TEMPLATE_CATEGORY_LABELS } from '@invitee/shared';
 import { CATEGORY_COLORS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import { Search, Star, Eye, Users } from 'lucide-react';
+import { Search, Star, Eye, Users, ToggleLeft, ToggleRight, Shield } from 'lucide-react';
 import Link from 'next/link';
 
 const PAGE_LIMIT = 10;
 
 export default function TemplatesPage() {
+  const { user } = useAuthStore();
+  const { addToast } = useUIStore();
+  const queryClient = useQueryClient();
+  const isAdmin = user?.role === 'ADMIN';
+
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<string | undefined>();
   const [page, setPage] = useState(1);
+  const [adminMode, setAdminMode] = useState(false);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+
+  // Use admin endpoint when in admin mode
   const { data, isLoading } = useTemplates({
     search: search || undefined,
     category,
     page,
     limit: PAGE_LIMIT,
-  });
+    ...(isAdmin && adminMode ? { admin: true } : {}),
+  } as any);
 
   const templates = data?.data || [];
   const meta = data?.meta;
@@ -41,12 +55,44 @@ export default function TemplatesPage() {
     setPage(1);
   };
 
+  const handleToggleActive = async (templateId: string) => {
+    setTogglingId(templateId);
+    try {
+      const { data: res } = await api.patch(`/templates/${templateId}/toggle-active`);
+      const updated = (res as any)?.data || res;
+      addToast(
+        updated.isActive ? 'Template dipublish' : 'Template di-unpublish',
+        updated.isActive ? 'success' : 'info',
+      );
+      queryClient.invalidateQueries({ queryKey: ['templates'] });
+    } catch {
+      addToast('Gagal mengubah status template', 'error');
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Template Undangan</h1>
-        <p className="text-gray-500 mt-1">Pilih template untuk undangan digital Anda</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Template Undangan</h1>
+          <p className="text-gray-500 mt-1">
+            {adminMode ? 'Kelola template — publish/unpublish' : 'Pilih template untuk undangan digital Anda'}
+          </p>
+        </div>
+        {isAdmin && (
+          <Button
+            variant={adminMode ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => { setAdminMode(!adminMode); setPage(1); }}
+            className="gap-1.5"
+          >
+            <Shield className="w-4 h-4" />
+            {adminMode ? 'Mode Admin' : 'Kelola'}
+          </Button>
+        )}
       </div>
 
       {/* Search */}
@@ -106,7 +152,10 @@ export default function TemplatesPage() {
           : templates.map((template: any) => (
               <Card
                 key={template.id}
-                className="overflow-hidden hover:shadow-lg transition-shadow group"
+                className={cn(
+                  'overflow-hidden hover:shadow-lg transition-shadow group',
+                  adminMode && !template.isActive && 'opacity-60 border-dashed border-gray-300',
+                )}
               >
                 {/* Thumbnail */}
                 <div className="h-48 bg-gradient-to-br from-primary-50 to-secondary-50 relative overflow-hidden flex items-center justify-center">
@@ -127,6 +176,17 @@ export default function TemplatesPage() {
                       Premium
                     </Badge>
                   )}
+                  {/* Admin mode: show active status badge */}
+                  {adminMode && (
+                    <Badge
+                      className={cn(
+                        'absolute top-2 left-2 z-[2]',
+                        template.isActive ? 'bg-green-500' : 'bg-red-500',
+                      )}
+                    >
+                      {template.isActive ? 'Published' : 'Unpublished'}
+                    </Badge>
+                  )}
                   <div className="absolute inset-0 z-[2] bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
                     <Link
                       href={`/preview/${template.slug}`}
@@ -145,11 +205,11 @@ export default function TemplatesPage() {
                   <div className="flex items-center gap-3 mt-2 text-sm text-gray-500">
                     <span className="flex items-center gap-1">
                       <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
-                      {template.ratingAvg.toFixed(1)}
+                      {template.ratingAvg?.toFixed(1) ?? '0.0'}
                     </span>
                     <span className="flex items-center gap-1">
                       <Users className="w-3.5 h-3.5" />
-                      {template.usageCount.toLocaleString()} digunakan
+                      {template.usageCount?.toLocaleString() ?? 0} digunakan
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-1 mt-3">
@@ -159,16 +219,38 @@ export default function TemplatesPage() {
                       </Badge>
                     ))}
                   </div>
-                  <Button
-                    className="w-full mt-4"
-                    size="sm"
-                    onClick={() => {
-                      // Store template selection and navigate to create
-                      window.location.href = `/dashboard/invitations/new?templateId=${template.id}`;
-                    }}
-                  >
-                    Gunakan Template
-                  </Button>
+
+                  {/* Admin mode: toggle publish/unpublish */}
+                  {adminMode ? (
+                    <Button
+                      className={cn(
+                        'w-full mt-4 gap-1.5',
+                        template.isActive
+                          ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
+                          : 'bg-green-50 text-green-600 hover:bg-green-100 border border-green-200',
+                      )}
+                      variant="outline"
+                      size="sm"
+                      disabled={togglingId === template.id}
+                      onClick={() => handleToggleActive(template.id)}
+                    >
+                      {template.isActive ? (
+                        <><ToggleRight className="w-4 h-4" /> Unpublish</>
+                      ) : (
+                        <><ToggleLeft className="w-4 h-4" /> Publish</>
+                      )}
+                    </Button>
+                  ) : (
+                    <Button
+                      className="w-full mt-4"
+                      size="sm"
+                      onClick={() => {
+                        window.location.href = `/dashboard/invitations/new?templateId=${template.id}`;
+                      }}
+                    >
+                      Gunakan Template
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             ))}

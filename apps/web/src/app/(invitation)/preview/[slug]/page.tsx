@@ -11,9 +11,12 @@ import GallerySection from '@/components/invitation/gallery';
 import DigitalGiftSection from '@/components/invitation/digital-gift';
 import ClosingSection from '@/components/invitation/closing-section';
 import AnimatedBackground from '@/components/invitation/animated-bg';
+import ThreeJSBackground from '@/components/invitation/threejs-bg';
+import { GALLERY_SAMPLES } from '@/lib/gallery-samples';
 
 const ANIMATED_THEMES = ['enchanted-garden', 'royal-blossom', 'celestial-garden'] as const;
 type AnimatedTheme = 'enchanted-garden' | 'royal-blossom' | 'celestial-garden';
+const THREEJS_THEMES = ['ethereal-bloom'] as const;
 
 /* ─── Theme visual config — matches thumbnail SVGs ─── */
 const THEME_CONFIG: Record<string, {
@@ -157,6 +160,16 @@ const THEME_CONFIG: Record<string, {
     ornamentTop: `<svg width="56" height="30" viewBox="0 0 70 36"><path d="M5,34 C5,14 18,5 35,5 C52,5 65,14 65,34" fill="none" stroke="#4ecdc4" stroke-width="0.8" opacity="0.35"/><ellipse cx="14" cy="22" rx="5" ry="2" transform="rotate(-40 14 22)" fill="#4ecdc4" opacity="0.2"/><ellipse cx="56" cy="22" rx="5" ry="2" transform="rotate(40 56 22)" fill="#4ecdc4" opacity="0.2"/><circle cx="25" cy="12" r="2" fill="#4ecdc4" opacity="0.3"/><circle cx="45" cy="12" r="1.5" fill="#4ecdc4" opacity="0.25"/><circle cx="35" cy="6" r="1.8" fill="#4ecdc4" opacity="0.35"/></svg>`,
     ornamentBottom: `<svg width="40" height="8" viewBox="0 0 60 8"><path d="M0,4 Q10,1 20,4 Q30,7 40,4 Q50,1 60,4" fill="none" stroke="#4ecdc4" stroke-width="0.6" opacity="0.25"/></svg>`,
   },
+  'ethereal-bloom': {
+    frameBg: '#0a0e1a',
+    coverBg: 'radial-gradient(ellipse at 50% 35%, rgba(18, 16, 34, 0.90) 0%, rgba(10, 14, 26, 0.96) 70%)',
+    accent: '#b8a9d4',
+    textPrimary: '#e8e4f0',
+    textSecondary: 'rgba(232, 228, 240, 0.5)',
+    borderColor: '#b8a9d4',
+    ornamentTop: `<svg width="52" height="28" viewBox="0 0 64 34"><path d="M4,32 C4,14 16,5 32,5 C48,5 60,14 60,32" fill="none" stroke="#b8a9d4" stroke-width="0.7" opacity="0.3"/><circle cx="16" cy="16" r="3" fill="#b8a9d4" opacity="0.25"/><circle cx="32" cy="8" r="2.5" fill="#d4a0a0" opacity="0.3"/><circle cx="48" cy="16" r="3" fill="#b8a9d4" opacity="0.25"/></svg>`,
+    ornamentBottom: `<svg width="40" height="8" viewBox="0 0 60 8"><path d="M0,4 Q15,1 30,4 Q45,7 60,4" fill="none" stroke="#b8a9d4" stroke-width="0.5" opacity="0.2"/></svg>`,
+  },
 };
 
 function getThemeConfig(slug: string) {
@@ -169,17 +182,8 @@ function getSampleData(slug: string) {
   futureDate.setMonth(futureDate.getMonth() + 3);
   const dateStr = futureDate.toISOString().split('T')[0];
 
-  // Different sample images per template category
-  const defaultGallery = [
-    '/images/gallery/sample-1.jpg',
-    '/images/gallery/sample-2.jpg',
-    '/images/gallery/sample-3.jpg',
-    '/images/gallery/sample-4.jpg',
-    '/images/gallery/sample-5.jpg',
-    '/images/gallery/sample-6.jpg',
-  ];
-
-  const galleryImages = defaultGallery;
+  // Gallery samples served from S3 via presigned URLs
+  const galleryImages = GALLERY_SAMPLES;
 
   return {
     title: 'Pernikahan Budi & Ani',
@@ -314,6 +318,10 @@ export default function TemplatePreviewPage() {
                     mode="cover"
                   />
                 )}
+                {/* Three.js GPU particle background (ethereal-bloom) */}
+                {THREEJS_THEMES.includes(slug as any) && (
+                  <ThreeJSBackground mode="cover" />
+                )}
                 <CoverScreen
                   title={sample.title}
                   guestName={sample.guestName}
@@ -334,6 +342,10 @@ export default function TemplatePreviewPage() {
                     theme={slug as AnimatedTheme}
                     mode="content"
                   />
+                )}
+                {/* Three.js GPU particle background — sticky inside scroll container */}
+                {THREEJS_THEMES.includes(slug as any) && (
+                  <ThreeJSBackground mode="content" />
                 )}
                 <HeroSection
                   openingText={sample.openingText}

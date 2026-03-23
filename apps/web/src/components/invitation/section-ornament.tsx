@@ -24,6 +24,7 @@ const THEME_ORNAMENT_MAP: Record<string, string> = {
   'theme-enchanted-garden': 'corner-enchanted-garden.svg',
   'theme-royal-blossom': 'corner-royal-blossom.svg',
   'theme-celestial-garden': 'corner-celestial-garden.svg',
+  'theme-ethereal-bloom': 'corner-ethereal-bloom.svg',
 };
 
 interface SectionOrnamentProps {

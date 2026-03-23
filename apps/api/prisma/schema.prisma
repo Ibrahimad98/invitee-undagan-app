@@ -15,6 +15,7 @@ enum Role {
 enum SubscriptionType {
   BASIC
   PREMIUM
+  FAST_SERVE
 }
 
 enum EventType {
@@ -63,13 +64,21 @@ model User {
   role                   Role              @default(USER)
   subscriptionType       SubscriptionType  @default(BASIC) @map("subscription_type")
   subscriptionExpireDate DateTime?         @map("subscription_expire_date")
+  maxGuests              Int               @default(300) @map("max_guests")
+  isEmailVerified        Boolean           @default(false) @map("is_email_verified")
+  emailVerifyToken       String?           @map("email_verify_token")
+  emailVerifyExpires     DateTime?         @map("email_verify_expires")
+  isFirstLogin           Boolean           @default(true) @map("is_first_login")
   isDeleted              Boolean           @default(false) @map("is_deleted")
   deletedAt              DateTime?         @map("deleted_at")
   createdAt              DateTime          @default(now()) @map("created_at")
   updatedAt              DateTime          @updatedAt @map("updated_at")
 
-  invitations  Invitation[]
-  media        Media[]
+  invitations        Invitation[]
+  media              Media[]
+  guestLimitRequests GuestLimitRequest[]
+  notifications      Notification[]
+  bugFeedbacks       BugFeedback[]
 
   @@map("users")
 }
@@ -330,4 +339,79 @@ model SiteSetting {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("site_settings")
+}
+
+enum GuestLimitRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model GuestLimitRequest {
+  id              String                  @id @default(uuid())
+  userId          String                  @map("user_id")
+  invitationId    String?                 @map("invitation_id")
+  currentLimit    Int                     @map("current_limit")
+  requestedAmount Int                     @map("requested_amount")
+  reason          String?
+  status          GuestLimitRequestStatus @default(PENDING)
+  adminNote       String?                 @map("admin_note")
+  createdAt       DateTime                @default(now()) @map("created_at")
+  updatedAt       DateTime                @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("guest_limit_requests")
+}
+
+enum NotificationType {
+  PREMIUM_REQUEST
+  GUEST_LIMIT_REQUEST
+  TESTIMONIAL_NEW
+  BUG_FEEDBACK_NEW
+  REQUEST_APPROVED
+  REQUEST_REJECTED
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  type      NotificationType
+  title     String
+  message   String
+  linkUrl   String?          @map("link_url")
+  isRead    Boolean          @default(false) @map("is_read")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@map("notifications")
+}
+
+enum BugFeedbackStatus {
+  UNHANDLED
+  HANDLED
+}
+
+model BugFeedback {
+  id          String            @id @default(uuid())
+  userId      String            @map("user_id")
+  userName    String            @map("user_name")
+  subject     String
+  message     String
+  category    String            @default("bug")
+  status      BugFeedbackStatus @default(UNHANDLED)
+  adminNote   String?           @map("admin_note")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("bug_feedbacks")
 }

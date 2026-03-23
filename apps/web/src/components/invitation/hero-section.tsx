@@ -46,7 +46,7 @@ const THEME_SLUGS = [
   'super-classic', 'floral-garden', 'kids-party', 'golden-elegance',
   'royal-muslim', 'wayang-heritage', 'slide-romantic', 'christmas-joy',
   'modern-minimal', 'simple-java', 'enchanted-garden', 'royal-blossom',
-  'celestial-garden',
+  'celestial-garden', 'ethereal-bloom',
 ];
 
 export default function HeroSection({ openingText, title, eventType }: HeroSectionProps) {
@@ -667,6 +667,135 @@ export default function HeroSection({ openingText, title, eventType }: HeroSecti
               >
                 <svg width="50" height="10" viewBox="0 0 60 8" className="text-[var(--inv-accent)] opacity-25">
                   <path d="M0,4 Q10,1 20,4 Q30,7 40,4 Q50,1 60,4" fill="none" stroke="currentColor" strokeWidth="0.6" />
+                </svg>
+              </motion.div>
+            </motion.div>
+          </AnimatePresence>
+        )}
+
+        {/* ─── ETHEREAL BLOOM: Premium — Three.js powered, luminous particle entrance ─── */}
+        {theme === 'ethereal-bloom' && hasNames && (
+          <AnimatePresence>
+            <motion.div
+              className="space-y-4 sm:space-y-5"
+              initial={{ opacity: 0 }}
+              animate={isVisible ? { opacity: 1 } : {}}
+              transition={{ duration: 0.8 }}
+            >
+              {/* Luminous orb cluster ornament */}
+              <motion.div
+                className="flex justify-center"
+                initial={{ opacity: 0, scale: 0, filter: 'blur(14px)' }}
+                animate={isVisible ? { opacity: 1, scale: 1, filter: 'blur(0px)' } : {}}
+                transition={{ type: 'spring', stiffness: 50, damping: 12, delay: 0.1 }}
+              >
+                <svg width="56" height="32" viewBox="0 0 70 40" className="text-[var(--inv-accent)]">
+                  <path d="M5,38 C5,16 18,5 35,5 C52,5 65,16 65,38" fill="none" stroke="currentColor" strokeWidth="0.7" opacity="0.25" />
+                  <circle cx="18" cy="22" r="4" fill="currentColor" opacity="0.2" />
+                  <circle cx="35" cy="10" r="3.5" fill="currentColor" opacity="0.3" />
+                  <circle cx="52" cy="22" r="4" fill="currentColor" opacity="0.2" />
+                  <circle cx="26" cy="30" r="2" fill="#d4a0a0" opacity="0.2" />
+                  <circle cx="44" cy="30" r="2" fill="#d4a0a0" opacity="0.2" />
+                  <circle cx="35" cy="6" r="1.5" fill="#e8d5a3" opacity="0.35" />
+                </svg>
+              </motion.div>
+
+              {/* Opening text — soft fade-in */}
+              {openingText && (
+                <motion.p
+                  className="text-xs sm:text-sm leading-relaxed text-[var(--inv-text-secondary)] whitespace-pre-line"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 1, delay: 0.3 }}
+                >
+                  {openingText}
+                </motion.p>
+              )}
+
+              {/* Prefix — expanding letter spacing */}
+              <motion.p
+                className="text-xs sm:text-sm tracking-[0.3em] uppercase text-[var(--inv-text-secondary)]"
+                initial={{ opacity: 0, letterSpacing: '0.7em' }}
+                animate={isVisible ? { opacity: 1, letterSpacing: '0.3em' } : {}}
+                transition={{ duration: 1.2, delay: 0.5 }}
+              >
+                {prefix}
+              </motion.p>
+
+              {/* Name 1 — emerge with lavender glow */}
+              <motion.h2
+                className="text-3xl sm:text-4xl leading-relaxed px-2"
+                style={{
+                  fontFamily: "'Great Vibes', cursive",
+                  fontWeight: 400,
+                  background: 'linear-gradient(135deg, #b8a9d4, #d4a0a0)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+                initial={{ opacity: 0, y: 35, filter: 'blur(12px)' }}
+                animate={isVisible ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+                transition={{ type: 'spring', stiffness: 50, damping: 12, delay: 0.65 }}
+              >
+                {name1}
+              </motion.h2>
+
+              {/* Ampersand with expanding lavender-rose lines */}
+              <motion.div
+                className="flex items-center justify-center gap-3 my-3"
+                initial={{ opacity: 0, scale: 0.3 }}
+                animate={isVisible ? { opacity: 1, scale: 1 } : {}}
+                transition={{ type: 'spring', stiffness: 120, damping: 10, delay: 0.8 }}
+              >
+                <motion.div
+                  className="h-px"
+                  style={{ background: 'linear-gradient(to right, transparent, #b8a9d4, transparent)', opacity: 0.35 }}
+                  initial={{ width: 0 }}
+                  animate={isVisible ? { width: 48 } : {}}
+                  transition={{ duration: 0.8, delay: 0.9 }}
+                />
+                <span
+                  className="text-2xl sm:text-3xl"
+                  style={{ fontFamily: "'Great Vibes', cursive", color: '#d4a0a0' }}
+                >
+                  {amp}
+                </span>
+                <motion.div
+                  className="h-px"
+                  style={{ background: 'linear-gradient(to right, transparent, #d4a0a0, transparent)', opacity: 0.35 }}
+                  initial={{ width: 0 }}
+                  animate={isVisible ? { width: 48 } : {}}
+                  transition={{ duration: 0.8, delay: 0.9 }}
+                />
+              </motion.div>
+
+              {/* Name 2 — emerge from below */}
+              <motion.h2
+                className="text-3xl sm:text-4xl leading-relaxed px-2"
+                style={{
+                  fontFamily: "'Great Vibes', cursive",
+                  fontWeight: 400,
+                  background: 'linear-gradient(135deg, #d4a0a0, #e8d5a3)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+                initial={{ opacity: 0, y: -35, filter: 'blur(12px)' }}
+                animate={isVisible ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+                transition={{ type: 'spring', stiffness: 50, damping: 12, delay: 0.95 }}
+              >
+                {name2}
+              </motion.h2>
+
+              {/* Bottom wave ornament */}
+              <motion.div
+                className="flex justify-center"
+                initial={{ opacity: 0, scaleX: 0 }}
+                animate={isVisible ? { opacity: 1, scaleX: 1 } : {}}
+                transition={{ duration: 0.6, delay: 1.15 }}
+              >
+                <svg width="48" height="10" viewBox="0 0 60 8" className="text-[var(--inv-accent)] opacity-20">
+                  <path d="M0,4 Q15,1 30,4 Q45,7 60,4" fill="none" stroke="currentColor" strokeWidth="0.5" />
                 </svg>
               </motion.div>
             </motion.div>

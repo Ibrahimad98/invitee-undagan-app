@@ -7,8 +7,10 @@ export interface User {
   dateOfBirth?: string | null;
   address?: string | null;
   role: 'USER' | 'ADMIN';
-  subscriptionType: 'BASIC' | 'PREMIUM';
+  subscriptionType: 'BASIC' | 'PREMIUM' | 'FAST_SERVE';
   subscriptionExpireDate?: string | null;
+  maxGuests: number;
+  isFirstLogin: boolean;
   createdAt: string;
   updatedAt: string;
 }

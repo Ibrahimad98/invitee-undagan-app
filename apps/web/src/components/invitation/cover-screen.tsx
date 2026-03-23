@@ -79,13 +79,17 @@ const COVER_ORNAMENTS: Record<string, { top: string; bottom: string }> = {
     top: `<svg width="56" height="30" viewBox="0 0 70 36"><path d="M5,34 C5,14 18,5 35,5 C52,5 65,14 65,34" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.35"/><ellipse cx="14" cy="22" rx="5" ry="2" transform="rotate(-40 14 22)" fill="currentColor" opacity="0.2"/><ellipse cx="56" cy="22" rx="5" ry="2" transform="rotate(40 56 22)" fill="currentColor" opacity="0.2"/><circle cx="25" cy="12" r="2" fill="currentColor" opacity="0.3"/><circle cx="45" cy="12" r="1.5" fill="currentColor" opacity="0.25"/><circle cx="35" cy="6" r="1.8" fill="currentColor" opacity="0.35"/></svg>`,
     bottom: `<svg width="40" height="8" viewBox="0 0 60 8"><path d="M0,4 Q10,1 20,4 Q30,7 40,4 Q50,1 60,4" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.25"/></svg>`,
   },
+  'theme-ethereal-bloom': {
+    top: `<svg width="52" height="28" viewBox="0 0 64 34"><path d="M4,32 C4,14 16,5 32,5 C48,5 60,14 60,32" fill="none" stroke="currentColor" stroke-width="0.7" opacity="0.3"/><circle cx="16" cy="16" r="3" fill="currentColor" opacity="0.25"/><circle cx="32" cy="8" r="2.5" fill="currentColor" opacity="0.3"/><circle cx="48" cy="16" r="3" fill="currentColor" opacity="0.25"/><circle cx="24" cy="22" r="1.5" fill="currentColor" opacity="0.15"/><circle cx="40" cy="22" r="1.5" fill="currentColor" opacity="0.15"/></svg>`,
+    bottom: `<svg width="40" height="8" viewBox="0 0 60 8"><path d="M0,4 Q15,1 30,4 Q45,7 60,4" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.2"/></svg>`,
+  },
 };
 
 const THEME_SLUGS = [
   'theme-super-classic', 'theme-floral-garden', 'theme-kids-party', 'theme-golden-elegance',
   'theme-royal-muslim', 'theme-wayang-heritage', 'theme-slide-romantic', 'theme-christmas-joy',
   'theme-modern-minimal', 'theme-simple-java', 'theme-enchanted-garden', 'theme-royal-blossom',
-  'theme-celestial-garden',
+  'theme-celestial-garden', 'theme-ethereal-bloom',
 ];
 
 export default function CoverScreen({ title, guestName, eventDate, onOpen, themeConfig, eventType }: CoverScreenProps) {

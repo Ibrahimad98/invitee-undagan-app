@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useDashboardStats } from '@/hooks/queries/use-dashboard-stats';
 import { useTemplates } from '@/hooks/queries/use-templates';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,16 +8,73 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
-import { Eye, Mail, Users, CheckCircle, XCircle, Clock, PlusCircle, Palette, Star, ArrowRight, Send, BookOpen } from 'lucide-react';
+import { Eye, Mail, Users, CheckCircle, XCircle, Clock, PlusCircle, Palette, Star, ArrowRight, Send, BookOpen, X, PartyPopper, FlaskConical, Crown, Sparkles, Zap, Check } from 'lucide-react';
 import { formatRelativeTime } from '@/lib/utils';
 import { EVENT_TYPE_LABELS } from '@invitee/shared';
 import Link from 'next/link';
+import { api } from '@/lib/api';
+
+const SUB_LABELS: Record<string, string> = { BASIC: 'Basic', PREMIUM: 'Premium', FAST_SERVE: 'Enterprise' };
+const SUB_COLORS: Record<string, string> = {
+  BASIC: 'bg-blue-100 text-blue-700',
+  PREMIUM: 'bg-amber-100 text-amber-700',
+  FAST_SERVE: 'bg-emerald-100 text-emerald-700',
+};
 
 export default function DashboardPage() {
   const { data: stats, isLoading } = useDashboardStats();
   const { data: templateData } = useTemplates();
-  const { user } = useAuthStore();
+  const { user, setUser } = useAuthStore();
   const router = useRouter();
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showPremiumCongrats, setShowPremiumCongrats] = useState(false);
+
+  const isPremiumUser = user?.subscriptionType === 'PREMIUM' || user?.subscriptionType === 'FAST_SERVE';
+
+  // Show welcome/premium popup:
+  // 1) First-time login as premium/enterprise → show congrats
+  // 2) First-time login as basic → show welcome
+  // 3) Subscription changed from BASIC to PREMIUM/FAST_SERVE → show congrats
+  useEffect(() => {
+    if (!user) return;
+
+    const STORAGE_KEY = `lastSubType_${user.id}`;
+    const lastSubType = localStorage.getItem(STORAGE_KEY);
+
+    if (user.isFirstLogin) {
+      if (isPremiumUser) {
+        setShowPremiumCongrats(true);
+      } else {
+        setShowWelcome(true);
+      }
+      localStorage.setItem(STORAGE_KEY, user.subscriptionType);
+    } else if (
+      lastSubType &&
+      lastSubType === 'BASIC' &&
+      isPremiumUser
+    ) {
+      // Subscription upgraded from BASIC → Premium/Enterprise
+      setShowPremiumCongrats(true);
+    } else {
+      // Update stored value
+      localStorage.setItem(STORAGE_KEY, user.subscriptionType);
+    }
+  }, [user?.id, user?.isFirstLogin, user?.subscriptionType, isPremiumUser]);
+
+  const handleDismissWelcome = async () => {
+    setShowWelcome(false);
+    setShowPremiumCongrats(false);
+    try {
+      // Update stored subscription type so popup doesn't show again
+      if (user) {
+        localStorage.setItem(`lastSubType_${user.id}`, user.subscriptionType);
+      }
+      if (user?.isFirstLogin) {
+        await api.post('/auth/first-login-complete');
+        if (user) setUser({ ...user, isFirstLogin: false });
+      }
+    } catch {}
+  };
 
   const templates = templateData?.data || [];
 
@@ -31,6 +89,123 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* Premium Congratulations Popup for First Login */}
+      {showPremiumCongrats && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative overflow-hidden">
+            {/* Decorative gradient border top */}
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500" />
+            <button
+              onClick={handleDismissWelcome}
+              className="absolute top-4 right-4 p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 z-10"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="text-center pt-2">
+              {/* Premium icon with glow */}
+              <div className="relative mx-auto mb-5 w-24 h-24">
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-300 to-yellow-400 rounded-full opacity-20 animate-pulse" />
+                <div className="relative w-24 h-24 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full flex items-center justify-center shadow-lg shadow-amber-200">
+                  <Crown className="w-12 h-12 text-white" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                </div>
+              </div>
+
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                Selamat, {user?.fullName?.split(' ')[0]}! 🎉
+              </h2>
+              <p className="text-lg font-semibold text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-yellow-600 mb-3">
+                Anda adalah Pengguna {user?.subscriptionType === 'FAST_SERVE' ? 'Enterprise' : 'Premium'}!
+              </p>
+              <p className="text-gray-500 text-sm leading-relaxed mb-5">
+                Selamat datang di <strong>Invitee</strong>! Akun Anda telah aktif dengan akses penuh ke semua fitur premium. Mari buat undangan impian Anda!
+              </p>
+
+              {/* Premium features highlight */}
+              <div className="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-100 rounded-xl p-4 mb-5 text-left">
+                <p className="font-semibold text-amber-800 text-sm mb-3 flex items-center gap-2">
+                  <Crown className="w-4 h-4" />
+                  Keuntungan Akses Premium Anda:
+                </p>
+                <div className="grid grid-cols-1 gap-2">
+                  {[
+                    'Semua template premium tersedia',
+                    `Kuota hingga ${user?.maxGuests?.toLocaleString() ?? '2.000'} tamu`,
+                    'Export data ke Excel',
+                    'Download PDF per undangan tamu',
+                    'Unlimited galeri foto',
+                    'Prioritas dukungan',
+                  ].map((feature) => (
+                    <div key={feature} className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                        <Check className="w-3 h-3 text-amber-600" />
+                      </div>
+                      <span className="text-sm text-gray-700">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Button
+                onClick={handleDismissWelcome}
+                className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white shadow-lg shadow-amber-200"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Mulai Buat Undangan Premium
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Welcome Popup for First Login */}
+      {showWelcome && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
+            <button
+              onClick={handleDismissWelcome}
+              className="absolute top-3 right-3 p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="text-center">
+              <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <PartyPopper className="w-10 h-10 text-primary-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Selamat Datang, {user?.fullName?.split(' ')[0]}! 🎉
+              </h2>
+              <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                Terima kasih telah bergabung dengan <strong>Invitee Beta</strong>!
+                Anda sekarang bisa mulai membuat undangan digital pertama Anda.
+              </p>
+              <div className="bg-gradient-to-br from-primary-50 to-amber-50 rounded-xl p-4 mb-4 text-left">
+                <p className="font-semibold text-gray-800 text-sm mb-2">🚀 Langkah Cepat:</p>
+                <ol className="text-sm text-gray-600 space-y-1.5 list-decimal list-inside">
+                  <li>Pilih template undangan yang Anda suka</li>
+                  <li>Isi detail acara dan informasi tamu</li>
+                  <li>Publish & bagikan link ke tamu undangan</li>
+                </ol>
+              </div>
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${SUB_COLORS[user?.subscriptionType || 'BASIC']}`}>
+                  {user?.subscriptionType === 'PREMIUM' ? <Crown className="w-3 h-3" /> : <FlaskConical className="w-3 h-3" />}
+                  {SUB_LABELS[user?.subscriptionType || 'BASIC']}
+                </span>
+                <span className="text-xs text-gray-400">•</span>
+                <span className="text-xs text-gray-500">Maks {user?.maxGuests ?? 100} tamu</span>
+              </div>
+              <Button onClick={handleDismissWelcome} className="w-full">
+                <PlusCircle className="w-4 h-4 mr-2" />
+                Mulai Buat Undangan
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Welcome Banner */}
       <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl p-6 sm:p-8 text-white">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -41,6 +216,13 @@ export default function DashboardPage() {
             <p className="text-primary-100 text-sm mt-1">
               Buat dan kelola undangan digital Anda dengan mudah dan cepat.
             </p>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-white/20 text-white rounded-full text-[10px] font-bold uppercase">
+                {user?.subscriptionType === 'PREMIUM' ? <Crown className="w-3 h-3" /> : <FlaskConical className="w-3 h-3" />}
+                {SUB_LABELS[user?.subscriptionType || 'BASIC']}
+              </span>
+              <span className="text-primary-200 text-xs">Maks {user?.maxGuests ?? 100} tamu</span>
+            </div>
           </div>
           <Button
             onClick={() => router.push('/dashboard/invitations/new')}

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Heart, Users, Sparkles, Shield } from 'lucide-react';
+import { Heart, Users, Sparkles, Shield, ExternalLink, Code2 } from 'lucide-react';
 import { Footer } from '@/components/layout/footer';
 import { PublicNavbar } from '@/components/layout/public-navbar';
 import { HeroBackground } from '@/components/layout/hero-background';
@@ -30,7 +30,7 @@ const VALUES = [
 ];
 
 const TEAM = [
-  { name: 'Ibrahim Adam', role: 'Founder & Developer', avatar: '👨‍💻' },
+  { name: 'Ibrahim Adam', role: 'Founder & Developer', avatar: '👨‍💻', portfolio: 'https://portofolio-ibrahim-adam.vercel.app/' },
   { name: 'Tim Desain', role: 'UI / UX & Template', avatar: '🎨' },
   { name: 'Tim Support', role: 'Customer Service', avatar: '💬' },
 ];
@@ -127,14 +127,48 @@ export default function AboutPage() {
             {TEAM.map((t) => (
               <div
                 key={t.name}
-                className="text-center bg-white rounded-xl p-8 shadow-sm border border-gray-100"
+                className="text-center bg-white rounded-xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
               >
                 <div className="text-5xl mb-4">{t.avatar}</div>
                 <h3 className="font-semibold text-gray-900">{t.name}</h3>
                 <p className="text-sm text-gray-500 mt-1">{t.role}</p>
+                {t.portfolio && (
+                  <a
+                    href={t.portfolio}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 mt-3 text-xs text-primary-600 hover:text-primary-700 font-medium transition-colors"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    Lihat Portofolio
+                  </a>
+                )}
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Created By */}
+      <section className="py-16 px-4 bg-gray-50">
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-xs font-medium mb-6">
+            <Code2 className="w-3.5 h-3.5" /> Dibuat Oleh
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Ibrahim Adam</h2>
+          <p className="text-gray-600 leading-relaxed mb-6">
+            Invitee dirancang dan dikembangkan oleh <strong>Ibrahim Adam</strong> — seorang Full-Stack Developer
+            yang berdedikasi membangun solusi digital berkualitas tinggi untuk masyarakat Indonesia.
+          </p>
+          <a
+            href="https://portofolio-ibrahim-adam.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors shadow-sm"
+          >
+            <ExternalLink className="w-4 h-4" />
+            Kunjungi Portofolio
+          </a>
         </div>
       </section>
 

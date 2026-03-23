@@ -29,7 +29,6 @@ export class S3StorageService implements IStorageService {
       },
     };
 
-    // Support custom endpoints (Cloudflare R2, MinIO, etc.)
     if (this.endpoint) {
       s3Config.endpoint = this.endpoint;
       s3Config.forcePathStyle = true;
@@ -44,6 +43,20 @@ export class S3StorageService implements IStorageService {
       Key: filePath,
       Body: file.buffer,
       ContentType: file.mimetype,
+      CacheControl: 'public, max-age=31536000, immutable',
+    });
+
+    await this.s3Client.send(command);
+    return filePath;
+  }
+
+  async uploadBuffer(buffer: Buffer, filePath: string, contentType: string): Promise<string> {
+    const command = new PutObjectCommand({
+      Bucket: this.bucket,
+      Key: filePath,
+      Body: buffer,
+      ContentType: contentType,
+      CacheControl: 'public, max-age=31536000, immutable',
     });
 
     await this.s3Client.send(command);
@@ -59,12 +72,12 @@ export class S3StorageService implements IStorageService {
     await this.s3Client.send(command);
   }
 
-  getUrl(filePath: string): string {
-    if (this.endpoint) {
-      // For R2 or custom endpoints
-      return `${this.endpoint}/${this.bucket}/${filePath}`;
-    }
-    return `https://${this.bucket}.s3.${this.region}.amazonaws.com/${filePath}`;
+  /**
+   * Returns a presigned URL for private bucket access.
+   * URLs expire in 1 hour (3600s) by default.
+   */
+  async getUrl(filePath: string): Promise<string> {
+    return this.getSignedUrl(filePath, 3600);
   }
 
   async getSignedUrl(filePath: string, expiresIn = 3600): Promise<string> {
@@ -74,5 +87,19 @@ export class S3StorageService implements IStorageService {
     });
 
     return getSignedUrl(this.s3Client, command, { expiresIn });
+  }
+
+  async getStream(filePath: string): Promise<{ stream: import('stream').Readable; contentType: string; contentLength?: number }> {
+    const command = new GetObjectCommand({
+      Bucket: this.bucket,
+      Key: filePath,
+    });
+
+    const response = await this.s3Client.send(command);
+    return {
+      stream: response.Body as import('stream').Readable,
+      contentType: response.ContentType || 'application/octet-stream',
+      contentLength: response.ContentLength,
+    };
   }
 }

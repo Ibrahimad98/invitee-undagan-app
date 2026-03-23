@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreateTestimonialDto } from './dto/create-testimonial.dto';
 
 @Injectable()
 export class TestimonialsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async findAll(page = 1, limit = 20, approvedOnly = true) {
     const skip = (page - 1) * limit;
@@ -136,6 +140,14 @@ export class TestimonialsService {
     if (dto.templateId) {
       await this.recalculateTemplateRating(dto.templateId);
     }
+
+    // Notify admins about new testimonial
+    await this.notificationsService.notifyAdmins({
+      type: 'TESTIMONIAL_NEW',
+      title: 'Testimoni Baru',
+      message: `${dto.userName} memberikan ulasan baru. Menunggu persetujuan.`,
+      linkUrl: '/dashboard/testimonials',
+    });
 
     return testimonial;
   }

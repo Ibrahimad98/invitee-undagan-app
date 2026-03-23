@@ -44,6 +44,7 @@ export const TEMPLATE_CATEGORIES = [
   'garden',
   'royal',
   'celestial',
+  'ethereal',
 ] as const;
 
 export const TEMPLATE_CATEGORY_LABELS: Record<string, string> = {
@@ -62,6 +63,7 @@ export const TEMPLATE_CATEGORY_LABELS: Record<string, string> = {
   garden: 'Garden',
   royal: 'Royal',
   celestial: 'Celestial',
+  ethereal: 'Ethereal',
 };
 
 export const ATTENDANCE_STATUS = {

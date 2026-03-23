@@ -21,6 +21,7 @@
 @import '../styles/themes/theme-enchanted-garden.css';
 @import '../styles/themes/theme-royal-blossom.css';
 @import '../styles/themes/theme-celestial-garden.css';
+@import '../styles/themes/theme-ethereal-bloom.css';
 
 @layer base {
   body {

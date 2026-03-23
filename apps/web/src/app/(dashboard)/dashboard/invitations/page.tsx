@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useInvitations, useDeleteInvitation, useUpdateInvitation } from '@/hooks/queries/use-invitations';
+import { useInvitationStore } from '@/stores/invitation-store';
 import { useUIStore } from '@/stores/ui-store';
+import { useAuthStore } from '@/stores/auth-store';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,14 +28,19 @@ import {
   Calendar,
   Users,
   CheckCircle,
+  FileEdit,
+  AlertCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function InvitationsPage() {
   const router = useRouter();
   const { addToast } = useUIStore();
+  const { user } = useAuthStore();
+  const { isDirty, draft, currentStep } = useInvitationStore();
   const [search, setSearch] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteDraftConfirm, setDeleteDraftConfirm] = useState(false);
   const [ratingPopup, setRatingPopup] = useState<{
     open: boolean;
     templateId: string;
@@ -64,9 +71,53 @@ export default function InvitationsPage() {
     }
   };
 
+  // Helper: check if an invitation has complete data for publishing
+  const getPublishMissingFields = (inv: any): string[] => {
+    const missing: string[] = [];
+    if (!inv.title) missing.push('Judul');
+    if (!inv.slug) missing.push('Slug/URL');
+    if (!inv.eventType) missing.push('Tipe acara');
+
+    if (!inv.events || inv.events.length === 0) {
+      missing.push('Minimal 1 acara');
+    } else {
+      const hasValidEvent = inv.events.some(
+        (e: any) => e.eventName?.trim() && e.eventDate,
+      );
+      if (!hasValidEvent) missing.push('Acara harus punya nama & tanggal');
+    }
+
+    if (!inv.personProfiles || inv.personProfiles.length === 0) {
+      missing.push('Minimal 1 profil');
+    } else {
+      const hasValidProfile = inv.personProfiles.some(
+        (p: any) => p.fullName?.trim(),
+      );
+      if (!hasValidProfile) missing.push('Profil harus punya nama lengkap');
+    }
+
+    const hasTemplate = inv.templates?.length > 0;
+    if (!hasTemplate) missing.push('Template undangan');
+
+    return missing;
+  };
+
   const handleTogglePublish = async (inv: any) => {
     try {
       const isPublishing = !inv.isPublished;
+
+      // Validate completeness when publishing
+      if (isPublishing) {
+        const missingFields = getPublishMissingFields(inv);
+        if (missingFields.length > 0) {
+          addToast(
+            `Tidak bisa publish — data belum lengkap: ${missingFields.join(', ')}. Silakan edit undangan terlebih dahulu.`,
+            'error',
+          );
+          return;
+        }
+      }
+
       await updateInvitation.mutateAsync({
         id: inv.id,
         payload: { isPublished: isPublishing },
@@ -76,7 +127,7 @@ export default function InvitationsPage() {
         'success',
       );
 
-      // Show rating popup when publishing (not unpublishing)
+      // Show rating popup when publishing
       if (isPublishing) {
         const primaryTemplate = inv.templates?.[0]?.template;
         if (primaryTemplate) {
@@ -112,11 +163,14 @@ export default function InvitationsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Undangan Saya</h1>
           <p className="text-gray-500 mt-1">Kelola semua undangan digital Anda</p>
         </div>
-        <Button onClick={() => router.push('/dashboard/invitations/new')}>
+        <Button onClick={() => router.push('/dashboard/invitations/new?new=1')}>
           <Plus className="w-4 h-4 mr-2" />
           Buat Undangan
         </Button>
       </div>
+
+      {/* Draft Resume Banner */}
+      {/* Draft card is now shown inline within the invitation list below */}
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
@@ -185,7 +239,7 @@ export default function InvitationsPage() {
             </Card>
           ))}
         </div>
-      ) : filtered.length === 0 ? (
+      ) : filtered.length === 0 && !(isDirty && draft.title) ? (
         <Card>
           <CardContent className="p-12 text-center">
             <Mail className="w-16 h-16 text-gray-200 mx-auto" />
@@ -200,7 +254,7 @@ export default function InvitationsPage() {
             {!search && (
               <Button
                 className="mt-6"
-                onClick={() => router.push('/dashboard/invitations/new')}
+                onClick={() => router.push('/dashboard/invitations/new?new=1')}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Buat Undangan Pertama
@@ -210,6 +264,108 @@ export default function InvitationsPage() {
         </Card>
       ) : (
         <div className="space-y-4">
+          {/* Draft Card — Zustand draft shown as first item in list */}
+          {isDirty && draft.title && (
+            <Card className="border-amber-300 bg-amber-50/40 hover:shadow-md transition-shadow">
+              <CardContent className="p-5">
+                <div className="flex items-start gap-4">
+                  {/* Draft thumbnail */}
+                  <div className="w-16 h-20 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg overflow-hidden flex-shrink-0 relative flex items-center justify-center border-2 border-dashed border-amber-300">
+                    <FileEdit className="w-6 h-6 text-amber-500" />
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-semibold text-gray-900 truncate">
+                        {draft.title}
+                      </h3>
+                      <Badge variant="secondary" className="shrink-0 bg-amber-100 text-amber-700 border-amber-300">
+                        Draft Lokal
+                      </Badge>
+                      <Badge variant="secondary" className="shrink-0">
+                        Unpublished
+                      </Badge>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
+                      {draft.eventType && (
+                        <span className="inline-flex items-center gap-1">
+                          <Mail className="w-3.5 h-3.5" />
+                          {EVENT_TYPE_LABELS[draft.eventType] || draft.eventType}
+                        </span>
+                      )}
+                      <span className="inline-flex items-center gap-1">
+                        <FileEdit className="w-3.5 h-3.5" />
+                        Step {currentStep + 1}/7
+                      </span>
+                    </div>
+
+                    {/* Data completeness warning */}
+                    {(() => {
+                      const missing: string[] = [];
+                      if (!draft.title) missing.push('Judul');
+                      if (!draft.slug) missing.push('Slug/URL');
+                      if (!draft.eventType) missing.push('Tipe acara');
+                      const hasEvent = draft.events?.some(e => e.eventName?.trim() && e.eventDate);
+                      if (!hasEvent) missing.push('Acara (nama & tanggal)');
+                      const hasProfile = draft.personProfiles?.some(p => p.fullName?.trim());
+                      if (!hasProfile) missing.push('Profil (nama lengkap)');
+                      if (!draft.templateId) missing.push('Template');
+
+                      if (missing.length > 0) {
+                        return (
+                          <div className="flex items-start gap-1.5 mt-1.5">
+                            <AlertCircle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+                            <p className="text-xs text-amber-600">
+                              Belum bisa dipublish — lengkapi: {missing.join(', ')}
+                            </p>
+                          </div>
+                        );
+                      }
+                      return (
+                        <p className="text-xs text-green-600 mt-1.5 flex items-center gap-1">
+                          <CheckCircle className="w-3.5 h-3.5" />
+                          Data lengkap — submit terlebih dahulu untuk bisa publish
+                        </p>
+                      );
+                    })()}
+
+                    <p className="text-xs text-gray-400 mt-1">
+                      Draft belum disimpan ke server • /{draft.slug || '...'}
+                    </p>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      className="p-2 text-gray-300 cursor-not-allowed rounded-lg"
+                      title="Tidak bisa publish — draft belum disimpan ke server"
+                      disabled
+                    >
+                      <ToggleLeft className="w-4 h-4" />
+                    </button>
+                    <Button
+                      size="sm"
+                      onClick={() => router.push('/dashboard/invitations/new')}
+                      className="ml-1"
+                    >
+                      <Edit2 className="w-3.5 h-3.5 mr-1.5" />
+                      Lanjutkan
+                    </Button>
+                    <button
+                      onClick={() => setDeleteDraftConfirm(true)}
+                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Hapus Draft"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {filtered.map((inv: any) => {
             const templateSlug = inv.templates?.[0]?.template?.slug || 'default';
             const templateName = inv.templates?.[0]?.template?.name || 'Belum dipilih';
@@ -274,15 +430,34 @@ export default function InvitationsPage() {
                           <Eye className="w-3.5 h-3.5" />
                           {inv.viewCount} dilihat
                         </span>
-                        <span className="inline-flex items-center gap-1">
+                        <Link
+                          href={`/dashboard/contacts?invitationId=${inv.id}`}
+                          className="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 hover:underline"
+                        >
                           <Users className="w-3.5 h-3.5" />
-                          {guestCount} tamu
-                        </span>
+                          {guestCount} tamu →
+                        </Link>
                       </div>
 
                       <p className="text-xs text-gray-400 mt-1">
                         Tema: {templateName} • /{inv.slug}
                       </p>
+
+                      {/* Data completeness warning for unpublished invitations */}
+                      {!inv.isPublished && (() => {
+                        const missing = getPublishMissingFields(inv);
+                        if (missing.length > 0) {
+                          return (
+                            <div className="flex items-start gap-1.5 mt-1.5">
+                              <AlertCircle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+                              <p className="text-xs text-amber-600">
+                                Belum bisa dipublish — lengkapi: {missing.join(', ')}
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
 
                     {/* Actions */}
@@ -308,9 +483,17 @@ export default function InvitationsPage() {
                           'p-2 rounded-lg transition-colors',
                           inv.isPublished
                             ? 'text-green-600 hover:bg-green-50'
-                            : 'text-gray-400 hover:text-green-600 hover:bg-green-50',
+                            : getPublishMissingFields(inv).length > 0
+                              ? 'text-amber-400 hover:text-amber-500 hover:bg-amber-50'
+                              : 'text-gray-400 hover:text-green-600 hover:bg-green-50',
                         )}
-                        title={inv.isPublished ? 'Unpublish' : 'Publish'}
+                        title={
+                          inv.isPublished
+                            ? 'Unpublish'
+                            : getPublishMissingFields(inv).length > 0
+                              ? 'Data belum lengkap — tidak bisa dipublish'
+                              : 'Publish'
+                        }
                       >
                         {inv.isPublished ? (
                           <ToggleRight className="w-4 h-4" />
@@ -351,6 +534,21 @@ export default function InvitationsPage() {
         confirmLabel="Hapus"
         variant="danger"
         loading={deleteInvitation.isPending}
+      />
+
+      {/* Delete Draft Confirmation Modal */}
+      <ConfirmModal
+        open={deleteDraftConfirm}
+        onClose={() => setDeleteDraftConfirm(false)}
+        onConfirm={() => {
+          useInvitationStore.getState().reset();
+          setDeleteDraftConfirm(false);
+          addToast('Draft dihapus', 'info');
+        }}
+        title="Hapus Draft Lokal"
+        description="Apakah Anda yakin ingin menghapus draft ini? Semua data yang sudah diisi akan hilang. Tindakan ini tidak bisa dibatalkan."
+        confirmLabel="Hapus Draft"
+        variant="danger"
       />
 
       {/* Rating Popup — shown after publishing */}

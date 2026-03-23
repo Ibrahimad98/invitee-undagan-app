@@ -1,4 +1,4 @@
-import { LayoutDashboard, Mail, Palette, Users, MessageSquare, User, PlusCircle, Shield, Settings } from 'lucide-react';
+import { LayoutDashboard, Mail, Palette, Users, MessageSquare, User, PlusCircle, Shield, Settings, Crown } from 'lucide-react';
 
 export const NAV_ITEMS = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -6,6 +6,7 @@ export const NAV_ITEMS = [
   { label: 'Template', href: '/dashboard/templates', icon: Palette },
   { label: 'Kontak / Tamu', href: '/dashboard/contacts', icon: Users },
   { label: 'Testimoni', href: '/dashboard/testimonials', icon: MessageSquare },
+  { label: 'Langganan', href: '/dashboard/subscription', icon: Crown },
   { label: 'Profil', href: '/dashboard/profile', icon: User },
   { label: 'Kelola User', href: '/dashboard/users', icon: Shield, adminOnly: true },
   { label: 'Pengaturan', href: '/dashboard/settings', icon: Settings, adminOnly: true },
@@ -37,4 +38,5 @@ export const CATEGORY_COLORS: Record<string, string> = {
   garden: 'bg-green-100 text-green-800',
   royal: 'bg-rose-100 text-rose-800',
   celestial: 'bg-teal-100 text-teal-800',
+  ethereal: 'bg-violet-100 text-violet-800',
 };

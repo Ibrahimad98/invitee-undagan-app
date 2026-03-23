@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useInvitationStore } from '@/stores/invitation-store';
 import { useUIStore } from '@/stores/ui-store';
+import { useAuthStore } from '@/stores/auth-store';
 import { useCreateInvitation } from '@/hooks/queries/use-invitations';
 import { useTemplates } from '@/hooks/queries/use-templates';
 import { Button } from '@/components/ui/button';
@@ -12,11 +13,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
+import { PremiumUpgradeModal } from '@/components/ui/premium-upgrade-modal';
 import { STEPPER_LABELS } from '@/lib/constants';
 import { EVENT_TYPE_LABELS } from '@invitee/shared';
 import { slugify } from '@invitee/shared';
 import { cn } from '@/lib/utils';
 import { getEventTypeConfig } from '@/lib/event-type-config';
+import { GALLERY_SAMPLES } from '@/lib/gallery-samples';
 import {
   ChevronLeft,
   ChevronRight,
@@ -27,6 +30,9 @@ import {
   Star,
   Upload,
   Eye,
+  Save,
+  Crown,
+  Lock,
 } from 'lucide-react';
 
 /* ── Invitation preview components ── */
@@ -116,11 +122,13 @@ export default function NewInvitationPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { addToast } = useUIStore();
+  const { user } = useAuthStore();
   const createInvitation = useCreateInvitation();
 
   const {
     draft,
     currentStep,
+    isDirty,
     setField,
     setDraft,
     nextStep,
@@ -136,6 +144,14 @@ export default function NewInvitationPage() {
   );
   const templates = templatesData?.data || [];
 
+  // Premium check
+  const isPremiumUser = user?.subscriptionType === 'PREMIUM' || user?.subscriptionType === 'FAST_SERVE' || user?.role === 'ADMIN';
+  const selectedTemplate = templates.find((t: any) => t.id === draft.templateId);
+  const selectedTemplateIsPremium = selectedTemplate?.isPremium === true;
+
+  // Premium template block modal
+  const [showPremiumBlockModal, setShowPremiumBlockModal] = useState(false);
+
   // Cancel confirmation
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
@@ -146,10 +162,14 @@ export default function NewInvitationPage() {
   const eventConfig = getEventTypeConfig(draft.eventType);
 
   useEffect(() => {
-    reset();
     const templateId = searchParams.get('templateId');
-    if (templateId) {
-      setField('templateId', templateId);
+    const forceNew = searchParams.get('new');
+    // Only reset if explicitly starting new or no existing draft
+    if (forceNew === '1' || !isDirty) {
+      reset();
+      if (templateId) {
+        setField('templateId', templateId);
+      }
     }
   }, []);
 
@@ -322,6 +342,12 @@ export default function NewInvitationPage() {
   };
 
   const handleSubmit = async () => {
+    // Block submission if using premium template and user is not premium
+    if (selectedTemplateIsPremium && !isPremiumUser) {
+      setShowPremiumBlockModal(true);
+      return;
+    }
+
     try {
       const payload = {
         title: draft.title,
@@ -356,9 +382,17 @@ export default function NewInvitationPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Buat Undangan Baru</h1>
-        <p className="text-gray-500 mt-1">Isi form di bawah untuk membuat undangan digital</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Buat Undangan Baru</h1>
+          <p className="text-gray-500 mt-1">Isi form di bawah untuk membuat undangan digital</p>
+        </div>
+        {isDirty && (
+          <span className="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-medium">
+            <Save className="w-3 h-3 inline mr-1" />
+            Draft tersimpan otomatis
+          </span>
+        )}
       </div>
 
       {/* Stepper */}
@@ -808,15 +842,74 @@ export default function NewInvitationPage() {
             <div className="space-y-4">
               <CardHeader className="p-0 pb-4">
                 <CardTitle>Galeri Foto</CardTitle>
+                <p className="text-sm text-gray-500 mt-1">
+                  Upload foto akan tersedia setelah undangan tersimpan. Berikut preview tampilan galeri.
+                </p>
               </CardHeader>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
-                <Upload className="w-12 h-12 text-gray-400 mx-auto" />
-                <p className="mt-4 text-sm text-gray-500">
-                  Upload foto akan tersedia setelah undangan dibuat.
-                </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  Anda bisa menambahkan foto di halaman edit undangan.
-                </p>
+
+              {/* Gallery Layout Preview */}
+              <div className="space-y-4">
+                <h4 className="text-sm font-medium text-gray-700">Preview Tampilan Galeri</h4>
+                <div className="grid grid-cols-3 gap-3">
+                  {/* Masonry-style dynamic preview */}
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        'rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 relative group',
+                        i === 1 ? 'col-span-2 row-span-2 aspect-square' : 'aspect-square',
+                      )}
+                    >
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="text-center">
+                          <Upload className="w-6 h-6 text-gray-400 mx-auto" />
+                          <p className="text-[10px] text-gray-400 mt-1">Foto {i}</p>
+                        </div>
+                      </div>
+                      {/* Frame overlay */}
+                      <div className="absolute inset-0 border-4 border-white/50 rounded-xl pointer-events-none" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Bingkai/Frame Options */}
+              <div className="space-y-3 pt-4 border-t">
+                <h4 className="text-sm font-medium text-gray-700">Pilih Bingkai Galeri</h4>
+                <div className="grid grid-cols-4 gap-3">
+                  {[
+                    { name: 'Tanpa Bingkai', style: 'rounded-none border-0', value: 'none' },
+                    { name: 'Rounded', style: 'rounded-xl border-2 border-white shadow-md', value: 'rounded' },
+                    { name: 'Lingkaran', style: 'rounded-full border-4 border-white shadow-lg', value: 'circle' },
+                    { name: 'Elegan', style: 'rounded-lg border-4 border-amber-200 shadow-amber-100/50 shadow-lg', value: 'elegant' },
+                  ].map((frame) => (
+                    <button
+                      key={frame.value}
+                      type="button"
+                      onClick={() => setField('galleryFrame', frame.value)}
+                      className={cn(
+                        'p-3 border-2 rounded-lg text-center transition-all',
+                        (draft as any).galleryFrame === frame.value
+                          ? 'border-primary-600 bg-primary-50 ring-2 ring-primary-200'
+                          : 'border-gray-200 hover:border-gray-300',
+                      )}
+                    >
+                      <div className={cn('w-12 h-12 mx-auto bg-gradient-to-br from-gray-200 to-gray-300 mb-2', frame.style)} />
+                      <p className="text-xs font-medium text-gray-700">{frame.name}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Info */}
+              <div className="bg-blue-50 rounded-lg p-4 flex gap-3">
+                <Upload className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-blue-800">Upload foto setelah undangan dibuat</p>
+                  <p className="text-xs text-blue-600 mt-1">
+                    Setelah undangan tersimpan, Anda bisa upload foto galeri di halaman edit. Foto akan disimpan di cloud storage (AWS S3). Layout galeri akan otomatis menyesuaikan jumlah foto yang diupload.
+                  </p>
+                </div>
               </div>
             </div>
           )}
@@ -900,10 +993,17 @@ export default function NewInvitationPage() {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {templates.map((template: any) => {
                   const isRecommended = eventConfig.recommendedTemplates.includes(template.slug);
+                  const isTemplatePremium = template.isPremium;
                   return (
                     <button
                       key={template.id}
-                      onClick={() => setField('templateId', template.id)}
+                      onClick={() => {
+                        setField('templateId', template.id);
+                        // Show warning when selecting premium template for basic users
+                        if (isTemplatePremium && !isPremiumUser) {
+                          addToast('⚠️ Ini adalah template Premium. Anda tetap bisa melanjutkan, tetapi diperlukan akses Premium untuk menerbitkan undangan.', 'info');
+                        }
+                      }}
                       className={cn(
                         'p-4 border-2 rounded-lg text-left transition-all relative',
                         draft.templateId === template.id
@@ -914,6 +1014,11 @@ export default function NewInvitationPage() {
                       {isRecommended && (
                         <span className="absolute -top-2.5 -right-2 text-[11px] bg-yellow-100 text-yellow-800 border border-yellow-400 px-2 py-0.5 rounded-full font-semibold shadow">
                           ⭐ Direkomendasikan
+                        </span>
+                      )}
+                      {isTemplatePremium && (
+                        <span className="absolute top-2 left-2 text-[10px] bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-2 py-0.5 rounded-full font-bold shadow z-10 flex items-center gap-1">
+                          <Crown className="w-3 h-3" /> Premium
                         </span>
                       )}
                       <div className="h-32 bg-gradient-to-br from-primary-50 to-secondary-50 rounded-lg mb-3 relative overflow-hidden flex items-center justify-center">
@@ -937,6 +1042,19 @@ export default function NewInvitationPage() {
                   );
                 })}
               </div>
+
+              {/* Premium template warning for basic users */}
+              {selectedTemplateIsPremium && !isPremiumUser && (
+                <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <Crown className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-amber-800">Template Premium Dipilih</p>
+                    <p className="text-xs text-amber-600 mt-1">
+                      Anda memilih template premium. Anda bisa melanjutkan proses pembuatan undangan, tetapi akses Premium diperlukan untuk menerbitkan undangan dengan template ini.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </CardContent>
@@ -948,7 +1066,7 @@ export default function NewInvitationPage() {
       )}
 
       {/* Navigation */}
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center">
         <Button
           variant="outline"
           onClick={currentStep === 0 ? () => setShowCancelConfirm(true) : prevStep}
@@ -957,26 +1075,42 @@ export default function NewInvitationPage() {
           {currentStep === 0 ? 'Batal' : 'Sebelumnya'}
         </Button>
 
-        {currentStep < 6 ? (
-          <Button onClick={handleNextStep}>
-            {currentStep === 5 ? (
-              <>
-                <Eye className="w-4 h-4 mr-2" />
-                Lihat Preview
-              </>
-            ) : (
-              <>
-                Selanjutnya
-                <ChevronRight className="w-4 h-4 ml-2" />
-              </>
-            )}
-          </Button>
-        ) : (
-          <Button onClick={handleSubmit} loading={createInvitation.isPending}>
-            <Check className="w-4 h-4 mr-2" />
-            Buat Undangan
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {isDirty && currentStep < 6 && (
+            <Button
+              variant="outline"
+              onClick={() => {
+                addToast('Draft tersimpan otomatis', 'success');
+                router.push('/dashboard/invitations');
+              }}
+              className="text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              Simpan Draft
+            </Button>
+          )}
+
+          {currentStep < 6 ? (
+            <Button onClick={handleNextStep}>
+              {currentStep === 5 ? (
+                <>
+                  <Eye className="w-4 h-4 mr-2" />
+                  Lihat Preview
+                </>
+              ) : (
+                <>
+                  Selanjutnya
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                </>
+              )}
+            </Button>
+          ) : (
+            <Button onClick={handleSubmit} loading={createInvitation.isPending}>
+              <Check className="w-4 h-4 mr-2" />
+              Buat Undangan
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Cancel Confirmation */}
@@ -992,6 +1126,13 @@ export default function NewInvitationPage() {
         confirmLabel="Ya, Batalkan"
         cancelLabel="Lanjut Mengisi"
         variant="warning"
+      />
+
+      {/* Premium Template Block Modal */}
+      <PremiumUpgradeModal
+        open={showPremiumBlockModal}
+        onClose={() => setShowPremiumBlockModal(false)}
+        featureName="Template Premium"
       />
     </div>
   );
@@ -1082,15 +1223,8 @@ function InvitationPreviewStep({ draft, templates }: { draft: any; templates: an
       ? new Date(validEvents[0].eventDate)
       : futureDate;
 
-    // Gallery - use sample images as placeholder
-    const media = [
-      '/images/gallery/sample-1.jpg',
-      '/images/gallery/sample-2.jpg',
-      '/images/gallery/sample-3.jpg',
-      '/images/gallery/sample-4.jpg',
-      '/images/gallery/sample-5.jpg',
-      '/images/gallery/sample-6.jpg',
-    ].map((url, i) => ({ id: `preview-${i}`, url, fileUrl: url, purpose: 'GALLERY' }));
+    // Gallery - use S3-backed sample images as placeholder
+    const media = GALLERY_SAMPLES.map((url, i) => ({ id: `preview-${i}`, url, fileUrl: url, purpose: 'GALLERY' }));
 
     // Gift accounts with placeholders
     const validGifts = draft.giftAccounts?.filter((g: any) => g.bankName?.trim() && g.accountNumber?.trim()) || [];

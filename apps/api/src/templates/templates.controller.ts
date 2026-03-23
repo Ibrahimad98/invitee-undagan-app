@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { TemplatesService } from './templates.service';
 import { FilterTemplateDto } from './dto/filter-template.dto';
@@ -12,6 +12,15 @@ import { RolesGuard } from '../common/guards/roles.guard';
 export class TemplatesController {
   constructor(private templatesService: TemplatesService) {}
 
+  @Get('admin')
+  @ApiBearerAuth()
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Get all templates including inactive (admin only)' })
+  async findAllAdmin(@Query() filter: FilterTemplateDto) {
+    return this.templatesService.findAllAdmin(filter);
+  }
+
   @Public()
   @Get()
   @ApiOperation({ summary: 'Get all templates (public)' })
@@ -24,6 +33,15 @@ export class TemplatesController {
   @ApiOperation({ summary: 'Get all templates for public display (filtered fields)' })
   async findAllPublic(@Query() filter: FilterTemplateDto) {
     return this.templatesService.findAllPublic(filter);
+  }
+
+  @Patch(':id/toggle-active')
+  @ApiBearerAuth()
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Toggle template active status (admin only)' })
+  async toggleActive(@Param('id') id: string) {
+    return this.templatesService.toggleActive(id);
   }
 
   @Public()

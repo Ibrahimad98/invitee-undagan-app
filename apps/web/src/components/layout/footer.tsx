@@ -62,9 +62,20 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-gray-100 text-center">
+        <div className="mt-8 pt-6 border-t border-gray-100 text-center space-y-1.5">
           <p className="text-xs text-gray-400">
             &copy; {currentYear} Invitee. All rights reserved.
+          </p>
+          <p className="text-xs text-gray-400">
+            Dibuat oleh{' '}
+            <a
+              href="https://portofolio-ibrahim-adam.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary-500 hover:text-primary-600 font-medium transition-colors"
+            >
+              Ibrahim Adam
+            </a>
           </p>
         </div>
       </div>

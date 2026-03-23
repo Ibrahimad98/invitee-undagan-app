@@ -37,6 +37,11 @@ const ICON_MAP: Record<string, React.ElementType> = {
   operasional: Clock,
   website: Globe,
   telegram: Send,
+  otp: Phone,
+  verifikasi: Phone,
+  google: Globe,
+  login: Globe,
+  registrasi: Globe,
 };
 function getIcon(item: string) {
   const key = item.toLowerCase();
@@ -152,6 +157,7 @@ export default function SettingsPage() {
     contact: 'Kontak',
     social: 'Media Sosial',
     general: 'Umum',
+    registration: 'Registrasi & Login',
     other: 'Lainnya',
   };
 
@@ -313,6 +319,7 @@ export default function SettingsPage() {
                   <option value="contact">Kontak</option>
                   <option value="social">Media Sosial</option>
                   <option value="general">Umum</option>
+                  <option value="registration">Registrasi & Login</option>
                   <option value="other">Lainnya</option>
                 </select>
               </div>
