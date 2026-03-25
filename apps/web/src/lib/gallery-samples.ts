@@ -4,13 +4,13 @@
  * which streams the file content directly with correct Content-Type headers.
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 export const GALLERY_SAMPLES = [
-  `${API_URL}/assets/images/gallery/sample-1.jpg`,
-  `${API_URL}/assets/images/gallery/sample-2.jpg`,
-  `${API_URL}/assets/images/gallery/sample-3.jpg`,
-  `${API_URL}/assets/images/gallery/sample-4.jpg`,
-  `${API_URL}/assets/images/gallery/sample-5.jpg`,
-  `${API_URL}/assets/images/gallery/sample-6.jpg`,
+  `${API_BASE}/assets/images/gallery/sample-1.jpg`,
+  `${API_BASE}/assets/images/gallery/sample-2.jpg`,
+  `${API_BASE}/assets/images/gallery/sample-3.jpg`,
+  `${API_BASE}/assets/images/gallery/sample-4.jpg`,
+  `${API_BASE}/assets/images/gallery/sample-5.jpg`,
+  `${API_BASE}/assets/images/gallery/sample-6.jpg`,
 ];

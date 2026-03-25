@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { InvitationComment } from '@invitee/shared';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 interface PaginatedComments {
   data: InvitationComment[];
@@ -18,7 +18,7 @@ export function useCommentsPublic(invitationId: string) {
     try {
       setIsLoading(true);
       const res = await fetch(
-        `${API_URL}/comments?invitationId=${invitationId}&page=1&limit=100`,
+        `${API_BASE}/comments?invitationId=${invitationId}&page=1&limit=100`,
       );
       if (!res.ok) throw new Error('Failed to fetch comments');
       const json = await res.json();
@@ -55,7 +55,7 @@ export function useCreateCommentPublic() {
     setIsPending(true);
     setError(null);
     try {
-      const res = await fetch(`${API_URL}/comments`, {
+      const res = await fetch(`${API_BASE}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

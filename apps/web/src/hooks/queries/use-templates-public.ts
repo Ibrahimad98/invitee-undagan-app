@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 interface PublicTemplate {
   id: string;
@@ -46,7 +46,7 @@ export function useTemplatesPublic(params: UseTemplatesPublicParams = {}) {
       if (search) queryParams.set('search', search);
       if (category) queryParams.set('category', category);
 
-      const res = await fetch(`${API_URL}/templates/public?${queryParams.toString()}`);
+      const res = await fetch(`${API_BASE}/templates/public?${queryParams.toString()}`);
       if (!res.ok) throw new Error('Failed to fetch templates');
       const json = await res.json();
       // API returns { success, data: { data: [...], meta: {...} } }
