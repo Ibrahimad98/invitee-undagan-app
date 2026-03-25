@@ -47,6 +47,8 @@ export class AssetsService {
     const uploaded: string[] = [];
     const errors: string[] = [];
 
+    const uploadPromises: Promise<void>[] = [];
+
     const walkDir = (dir: string, prefix: string) => {
       const entries = fs.readdirSync(dir, { withFileTypes: true });
       for (const entry of entries) {
@@ -60,20 +62,24 @@ export class AssetsService {
           const s3Key = `assets/${relativePath}`;
           const buffer = fs.readFileSync(fullPath);
 
-          // Queue the upload
-          uploaded.push(s3Key); // we'll process all at once
-          this.storageService.uploadBuffer(buffer, s3Key, contentType).catch((err) => {
-            this.logger.error(`Failed to upload ${s3Key}: ${err.message}`);
-            errors.push(s3Key);
-          });
+          uploaded.push(s3Key);
+          const promise = this.storageService.uploadBuffer(buffer, s3Key, contentType)
+            .then(() => {
+              this.logger.debug(`Uploaded ${s3Key}`);
+            })
+            .catch((err) => {
+              this.logger.error(`Failed to upload ${s3Key}: ${err.message}`);
+              errors.push(s3Key);
+            });
+          uploadPromises.push(promise);
         }
       }
     };
 
     walkDir(localDir, '');
 
-    // Wait a bit for all async uploads to settle
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    // Wait for all uploads to complete
+    await Promise.all(uploadPromises);
 
     this.logger.log(`Migration complete: ${uploaded.length} files queued, ${errors.length} errors`);
     return { uploaded, errors };
