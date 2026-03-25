@@ -1,4 +1,4 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsInt, Min } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateGuestDto {
@@ -24,4 +24,15 @@ export class CreateGuestDto {
   @IsOptional()
   @IsString()
   groupName?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  numberOfGuests?: number;
 }
