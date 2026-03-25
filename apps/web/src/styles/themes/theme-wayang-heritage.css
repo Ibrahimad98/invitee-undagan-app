@@ -6,6 +6,9 @@
   --inv-text-secondary: #6d5c42;
   --inv-accent: #8b4513;
   --inv-accent-text: #f2e8d5;
+  --inv-cover-text: #d4a86a;
+  --inv-cover-text-secondary: rgba(212,168,106,0.65);
+  --inv-cover-border: #8b4513;
   font-family: 'Lora', 'Palatino', serif;
 }
 
@@ -33,21 +36,28 @@
   border-radius: 4px;
 }
 
-/* Traditional diamond dividers */
+/* Batik-inspired section decorations */
 .theme-wayang-heritage .invitation-section {
   position: relative;
-  border-top: 1px solid rgba(139, 69, 19, 0.15);
 }
 .theme-wayang-heritage .invitation-section::before {
-  content: '◆◇◆';
+  content: '';
   position: absolute;
-  top: -8px; left: 50%;
-  transform: translateX(-50%);
-  color: #8b4513;
-  font-size: 8px;
-  letter-spacing: 4px;
-  background: var(--inv-bg-primary);
-  padding: 0 10px;
+  inset: 8px;
+  border: 2px solid rgba(139, 69, 19, 0.08);
+  border-radius: 3px;
+  pointer-events: none;
+}
+.theme-wayang-heritage .invitation-section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(139, 69, 19, 0.03) 0px, rgba(139, 69, 19, 0.03) 1px, transparent 1px, transparent 20px),
+    repeating-linear-gradient(-45deg, rgba(139, 69, 19, 0.03) 0px, rgba(139, 69, 19, 0.03) 1px, transparent 1px, transparent 20px),
+    radial-gradient(ellipse at 5% 5%, rgba(139, 69, 19, 0.06) 0%, transparent 30%),
+    radial-gradient(ellipse at 95% 95%, rgba(139, 69, 19, 0.06) 0%, transparent 30%);
+  pointer-events: none;
 }
 
 /* Warm sepia glow on images */

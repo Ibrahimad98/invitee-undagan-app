@@ -7,6 +7,22 @@ interface PaginatedResult<T> {
   meta: { total: number; page: number; limit: number; totalPages: number };
 }
 
+interface TemplateForReview {
+  template: {
+    id: string;
+    name: string;
+    slug: string;
+    thumbnailUrl?: string;
+    category: string;
+    cssClass: string;
+    ratingAvg: number;
+    ratingCount: number;
+  };
+  invitationTitle: string;
+  hasReviewed: boolean;
+  review: Testimonial | null;
+}
+
 export function useTestimonials(page = 1, limit = 20, all = false) {
   return useQuery<PaginatedResult<Testimonial>>({
     queryKey: ['testimonials', page, limit, all],
@@ -16,6 +32,26 @@ export function useTestimonials(page = 1, limit = 20, all = false) {
         params: { page, limit },
       });
       // Unwrap TransformInterceptor
+      return (data as any)?.data || data;
+    },
+  });
+}
+
+export function useMyTestimonials() {
+  return useQuery<{ data: Testimonial[] }>({
+    queryKey: ['testimonials', 'mine'],
+    queryFn: async () => {
+      const { data } = await api.get('/testimonials/mine');
+      return (data as any)?.data || data;
+    },
+  });
+}
+
+export function useMyTemplatesForReview() {
+  return useQuery<{ data: TemplateForReview[] }>({
+    queryKey: ['testimonials', 'my-templates'],
+    queryFn: async () => {
+      const { data } = await api.get('/testimonials/my-templates');
       return (data as any)?.data || data;
     },
   });
@@ -31,6 +67,7 @@ export function useCreateTestimonial() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['testimonials'] });
+      queryClient.invalidateQueries({ queryKey: ['templates'] });
     },
   });
 }
@@ -45,6 +82,7 @@ export function useApproveTestimonial() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['testimonials'] });
+      queryClient.invalidateQueries({ queryKey: ['templates'] });
     },
   });
 }
@@ -59,6 +97,7 @@ export function useDeleteTestimonial() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['testimonials'] });
+      queryClient.invalidateQueries({ queryKey: ['templates'] });
     },
   });
 }

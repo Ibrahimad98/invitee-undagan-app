@@ -10,7 +10,7 @@ interface AuthState {
   isLoading: boolean;
   _hasHydrated: boolean;
   login: (payload: LoginPayload) => Promise<void>;
-  register: (payload: RegisterPayload) => Promise<void>;
+  register: (payload: RegisterPayload) => Promise<any>;
   logout: () => void;
   setUser: (user: User) => void;
   setHasHydrated: (v: boolean) => void;
@@ -47,14 +47,27 @@ export const useAuthStore = create<AuthState>()(
       register: async (payload: RegisterPayload) => {
         set({ isLoading: true });
         try {
-          const { data } = await api.post<{ data: AuthTokens }>('/auth/register', payload);
-          const { accessToken, user } = data.data;
+          const { data } = await api.post<{ data: any }>('/auth/register', {
+            ...payload,
+            baseUrl: typeof window !== 'undefined' ? window.location.origin : undefined,
+          });
+          const result = data.data || data;
+
+          // If email verification is required, don't set auth state
+          if (result.needsVerification) {
+            set({ isLoading: false });
+            return result; // { needsVerification: true, message, email }
+          }
+
+          // No verification needed — set auth state directly
+          const { accessToken, user } = result;
           set({
             user,
             token: accessToken,
             isAuthenticated: true,
             isLoading: false,
           });
+          return result;
         } catch (error) {
           set({ isLoading: false });
           throw error;

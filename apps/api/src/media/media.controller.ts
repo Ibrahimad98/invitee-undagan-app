@@ -20,8 +20,8 @@ export class MediaController {
   constructor(private mediaService: MediaService) {}
 
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 10 * 1024 * 1024 } }))
-  @ApiOperation({ summary: 'Upload a file' })
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 2 * 1024 * 1024 } }))
+  @ApiOperation({ summary: 'Upload a file (max 2MB)' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {

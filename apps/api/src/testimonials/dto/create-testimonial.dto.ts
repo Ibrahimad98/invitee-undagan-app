@@ -1,7 +1,16 @@
-import { IsString, IsNumber, Min, Max } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsNumber, IsOptional, Min, Max } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateTestimonialDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  userId?: string;
+
+  @ApiProperty({ description: 'Template ID being reviewed' })
+  @IsString()
+  templateId: string;
+
   @ApiProperty()
   @IsString()
   userName: string;
@@ -15,4 +24,27 @@ export class CreateTestimonialDto {
   @Min(1)
   @Max(5)
   rating: number;
+
+  @ApiProperty({ minimum: 1, maximum: 5 })
+  @IsNumber()
+  @Min(1)
+  @Max(5)
+  ratingDesain: number;
+
+  @ApiProperty({ minimum: 1, maximum: 5 })
+  @IsNumber()
+  @Min(1)
+  @Max(5)
+  ratingKemudahan: number;
+
+  @ApiProperty({ minimum: 1, maximum: 5 })
+  @IsNumber()
+  @Min(1)
+  @Max(5)
+  ratingLayanan: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  notes?: string;
 }

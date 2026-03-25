@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 560">
+  <rect width="400" height="560" fill="#faf5f0"/>
+  <rect x="20" y="20" width="360" height="520" rx="8" fill="none" stroke="#c0392b" stroke-width="2.5"/>
+  <rect x="28" y="28" width="344" height="504" rx="6" fill="none" stroke="#27ae60" stroke-width="1" stroke-dasharray="6 4"/>
+  <path d="M200,55 L203,65 L213,65 L205,71 L208,81 L200,75 L192,81 L195,71 L187,65 L197,65Z" fill="#c0392b" opacity="0.5"/>
+  <line x1="160" y1="68" x2="187" y2="68" stroke="#27ae60" stroke-width="0.8" opacity="0.4"/>
+  <line x1="213" y1="68" x2="240" y2="68" stroke="#27ae60" stroke-width="0.8" opacity="0.4"/>
+  <path d="M60,80 L63,73 L66,80 M60,80 L57,73 L54,80" stroke="#c0392b" stroke-width="0.8" opacity="0.3" fill="none"/>
+  <path d="M340,80 L343,73 L346,80 M340,80 L337,73 L334,80" stroke="#c0392b" stroke-width="0.8" opacity="0.3" fill="none"/>
+  <circle cx="60" cy="80" r="1.5" fill="#c0392b" opacity="0.3"/>
+  <circle cx="340" cy="80" r="1.5" fill="#c0392b" opacity="0.3"/>
+  <text x="200" y="180" text-anchor="middle" fill="#c0392b" font-family="serif" font-size="22" letter-spacing="3">UNDANGAN</text>
+  <text x="200" y="248" text-anchor="middle" fill="#c0392b" font-family="serif" font-size="18" opacity="0.7">Nama Pertama</text>
+  <text x="200" y="305" text-anchor="middle" fill="#c0392b" font-family="serif" font-size="44">&amp;</text>
+  <text x="200" y="360" text-anchor="middle" fill="#c0392b" font-family="serif" font-size="18" opacity="0.7">Nama Kedua</text>
+  <path d="M60,480 L63,473 L66,480 M60,480 L57,473 L54,480" stroke="#27ae60" stroke-width="0.8" opacity="0.3" fill="none"/>
+  <path d="M340,480 L343,473 L346,480 M340,480 L337,473 L334,480" stroke="#27ae60" stroke-width="0.8" opacity="0.3" fill="none"/>
+  <circle cx="60" cy="480" r="1.5" fill="#27ae60" opacity="0.3"/>
+  <circle cx="340" cy="480" r="1.5" fill="#27ae60" opacity="0.3"/>
+  <path d="M200,495 L203,505 L213,505 L205,511 L208,521 L200,515 L192,521 L195,511 L187,505 L197,505Z" fill="#27ae60" opacity="0.35"/>
+</svg>

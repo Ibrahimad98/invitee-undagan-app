@@ -2,6 +2,8 @@
 
 import { formatDate, formatTime } from '@invitee/shared';
 import { MapPin, Calendar, Clock } from 'lucide-react';
+import { useScrollAnimation, animClass } from '@/hooks/use-scroll-animation';
+import SectionOrnament from './section-ornament';
 
 interface InvitationEvent {
   eventName: string;
@@ -18,15 +20,19 @@ interface EventDetailsSectionProps {
 }
 
 export default function EventDetailsSection({ events }: EventDetailsSectionProps) {
+  const { ref, isVisible } = useScrollAnimation(0.1);
+
   return (
-    <section className="invitation-section invitation-events py-16 px-8 bg-[var(--inv-bg-secondary)] text-[var(--inv-text-primary)]">
-      <div className="max-w-2xl mx-auto space-y-12">
-        <h3 className="text-center text-sm uppercase tracking-widest text-[var(--inv-text-secondary)]">
+    <section ref={ref} className="invitation-section invitation-events px-8 sm:px-12 py-14 sm:py-16 bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
+      <SectionOrnament position="frame" />
+
+      <div className={`max-w-2xl mx-auto space-y-8 sm:space-y-12 w-full ${animClass(isVisible, 'fade-up')}`}>
+        <h3 className="text-center text-xs sm:text-sm uppercase tracking-widest text-[var(--inv-text-secondary)]">
           Detail Acara
         </h3>
 
         {events.map((event, index) => (
-          <div key={index} className="text-center space-y-4 p-6 rounded-2xl bg-[var(--inv-bg-primary)]/50">
+          <div key={index} className={`text-center space-y-4 p-6 rounded-2xl bg-[var(--inv-bg-primary)]/50 ${animClass(isVisible, 'fade-up', 150 + index * 200)}`}>
             <h4 className="text-xl font-serif text-[var(--inv-accent)]">{event.eventName}</h4>
 
             <div className="flex items-center justify-center gap-2 text-sm text-[var(--inv-text-secondary)]">

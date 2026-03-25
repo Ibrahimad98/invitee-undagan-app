@@ -12,12 +12,24 @@ enum Role {
   ADMIN
 }
 
+enum SubscriptionType {
+  BASIC
+  PREMIUM
+  FAST_SERVE
+}
+
 enum EventType {
   WEDDING
   KHITANAN
   BIRTHDAY
   AQIQAH
   ENGAGEMENT
+  GRADUATION
+  REUNION
+  CORPORATE
+  SYUKURAN
+  ANNIVERSARY
+  WALIMAH
   CUSTOM
 }
 
@@ -41,18 +53,35 @@ enum LayoutType {
 }
 
 model User {
-  id           String       @id @default(uuid())
-  email        String       @unique
-  passwordHash String       @map("password_hash")
-  fullName     String       @map("full_name")
-  phone        String?
-  avatarUrl    String?      @map("avatar_url")
-  role         Role         @default(USER)
-  createdAt    DateTime     @default(now()) @map("created_at")
-  updatedAt    DateTime     @updatedAt @map("updated_at")
+  id                     String            @id @default(uuid())
+  email                  String            @unique
+  passwordHash           String            @map("password_hash")
+  fullName               String            @map("full_name")
+  phone                  String?
+  avatarUrl              String?           @map("avatar_url")
+  dateOfBirth            DateTime?         @map("date_of_birth") @db.Date
+  address                String?
+  role                   Role              @default(USER)
+  subscriptionType       SubscriptionType  @default(BASIC) @map("subscription_type")
+  subscriptionExpireDate DateTime?         @map("subscription_expire_date")
+  maxGuests              Int               @default(300) @map("max_guests")
+  isEmailVerified        Boolean           @default(false) @map("is_email_verified")
+  emailVerifyToken       String?           @map("email_verify_token")
+  emailVerifyExpires     DateTime?         @map("email_verify_expires")
+  isWhatsappVerified     Boolean           @default(false) @map("is_whatsapp_verified")
+  whatsappOtp            String?           @map("whatsapp_otp")
+  whatsappOtpExpires     DateTime?         @map("whatsapp_otp_expires")
+  isFirstLogin           Boolean           @default(true) @map("is_first_login")
+  isDeleted              Boolean           @default(false) @map("is_deleted")
+  deletedAt              DateTime?         @map("deleted_at")
+  createdAt              DateTime          @default(now()) @map("created_at")
+  updatedAt              DateTime          @updatedAt @map("updated_at")
 
-  invitations  Invitation[]
-  media        Media[]
+  invitations        Invitation[]
+  media              Media[]
+  guestLimitRequests GuestLimitRequest[]
+  notifications      Notification[]
+  bugFeedbacks       BugFeedback[]
 
   @@map("users")
 }
@@ -66,6 +95,7 @@ model Invitation {
   coverImageUrl String?      @map("cover_image_url")
   openingText   String?      @map("opening_text")
   closingText   String?      @map("closing_text")
+  story         String?
   musicUrl      String?      @map("music_url")
   isPublished   Boolean      @default(false) @map("is_published")
   isActive      Boolean      @default(true) @map("is_active")
@@ -82,6 +112,7 @@ model Invitation {
   giftAccounts   GiftAccount[]
   coInvitors     CoInvitor[]
   templates      InvitationTemplate[]
+  comments       InvitationComment[]
 
   @@index([userId])
   @@map("invitations")
@@ -117,10 +148,18 @@ model PersonProfile {
   photoUrl     String?  @map("photo_url")
   parentFather String?  @map("parent_father")
   parentMother String?  @map("parent_mother")
-  childOrder   String?  @map("child_order")
-  role         String   @default("primary")
-  instagram    String?
-  sortOrder    Int      @default(0) @map("sort_order")
+  childOrder    String?  @map("child_order")
+  role          String   @default("primary")
+  instagram     String?
+  dateOfBirth   String?  @map("date_of_birth")
+  bio           String?
+  gender        String?
+  address       String?
+  phone         String?
+  age           String?
+  jobTitle      String?  @map("job_title")
+  organization  String?
+  sortOrder     Int      @default(0) @map("sort_order")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
@@ -136,18 +175,21 @@ model Template {
   slug         String     @unique
   thumbnailUrl String?    @map("thumbnail_url")
   category     String
-  tags         String[]
-  cssClass     String     @map("css_class")
-  layoutType   LayoutType @default(SCROLL) @map("layout_type")
+  tags                String[]
+  supportedEventTypes String[]   @default([]) @map("supported_event_types")
+  cssClass            String     @map("css_class")
+  layoutType          LayoutType @default(SCROLL) @map("layout_type")
   usageCount   Int        @default(0) @map("usage_count")
   ratingAvg    Float      @default(0) @map("rating_avg")
+  ratingCount  Int        @default(0) @map("rating_count")
   isPremium    Boolean    @default(false) @map("is_premium")
   isActive     Boolean    @default(true) @map("is_active")
   sortOrder    Int        @default(0) @map("sort_order")
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
 
-  invitations InvitationTemplate[]
+  invitations  InvitationTemplate[]
+  testimonials Testimonial[]
 
   @@index([category])
   @@map("templates")
@@ -253,13 +295,126 @@ model CoInvitor {
   @@map("co_invitors")
 }
 
-model Testimonial {
-  id         String   @id @default(uuid())
-  userName   String   @map("user_name")
-  message    String
-  rating     Int      @default(5)
-  isApproved Boolean  @default(false) @map("is_approved")
-  createdAt  DateTime @default(now()) @map("created_at")
+model InvitationComment {
+  id           String   @id @default(uuid())
+  invitationId String   @map("invitation_id")
+  name         String
+  message      String
+  createdAt    DateTime @default(now()) @map("created_at")
 
+  invitation Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+  @@map("invitation_comments")
+}
+
+model Testimonial {
+  id               String   @id @default(uuid())
+  userId           String?  @map("user_id")
+  templateId       String?  @map("template_id")
+  userName         String   @map("user_name")
+  message          String
+  rating           Int      @default(5)
+  ratingDesain     Int      @default(5) @map("rating_desain")
+  ratingKemudahan  Int      @default(5) @map("rating_kemudahan")
+  ratingLayanan    Int      @default(5) @map("rating_layanan")
+  notes            String?
+  isApproved       Boolean  @default(false) @map("is_approved")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  template Template? @relation(fields: [templateId], references: [id])
+
+  @@unique([userId, templateId])
+  @@index([userId])
+  @@index([templateId])
   @@map("testimonials")
+}
+
+model SiteSetting {
+  id          String   @id @default(uuid())
+  category    String   @default("contact")
+  item        String
+  value       String
+  description String?
+  sortOrder   Int      @default(0) @map("sort_order")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("site_settings")
+}
+
+enum GuestLimitRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model GuestLimitRequest {
+  id              String                  @id @default(uuid())
+  userId          String                  @map("user_id")
+  invitationId    String?                 @map("invitation_id")
+  currentLimit    Int                     @map("current_limit")
+  requestedAmount Int                     @map("requested_amount")
+  reason          String?
+  status          GuestLimitRequestStatus @default(PENDING)
+  adminNote       String?                 @map("admin_note")
+  createdAt       DateTime                @default(now()) @map("created_at")
+  updatedAt       DateTime                @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("guest_limit_requests")
+}
+
+enum NotificationType {
+  PREMIUM_REQUEST
+  GUEST_LIMIT_REQUEST
+  TESTIMONIAL_NEW
+  BUG_FEEDBACK_NEW
+  REQUEST_APPROVED
+  REQUEST_REJECTED
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  type      NotificationType
+  title     String
+  message   String
+  linkUrl   String?          @map("link_url")
+  isRead    Boolean          @default(false) @map("is_read")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@map("notifications")
+}
+
+enum BugFeedbackStatus {
+  UNHANDLED
+  HANDLED
+}
+
+model BugFeedback {
+  id          String            @id @default(uuid())
+  userId      String            @map("user_id")
+  userName    String            @map("user_name")
+  subject     String
+  message     String
+  category    String            @default("bug")
+  status      BugFeedbackStatus @default(UNHANDLED)
+  adminNote   String?           @map("admin_note")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("bug_feedbacks")
 }

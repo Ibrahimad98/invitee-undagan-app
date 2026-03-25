@@ -1,5 +1,9 @@
 'use client';
 
+import { useScrollAnimation, animClass } from '@/hooks/use-scroll-animation';
+import { useCallback, useState } from 'react';
+import SectionOrnament from './section-ornament';
+
 interface CoInvitor {
   name: string;
   role?: string;
@@ -11,11 +15,27 @@ interface ClosingSectionProps {
 }
 
 export default function ClosingSection({ closingText, coInvitors }: ClosingSectionProps) {
-  return (
-    <section className="invitation-section invitation-closing py-20 px-8 text-center bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
-      <div className="max-w-lg mx-auto space-y-8">
-        <div className="text-[var(--inv-accent)] text-3xl font-serif">❦</div>
+  const { ref, isVisible } = useScrollAnimation(0.1);
 
+  // Detect royal-blossom theme for Pixabay credit
+  const [isRoyalBlossom, setIsRoyalBlossom] = useState(false);
+  const sectionRef = useCallback(
+    (el: HTMLElement | null) => {
+      (ref as React.MutableRefObject<HTMLElement | null>).current = el;
+      if (!el) return;
+      const root = el.closest('.invitation-root');
+      if (root?.classList.contains('theme-royal-blossom')) {
+        setIsRoyalBlossom(true);
+      }
+    },
+    [ref]
+  );
+
+  return (
+    <section ref={sectionRef} className="invitation-section invitation-closing px-8 sm:px-12 py-14 sm:py-16 text-center bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
+      <SectionOrnament position="frame" />
+
+      <div className={`max-w-lg mx-auto space-y-6 sm:space-y-8 w-full ${animClass(isVisible, 'fade-up')}`}>
         {closingText && (
           <p className="text-sm leading-relaxed text-[var(--inv-text-secondary)] whitespace-pre-line">
             {closingText}
@@ -39,7 +59,16 @@ export default function ClosingSection({ closingText, coInvitors }: ClosingSecti
           </div>
         )}
 
-        <div className="w-16 h-px bg-[var(--inv-accent)] mx-auto opacity-50" />
+        {/* Pixabay credit for Royal Blossom theme */}
+        {isRoyalBlossom && (
+          <p className="text-[10px] text-[var(--inv-text-secondary)] opacity-60">
+            Floral assets by{' '}
+            <a href="https://pixabay.com/users/lucianapappdesign-11674722/" target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80">
+              lucianapappdesign
+            </a>{' '}
+            via Pixabay
+          </p>
+        )}
 
         <p className="text-xs text-[var(--inv-text-secondary)]">
           Powered by <span className="font-semibold text-[var(--inv-accent)]">Invitee</span>

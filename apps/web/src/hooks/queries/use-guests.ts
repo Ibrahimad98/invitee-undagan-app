@@ -77,6 +77,25 @@ export function useImportGuests() {
   });
 }
 
+export function useImportGuestsExcel() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ invitationId, file }: { invitationId: string; file: File }) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('invitationId', invitationId);
+      const { data } = await api.post('/guests/import-excel', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['guests'] });
+    },
+  });
+}
+
 export function useDeleteGuest() {
   const queryClient = useQueryClient();
 

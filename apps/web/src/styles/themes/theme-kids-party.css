@@ -6,6 +6,9 @@
   --inv-text-secondary: #6b5b8a;
   --inv-accent: #ff6b35;
   --inv-accent-text: #ffffff;
+  --inv-cover-text: #ffffff;
+  --inv-cover-text-secondary: rgba(255,255,255,0.8);
+  --inv-cover-border: #ff6b35;
   font-family: 'Nunito', 'Comic Sans MS', cursive, sans-serif;
 }
 
@@ -35,19 +38,30 @@
   50% { opacity: 1; }
 }
 
-/* Playful section dividers */
+/* Playful confetti section decorations */
 .theme-kids-party .invitation-section {
   position: relative;
-  border-top: 3px dashed rgba(255, 107, 53, 0.2);
 }
 .theme-kids-party .invitation-section::before {
-  content: '🎉';
+  content: '';
   position: absolute;
-  top: -14px; left: 50%;
-  transform: translateX(-50%);
-  font-size: 18px;
-  background: var(--inv-bg-primary);
-  padding: 0 8px;
+  inset: 8px;
+  border: 2px dashed rgba(255, 107, 53, 0.1);
+  border-radius: 20px;
+  pointer-events: none;
+}
+.theme-kids-party .invitation-section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 8% 15%, rgba(255, 107, 107, 0.08) 6px, transparent 6px),
+    radial-gradient(circle at 92% 12%, rgba(72, 219, 251, 0.08) 5px, transparent 5px),
+    radial-gradient(circle at 15% 88%, rgba(254, 202, 87, 0.08) 7px, transparent 7px),
+    radial-gradient(circle at 88% 85%, rgba(255, 159, 243, 0.08) 5px, transparent 5px),
+    radial-gradient(circle at 50% 8%, rgba(84, 160, 255, 0.06) 4px, transparent 4px),
+    radial-gradient(circle at 45% 92%, rgba(95, 39, 205, 0.06) 4px, transparent 4px);
+  pointer-events: none;
 }
 
 /* Rounded, bubbly buttons */

@@ -1,13 +1,15 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { CreateInvitationPayload, EventType } from '@invitee/shared';
 
 interface InvitationDraft {
   title: string;
   slug: string;
-  eventType: EventType;
+  eventType: EventType | '';
   coverImageUrl: string;
   openingText: string;
   closingText: string;
+  story: string;
   musicUrl: string;
   events: Array<{
     eventName: string;
@@ -27,6 +29,14 @@ interface InvitationDraft {
     childOrder: string;
     role: string;
     instagram: string;
+    dateOfBirth: string;
+    bio: string;
+    gender: string;
+    address: string;
+    phone: string;
+    age: string;
+    jobTitle: string;
+    organization: string;
   }>;
   giftAccounts: Array<{
     bankName: string;
@@ -56,10 +66,11 @@ interface InvitationState {
 const initialDraft: InvitationDraft = {
   title: '',
   slug: '',
-  eventType: 'WEDDING',
+  eventType: '',
   coverImageUrl: '',
   openingText: '',
   closingText: '',
+  story: '',
   musicUrl: '',
   events: [
     {
@@ -82,6 +93,14 @@ const initialDraft: InvitationDraft = {
       childOrder: '',
       role: 'primary',
       instagram: '',
+      dateOfBirth: '',
+      bio: '',
+      gender: '',
+      address: '',
+      phone: '',
+      age: '',
+      jobTitle: '',
+      organization: '',
     },
   ],
   giftAccounts: [],
@@ -89,7 +108,9 @@ const initialDraft: InvitationDraft = {
   templateId: '',
 };
 
-export const useInvitationStore = create<InvitationState>()((set) => ({
+export const useInvitationStore = create<InvitationState>()(
+  persist(
+    (set) => ({
   draft: { ...initialDraft },
   currentStep: 0,
   isDirty: false,
@@ -111,16 +132,20 @@ export const useInvitationStore = create<InvitationState>()((set) => ({
       }
 
       current[keys[keys.length - 1]] = value;
-      return { draft, isDirty: true };
+      // Only mark as saveable draft when title, slug, and eventType are filled
+      const canSaveDraft = !!(draft.title?.trim() && draft.slug?.trim() && draft.eventType);
+      return { draft, isDirty: canSaveDraft };
     }),
 
   setDraft: (partial) =>
-    set((state) => ({
-      draft: { ...state.draft, ...partial },
-      isDirty: true,
-    })),
+    set((state) => {
+      const merged = { ...state.draft, ...partial };
+      // Only mark as saveable draft when title, slug, and eventType are filled
+      const canSaveDraft = !!(merged.title?.trim() && merged.slug?.trim() && merged.eventType);
+      return { draft: merged, isDirty: canSaveDraft };
+    }),
 
-  nextStep: () => set((state) => ({ currentStep: Math.min(state.currentStep + 1, 5) })),
+  nextStep: () => set((state) => ({ currentStep: Math.min(state.currentStep + 1, 6) })),
   prevStep: () => set((state) => ({ currentStep: Math.max(state.currentStep - 1, 0) })),
   goToStep: (step) => set({ currentStep: step }),
 
@@ -140,6 +165,7 @@ export const useInvitationStore = create<InvitationState>()((set) => ({
         coverImageUrl: data.coverImageUrl || '',
         openingText: data.openingText || '',
         closingText: data.closingText || '',
+        story: data.story || '',
         musicUrl: data.musicUrl || '',
         events: data.events?.length
           ? data.events.map((e: any) => ({
@@ -162,6 +188,14 @@ export const useInvitationStore = create<InvitationState>()((set) => ({
               childOrder: p.childOrder || '',
               role: p.role || 'primary',
               instagram: p.instagram || '',
+              dateOfBirth: p.dateOfBirth || '',
+              bio: p.bio || '',
+              gender: p.gender || '',
+              address: p.address || '',
+              phone: p.phone || '',
+              age: p.age || '',
+              jobTitle: p.jobTitle || '',
+              organization: p.organization || '',
             }))
           : initialDraft.personProfiles,
         giftAccounts: data.giftAccounts || [],
@@ -172,4 +206,14 @@ export const useInvitationStore = create<InvitationState>()((set) => ({
       currentStep: 0,
       isDirty: false,
     }),
-}));
+    }),
+    {
+      name: 'invitation-draft',
+      partialize: (state) => ({
+        draft: state.draft,
+        currentStep: state.currentStep,
+        isDirty: state.isDirty,
+      }),
+    },
+  ),
+);

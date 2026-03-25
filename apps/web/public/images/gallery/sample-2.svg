@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e8f5e9"/>
+      <stop offset="100%" stop-color="#c8e6c9"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#g2)"/>
+  <!-- Garden/venue arch -->
+  <path d="M100,320 L100,160 Q200,80 300,160 L300,320" fill="none" stroke="#2e7d32" stroke-width="3" opacity="0.25"/>
+  <path d="M115,320 L115,170 Q200,100 285,170 L285,320" fill="none" stroke="#4caf50" stroke-width="1.5" opacity="0.2"/>
+  <!-- Leaves -->
+  <ellipse cx="90" cy="190" rx="20" ry="8" transform="rotate(-30,90,190)" fill="#66bb6a" opacity="0.2"/>
+  <ellipse cx="310" cy="190" rx="20" ry="8" transform="rotate(30,310,190)" fill="#66bb6a" opacity="0.2"/>
+  <ellipse cx="85" cy="220" rx="18" ry="7" transform="rotate(-40,85,220)" fill="#81c784" opacity="0.18"/>
+  <ellipse cx="315" cy="220" rx="18" ry="7" transform="rotate(40,315,220)" fill="#81c784" opacity="0.18"/>
+  <!-- Floor/path -->
+  <rect x="130" y="300" width="140" height="20" rx="4" fill="#a5d6a7" opacity="0.2"/>
+  <!-- Couple silhouette -->
+  <circle cx="180" cy="230" r="18" fill="#1b5e20" opacity="0.15"/>
+  <rect x="168" y="248" width="24" height="40" rx="8" fill="#1b5e20" opacity="0.12"/>
+  <circle cx="220" cy="225" r="16" fill="#1b5e20" opacity="0.15"/>
+  <rect x="210" y="241" width="20" height="44" rx="7" fill="#1b5e20" opacity="0.12"/>
+  <!-- Text -->
+  <text x="200" y="360" text-anchor="middle" font-family="serif" font-size="16" fill="#2e7d32" opacity="0.4">The Venue</text>
+</svg>

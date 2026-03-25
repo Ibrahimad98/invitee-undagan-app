@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Modern Minimal: Clean geometric lines, no fuss -->
+  <g opacity="0.9">
+    <!-- L-shaped clean frame -->
+    <path d="M6,6 L6,80" stroke="#1a1a1a" stroke-width="1.5" opacity="0.2"/>
+    <path d="M6,6 L80,6" stroke="#1a1a1a" stroke-width="1.5" opacity="0.2"/>
+    <!-- Second shorter L -->
+    <path d="M12,12 L12,50" stroke="#1a1a1a" stroke-width="0.5" opacity="0.12"/>
+    <path d="M12,12 L50,12" stroke="#1a1a1a" stroke-width="0.5" opacity="0.12"/>
+    <!-- Corner square accent -->
+    <rect x="6" y="6" width="6" height="6" fill="#1a1a1a" opacity="0.08"/>
+    <!-- Dot at end of lines -->
+    <circle cx="80" cy="6" r="1.5" fill="#1a1a1a" opacity="0.15"/>
+    <circle cx="6" cy="80" r="1.5" fill="#1a1a1a" opacity="0.15"/>
+    <!-- Plus sign accent -->
+    <line x1="30" y1="25" x2="30" y2="35" stroke="#1a1a1a" stroke-width="0.8" opacity="0.1"/>
+    <line x1="25" y1="30" x2="35" y2="30" stroke="#1a1a1a" stroke-width="0.8" opacity="0.1"/>
+  </g>
+</svg>

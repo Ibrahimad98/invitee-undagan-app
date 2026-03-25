@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 560">
+  <rect width="400" height="560" fill="#fef6f4"/>
+  <rect x="22" y="22" width="356" height="516" rx="10" fill="none" stroke="#e8758a" stroke-width="2"/>
+  <path d="M200,55 Q200,35 185,45 Q170,55 185,68 L200,80 L215,68 Q230,55 215,45 Q200,35 200,55Z" fill="#e8758a" opacity="0.25"/>
+  <path d="M60,60 Q60,50 53,55 Q46,60 53,67 L60,72 L67,67 Q74,60 67,55 Q60,50 60,60Z" fill="#e8758a" opacity="0.15"/>
+  <path d="M340,60 Q340,50 333,55 Q326,60 333,67 L340,72 L347,67 Q354,60 347,55 Q340,50 340,60Z" fill="#e8758a" opacity="0.15"/>
+  <line x1="90" y1="140" x2="310" y2="140" stroke="#e8758a" stroke-width="0.8" opacity="0.3"/>
+  <text x="200" y="195" text-anchor="middle" fill="#e8758a" font-family="serif" font-size="22" letter-spacing="3">UNDANGAN</text>
+  <text x="200" y="258" text-anchor="middle" fill="#e8758a" font-family="serif" font-size="18" opacity="0.7">Nama Pertama</text>
+  <text x="200" y="315" text-anchor="middle" fill="#e8758a" font-family="serif" font-size="46">&amp;</text>
+  <text x="200" y="368" text-anchor="middle" fill="#e8758a" font-family="serif" font-size="18" opacity="0.7">Nama Kedua</text>
+  <line x1="90" y1="405" x2="310" y2="405" stroke="#e8758a" stroke-width="0.8" opacity="0.3"/>
+  <path d="M60,490 Q60,480 53,485 Q46,490 53,497 L60,502 L67,497 Q74,490 67,485 Q60,480 60,490Z" fill="#e8758a" opacity="0.12"/>
+  <path d="M340,490 Q340,480 333,485 Q326,490 333,497 L340,502 L347,497 Q354,490 347,485 Q340,480 340,490Z" fill="#e8758a" opacity="0.12"/>
+  <path d="M200,480 Q200,468 190,474 Q180,480 190,488 L200,496 L210,488 Q220,480 210,474 Q200,468 200,480Z" fill="#e8758a" opacity="0.18"/>
+</svg>

@@ -28,6 +28,18 @@ export class LocalStorageService implements IStorageService {
     return filePath;
   }
 
+  async uploadBuffer(buffer: Buffer, filePath: string, _contentType: string): Promise<string> {
+    const fullPath = path.join(this.uploadPath, filePath);
+    const dir = path.dirname(fullPath);
+
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    fs.writeFileSync(fullPath, buffer);
+    return filePath;
+  }
+
   async delete(filePath: string): Promise<void> {
     const fullPath = path.join(this.uploadPath, filePath);
     if (fs.existsSync(fullPath)) {
@@ -35,12 +47,30 @@ export class LocalStorageService implements IStorageService {
     }
   }
 
-  getUrl(filePath: string): string {
+  async getUrl(filePath: string): Promise<string> {
     return `/uploads/${filePath}`;
   }
 
   async getSignedUrl(filePath: string, _expiresIn?: number): Promise<string> {
-    // Local storage doesn't need signed URLs
     return this.getUrl(filePath);
+  }
+
+  async getStream(filePath: string): Promise<{ stream: import('stream').Readable; contentType: string; contentLength?: number }> {
+    const fullPath = path.join(this.uploadPath, filePath);
+    if (!fs.existsSync(fullPath)) {
+      throw new Error(`File not found: ${fullPath}`);
+    }
+    const ext = path.extname(fullPath).toLowerCase();
+    const mimeMap: Record<string, string> = {
+      '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png',
+      '.gif': 'image/gif', '.webp': 'image/webp', '.svg': 'image/svg+xml',
+      '.mp3': 'audio/mpeg', '.mp4': 'video/mp4',
+    };
+    const stat = fs.statSync(fullPath);
+    return {
+      stream: fs.createReadStream(fullPath),
+      contentType: mimeMap[ext] || 'application/octet-stream',
+      contentLength: stat.size,
+    };
   }
 }

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 560">
+  <rect width="400" height="560" fill="#0d0d0d"/>
+  <rect x="18" y="18" width="364" height="524" rx="4" fill="none" stroke="#d4a843" stroke-width="2.5"/>
+  <rect x="30" y="30" width="340" height="500" rx="3" fill="none" stroke="#d4a843" stroke-width="1"/>
+  <line x1="30" y1="100" x2="170" y2="100" stroke="#d4a843" stroke-width="0.8" opacity="0.5"/>
+  <line x1="230" y1="100" x2="370" y2="100" stroke="#d4a843" stroke-width="0.8" opacity="0.5"/>
+  <polygon points="200,80 208,96 225,98 213,110 216,127 200,118 184,127 187,110 175,98 192,96" fill="#d4a843"/>
+  <text x="200" y="185" text-anchor="middle" fill="#d4a843" font-family="serif" font-size="24" letter-spacing="6">UNDANGAN</text>
+  <line x1="100" y1="200" x2="300" y2="200" stroke="#d4a843" stroke-width="0.8" opacity="0.4"/>
+  <text x="200" y="260" text-anchor="middle" fill="#d4a843" font-family="serif" font-size="18" opacity="0.8">Nama Pertama</text>
+  <text x="200" y="315" text-anchor="middle" fill="#d4a843" font-family="serif" font-size="48" font-weight="300">&amp;</text>
+  <text x="200" y="370" text-anchor="middle" fill="#d4a843" font-family="serif" font-size="18" opacity="0.8">Nama Kedua</text>
+  <line x1="100" y1="400" x2="300" y2="400" stroke="#d4a843" stroke-width="0.8" opacity="0.4"/>
+  <line x1="30" y1="460" x2="170" y2="460" stroke="#d4a843" stroke-width="0.8" opacity="0.5"/>
+  <line x1="230" y1="460" x2="370" y2="460" stroke="#d4a843" stroke-width="0.8" opacity="0.5"/>
+  <polygon points="200,442 205,453 217,455 209,462 210,474 200,468 190,474 191,462 183,455 195,453" fill="#d4a843" opacity="0.6"/>
+</svg>

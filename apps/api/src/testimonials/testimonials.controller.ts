@@ -3,6 +3,7 @@ import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { TestimonialsService } from './testimonials.service';
 import { CreateTestimonialDto } from './dto/create-testimonial.dto';
 import { Public } from '../common/decorators/public.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('Testimonials')
@@ -17,6 +18,20 @@ export class TestimonialsController {
     return this.testimonialsService.findAll(query.page, query.limit, true);
   }
 
+  @Get('mine')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current user testimonials' })
+  async findMine(@CurrentUser('id') userId: string) {
+    return this.testimonialsService.findByUser(userId);
+  }
+
+  @Get('my-templates')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get templates user has used with review status' })
+  async findMyTemplates(@CurrentUser('id') userId: string) {
+    return this.testimonialsService.findUserTemplatesForReview(userId);
+  }
+
   @Get('all')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all testimonials including unapproved (admin)' })
@@ -24,11 +39,11 @@ export class TestimonialsController {
     return this.testimonialsService.findAll(query.page, query.limit, false);
   }
 
-  @Public()
   @Post()
-  @ApiOperation({ summary: 'Submit a testimonial (public)' })
-  async create(@Body() dto: CreateTestimonialDto) {
-    return this.testimonialsService.create(dto);
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Submit a template review (one per user per template)' })
+  async create(@CurrentUser('id') userId: string, @Body() dto: CreateTestimonialDto) {
+    return this.testimonialsService.create({ ...dto, userId });
   }
 
   @Patch(':id/approve')

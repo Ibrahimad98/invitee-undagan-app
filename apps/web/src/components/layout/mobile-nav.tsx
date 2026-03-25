@@ -13,9 +13,23 @@ export function MobileNav() {
   const { sidebarOpen, setSidebarOpen } = useUIStore();
   const { user } = useAuthStore();
 
-  const filteredItems = NAV_ITEMS.filter(
-    (item) => !(item as any).adminOnly || user?.role === 'ADMIN',
-  );
+  const isFastServe = (user as any)?.subscriptionType === 'FAST_SERVE';
+
+  // Enterprise (Fast Serve) users only see these menu paths
+  const FAST_SERVE_ALLOWED_PATHS = [
+    '/dashboard',
+    '/dashboard/invitations',
+    '/dashboard/contacts',
+    '/dashboard/profile',
+    '/dashboard/subscription',
+    '/dashboard/testimonials',
+  ];
+
+  const filteredItems = NAV_ITEMS.filter((item) => {
+    if ((item as any).adminOnly && user?.role !== 'ADMIN') return false;
+    if (isFastServe && !FAST_SERVE_ALLOWED_PATHS.includes(item.href)) return false;
+    return true;
+  });
 
   if (!sidebarOpen) return null;
 
@@ -31,10 +45,8 @@ export function MobileNav() {
       <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-xl">
         <div className="flex items-center justify-between h-16 px-4 border-b">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">IN</span>
-            </div>
-            <span className="font-bold text-lg text-gray-900">Invitee</span>
+            <img src="/favicon.svg" alt="Invitee" className="w-8 h-8" />
+            <span className="font-bold text-lg text-orange-500">Invitee</span>
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}

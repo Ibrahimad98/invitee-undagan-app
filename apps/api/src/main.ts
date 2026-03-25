@@ -12,8 +12,12 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
+  // CORS: allow comma-separated origins from env, fallback to localhost
+  const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000')
+    .split(',')
+    .map((o) => o.trim());
   app.enableCors({
-    origin: ['http://localhost:3000'],
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     credentials: true,
   });
@@ -43,8 +47,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(3001);
-  console.log('🚀 API running on http://localhost:3001');
-  console.log('📚 Swagger docs at http://localhost:3001/api/docs');
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
+  console.log(`🚀 API running on http://localhost:${port}`);
+  console.log(`📚 Swagger docs at http://localhost:${port}/api/docs`);
 }
 bootstrap();

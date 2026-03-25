@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { Copy, Check } from 'lucide-react';
+import { useScrollAnimation, animClass } from '@/hooks/use-scroll-animation';
+import SectionOrnament from './section-ornament';
 
 interface GiftAccount {
   bankName: string;
@@ -15,6 +17,7 @@ interface DigitalGiftSectionProps {
 
 export default function DigitalGiftSection({ accounts }: DigitalGiftSectionProps) {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const { ref, isVisible } = useScrollAnimation(0.1);
 
   const handleCopy = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
@@ -23,10 +26,12 @@ export default function DigitalGiftSection({ accounts }: DigitalGiftSectionProps
   };
 
   return (
-    <section className="invitation-section invitation-gift py-16 px-8 bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
-      <div className="max-w-md mx-auto space-y-8">
+    <section ref={ref} className="invitation-section invitation-gift px-8 sm:px-12 py-14 sm:py-16 bg-[var(--inv-bg-primary)] text-[var(--inv-text-primary)]">
+      <SectionOrnament position="frame" />
+
+      <div className={`max-w-md mx-auto space-y-6 sm:space-y-8 w-full ${animClass(isVisible, 'fade-up')}`}>
         <div className="text-center space-y-2">
-          <h3 className="text-sm uppercase tracking-widest text-[var(--inv-text-secondary)]">
+          <h3 className="text-xs sm:text-sm uppercase tracking-widest text-[var(--inv-text-secondary)]">
             Amplop Digital
           </h3>
           <p className="text-xs text-[var(--inv-text-secondary)]">
