@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ['@invitee/shared'],
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://3.26.37.74/api/:path*',
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {
