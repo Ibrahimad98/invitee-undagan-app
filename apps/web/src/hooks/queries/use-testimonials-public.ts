@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 interface PublicTestimonial {
   id: string;
@@ -28,7 +28,7 @@ export function useTestimonialsPublic() {
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
-        const res = await fetch(`${API_URL}/testimonials?page=1&limit=10`);
+        const res = await fetch(`${API_BASE}/testimonials?page=1&limit=10`);
         if (!res.ok) throw new Error('Failed to fetch testimonials');
         const json = await res.json();
         const payload = json?.data;

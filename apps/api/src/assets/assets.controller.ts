@@ -29,7 +29,7 @@ export class AssetsController {
   @ApiOperation({ summary: 'Migrate static assets to S3 (admin)' })
   async migrateAssets(@Res() res: Response) {
     try {
-      const webPublicDir = path.resolve(process.cwd(), '../web/public/images');
+      const webPublicDir = path.resolve(process.cwd(), '../web/public');
       this.logger.log(`Starting migration from: ${webPublicDir}`);
       const result = await this.assetsService.migrateStaticAssets(webPublicDir);
       return res.json({

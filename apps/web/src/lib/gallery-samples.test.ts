@@ -22,7 +22,7 @@ describe('GALLERY_SAMPLES', () => {
 
   it('should use the API URL base', () => {
     GALLERY_SAMPLES.forEach((url) => {
-      expect(url).toMatch(/^https?:\/\/.+\/api\/assets\//);
+      expect(url).toMatch(/\/api\/assets\//);
     });
   });
 });

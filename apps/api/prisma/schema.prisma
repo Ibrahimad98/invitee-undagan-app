@@ -216,6 +216,8 @@ model Guest {
   phone        String?
   email        String?
   groupName    String?  @map("group_name")
+  address      String?
+  numberOfGuests Int     @default(1) @map("number_of_guests")
   isSent       Boolean  @default(false) @map("is_sent")
   sentAt       DateTime? @map("sent_at")
   sentVia      String?  @map("sent_via")

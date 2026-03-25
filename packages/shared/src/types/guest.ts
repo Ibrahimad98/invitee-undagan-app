@@ -5,6 +5,8 @@ export interface Guest {
   phone?: string;
   email?: string;
   groupName?: string;
+  address?: string;
+  numberOfGuests: number;
   isSent: boolean;
   sentAt?: string;
   sentVia?: string;
@@ -18,6 +20,8 @@ export interface CreateGuestPayload {
   phone?: string;
   email?: string;
   groupName?: string;
+  address?: string;
+  numberOfGuests?: number;
 }
 
 export interface UpdateGuestPayload extends Partial<Omit<CreateGuestPayload, 'invitationId'>> {
